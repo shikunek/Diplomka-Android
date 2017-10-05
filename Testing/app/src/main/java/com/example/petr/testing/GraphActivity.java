@@ -91,7 +91,7 @@ public class GraphActivity extends AppCompatActivity {
                                             Log.d("A", String.valueOf(value.child("Y").getValue()));
                                             long smile = (long) value.child("sendValue").getValue();
 //                                    double cislo = (long) value.child("Y").getValue();
-                                            number = translateEntry(number, smile);
+                                            number = translateEntry(number, (int)smile);
                                             yAxes.add(new Entry(i, number)); // data entry creation
                                             i++;
 
@@ -281,7 +281,7 @@ public class GraphActivity extends AppCompatActivity {
 
 
     // creates y-value from old y-value and new smile
-    private float translateEntry(float old_y, long smile) {
+    private float translateEntry(float old_y, int smile) {
         float new_y = 0f;
         float x_delta;
         float shiftPar = 0.25f; // the smaller the number, the slower the change
@@ -289,73 +289,70 @@ public class GraphActivity extends AppCompatActivity {
             throw new IllegalArgumentException("Y-value not within bounds (-1,1)");
         }
         else if (old_y > 0) {
-            if (smile == 1) {
-                x_delta = (float) Math.tan(old_y * (Math.PI / 2f));
-                x_delta = shiftPar + x_delta;
-                new_y = (float) (Math.atan(x_delta) / (Math.PI / 2f));
-                //Log.d("F1", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-            }
-            else if (smile == 0) {
-                x_delta = (float) (-1f * (Math.tan(old_y * (Math.PI / 2f) - (Math.PI / 2f))));
-                x_delta = shiftPar + x_delta;
-                new_y = (float) (Math.atan(-1f * x_delta) / (Math.PI / 2f) + 1f);
-                //Log.d("F4", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-
-            }
-            else if (smile == -1) {
-                x_delta = (float) (-1f * (Math.tan(old_y * (Math.PI / 4f) - (Math.PI / 4f))));
-                x_delta = shiftPar + x_delta;
-                new_y = (float) (2f * (Math.atan(-1f * x_delta) / (Math.PI / 2f)) + 1f);
-                //Log.d("F6", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-            }
-            else
-            {
-                throw new IllegalArgumentException("Smile not within bounds [-1,0,1]");
+            switch(smile) {
+                case  1: // function (1)
+                    x_delta = (float)Math.tan(old_y * (Math.PI / 2f));
+                    x_delta = shiftPar + x_delta;
+                    new_y = (float)(Math.atan(x_delta)/(Math.PI / 2f));
+                    //Log.d("F1", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    break;
+                case  0: // function (4)
+                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f) - (Math.PI / 2f))));
+                    x_delta = shiftPar + x_delta;
+                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f) + 1f);
+                    //Log.d("F4", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    break;
+                case -1: // function (6)
+                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 4f) - (Math.PI / 4f))));
+                    x_delta = shiftPar + x_delta;
+                    new_y = (float)(2f * (Math.atan(-1f * x_delta) / (Math.PI / 2f)) + 1f);
+                    //Log.d("F6", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    break;
+                default:
+                    throw new IllegalArgumentException("Smile not within bounds [-1,0,1]");
             }
         }
         else if (old_y <0) {
-            if (smile == 1) {
-                x_delta = (float) Math.tan(old_y * (Math.PI / 4f) + (Math.PI / 4f));
-                x_delta = shiftPar + x_delta;
-                new_y = (float) (2f * (Math.atan(x_delta) / (Math.PI / 2f)) - 1f);
-                //Log.d("F5", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-            }
-            else if (smile == 0) {
-                x_delta = (float) Math.tan(old_y * (Math.PI / 2f) + (Math.PI / 2f));
-                x_delta = shiftPar + x_delta;
-                new_y = (float) (Math.atan(x_delta) / (Math.PI / 2f) - 1f);
-                //Log.d("F3", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-            }
-            else if(smile == -1) {
-                x_delta = (float) (-1f * (Math.tan(old_y * (Math.PI / 2f))));
-                x_delta = shiftPar + x_delta;
-                new_y = (float) (Math.atan(-1f * x_delta) / (Math.PI / 2f));
-                //Log.d("F2", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-            }
-            else
-            {
+            switch(smile) {
+                case  1: // function (5)
+                    x_delta = (float)Math.tan(old_y * (Math.PI / 4f) + (Math.PI / 4f));
+                    x_delta = shiftPar + x_delta;
+                    new_y = (float)(2f * (Math.atan(x_delta)/(Math.PI / 2f)) - 1f);
+                    //Log.d("F5", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    break;
+                case  0: // function (3)
+                    x_delta = (float)Math.tan(old_y * (Math.PI / 2f) + (Math.PI / 2f));
+                    x_delta = shiftPar + x_delta;
+                    new_y = (float)(Math.atan(x_delta)/(Math.PI / 2f) - 1f);
+                    //Log.d("F3", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    break;
+                case -1: // function (2)
+                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f))));
+                    x_delta = shiftPar + x_delta;
+                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f));
+                    //Log.d("F2", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    break;
+                default:
                     throw new IllegalArgumentException("Smile not within bounds [-1,0,1]");
             }
         }
         else { // old_y == 0
-           if (smile == 1) {
-               x_delta = (float) Math.tan(old_y * (Math.PI / 2f));
-               x_delta = shiftPar + x_delta;
-               new_y = (float) (Math.atan(x_delta) / (Math.PI / 2f));
-               //Log.d("F1", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-           }
-           else if(smile == 0) {
-
-           }
-           else if (smile == -1) {
-
-               x_delta = (float) (-1f * (Math.tan(old_y * (Math.PI / 2f))));
-               x_delta = shiftPar + x_delta;
-               new_y = (float) (Math.atan(-1f * x_delta) / (Math.PI / 2f));
-               //Log.d("F2", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-           }
-           else
-           {
+            switch(smile) {
+                case  1: // function (1)
+                    x_delta = (float)Math.tan(old_y * (Math.PI / 2f));
+                    x_delta = shiftPar + x_delta;
+                    new_y = (float)(Math.atan(x_delta) / (Math.PI / 2f));
+                    //Log.d("F1", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    break;
+                case  0:
+                    break;
+                case -1: // function (2)
+                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f))));
+                    x_delta = shiftPar + x_delta;
+                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f));
+                    //Log.d("F2", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    break;
+                default:
                     throw new IllegalArgumentException("Smile not within bounds [-1,0,1]");
             }
         }

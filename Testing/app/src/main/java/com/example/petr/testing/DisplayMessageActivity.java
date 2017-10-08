@@ -33,7 +33,6 @@ public class DisplayMessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_message);
 
-
         final EditText edittext = (EditText) findViewById(R.id.date);
         myCalendar = Calendar.getInstance();
 

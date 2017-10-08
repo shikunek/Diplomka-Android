@@ -82,10 +82,16 @@ public class DisplayMessageActivity extends AppCompatActivity {
         Log.d("NECO","Yesterday's date was "+sdf.format(myCalendar.getTime()));
         final String yesterday = sdf.format(myCalendar.getTime());
         mData = FirebaseDatabase.getInstance().getReference();
-        mData.child("Uzivatel").child(userID).child("Active").addListenerForSingleValueEvent(new ValueEventListener() {
+        mData.child("Uzivatel").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(final DataSnapshot active) {
-                mData.child("Projects").child(active.getValue().toString()).child(userID).child(yesterday).addListenerForSingleValueEvent(
+            public void onDataChange(final DataSnapshot currentUser) {
+
+                if (!currentUser.hasChild("Active"))
+                {
+                    return;
+                }
+
+                mData.child("Projects").child(currentUser.child("Active").getValue().toString()).child(userID).child(yesterday).addListenerForSingleValueEvent(
                         new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot)
@@ -119,7 +125,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
                                 }
 
                                 Report report = new Report(previousValue, str, selectedValue);
-                                mData.child("Projects").child(active.getValue().toString()).child(userID).child(dateTime).setValue(report);
+                                mData.child("Projects").child(currentUser.child("Active").getValue().toString()).child(userID).child(dateTime).setValue(report);
 //                        mData.child("Users").child(userID).child(dateTime).child("Y").setValue(previousValue);
 //                        mData.child("Users").child(userID).child(dateTime).child("sendValue").setValue(selectedValue);
 //                        mData.child("Users").child(userID).child(dateTime).child("repotedText").setValue(str);

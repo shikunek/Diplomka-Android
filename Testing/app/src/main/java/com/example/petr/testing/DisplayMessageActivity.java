@@ -82,7 +82,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
         Log.d("NECO","Yesterday's date was "+sdf.format(myCalendar.getTime()));
         final String yesterday = sdf.format(myCalendar.getTime());
         mData = FirebaseDatabase.getInstance().getReference();
-        mData.child("Projects").child("Active").addListenerForSingleValueEvent(new ValueEventListener() {
+        mData.child("Uzivatel").child(userID).child("Active").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot active) {
                 mData.child("Projects").child(active.getValue().toString()).child(userID).child(yesterday).addListenerForSingleValueEvent(

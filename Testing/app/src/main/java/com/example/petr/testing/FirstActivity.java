@@ -18,12 +18,15 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 //import com.google.firebase.auth.FirebaseCredentials;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.FileInputStream;
 
 public class FirstActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     private FirebaseAuth mAuth;
+    private DatabaseReference mData;
     private EditText mEmailField;
     private EditText mPasswordField;
 
@@ -35,8 +38,9 @@ public class FirstActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mEmailField = (EditText) findViewById(R.id.loginTB);
         mPasswordField = (EditText) findViewById(R.id.passwordTB);
-        mEmailField.setText("x@f.cz", TextView.BufferType.EDITABLE);
+        mEmailField.setText("g@f.cz", TextView.BufferType.EDITABLE);
         mPasswordField.setText("set123", TextView.BufferType.EDITABLE);
+        mData = FirebaseDatabase.getInstance().getReference();
     }
 
 
@@ -93,7 +97,7 @@ public class FirstActivity extends AppCompatActivity {
     {
 //        Intent intent = new Intent(this, GraphActivity.class);
 //        startActivity(intent);
-        FirebaseUser user;
+
         mAuth.createUserWithEmailAndPassword(mEmailField.getText().toString(), mPasswordField.getText().toString())
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -101,8 +105,10 @@ public class FirstActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("myID", "createUserWithEmail:success");
-
-                            goToReport(view);
+                            final FirebaseUser user = mAuth.getCurrentUser();
+                            mData.child("Uzivatel").child(user.getUid()).child("email").
+                                    setValue(mEmailField.getText().toString());
+                            goToGraph(view);
 //                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.

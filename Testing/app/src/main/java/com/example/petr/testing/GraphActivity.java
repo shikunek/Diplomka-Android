@@ -44,6 +44,7 @@ public class GraphActivity extends AppCompatActivity {
     final String[] xLabels = new String[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
     private DatabaseReference mData;
+    private FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,16 +54,22 @@ public class GraphActivity extends AppCompatActivity {
         lineChart = (LineChart) findViewById(R.id.lineChart);
 
         mData = FirebaseDatabase.getInstance().getReference();
+        user = FirebaseAuth.getInstance().getCurrentUser();
         // dataset creation from array
 
 //        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
         final YAxis yAxis = lineChart.getAxisLeft();
         final XAxis xAxis = lineChart.getXAxis();
-        mData.child("Projects").child("Active").addValueEventListener(new ValueEventListener() {
+        
+        mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                mData.child("Projects").child(dataSnapshot.getValue().toString()).addValueEventListener(
+                if (!dataSnapshot.hasChild("Active"))
+                {
+                    return;
+                }
+                mData.child("Projects").child(dataSnapshot.child("Active").getValue().toString()).addValueEventListener(
                         new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -71,6 +78,10 @@ public class GraphActivity extends AppCompatActivity {
                                 int y = 0;
                                 for (DataSnapshot user : dataSnapshot.getChildren())
                                 {
+                                    if (user.getKey().equals("projectName"))
+                                    {
+                                        continue;
+                                    }
                                     Log.d("B", String.valueOf(user.getKey()));
                                     int i = 1;
 
@@ -82,22 +93,20 @@ public class GraphActivity extends AppCompatActivity {
                                     Random randomGenerator = new Random();
                                     float number = 0f;
                                     yAxes.add(new Entry(0, 0)); // first entry is 0
-////                        Log.d("NECO", String.valueOf(dataSnapshot.child("24-09-2017").child("Y").getValue()));
+
                                     for (DataSnapshot value : user.getChildren())
                                     {
-                                        String key = value.getKey();
-                                        if (key != "LastAdded")
+                                        if (!value.exists())
                                         {
-                                            Log.d("A", String.valueOf(value.child("Y").getValue()));
-                                            long smile = (long) value.child("sendValue").getValue();
-//                                    double cislo = (long) value.child("Y").getValue();
-                                            number = translateEntry(number, (int)smile);
-                                            yAxes.add(new Entry(i, number)); // data entry creation
-                                            i++;
-
+                                            return;
                                         }
+                                        String key = value.getKey();
 
-
+                                        Log.d("A", String.valueOf(value.child("Y").getValue()));
+                                        long smile = (long) value.child("sendValue").getValue();
+                                        number = translateEntry(number, (int)smile);
+                                        yAxes.add(new Entry(i, number)); // data entry creation
+                                        i++;
                                     }
 
                                     lastDay = (int) yAxes.get((int)user.getChildrenCount()-1).getY();
@@ -177,13 +186,6 @@ public class GraphActivity extends AppCompatActivity {
                                 data = new LineData(dataSets);
                                 lineChart.setData(data);
 
-
-
-
-
-
-
-
                                 Description description = new Description();
                                 description.setText("");
                                 lineChart.getAxisLeft().setEnabled(false);
@@ -218,18 +220,7 @@ public class GraphActivity extends AppCompatActivity {
             }
         });
 
-//        mData.child("Users").addValueEventListener(
-//                new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(DatabaseError databaseError) {
-//                        Log.w("NECO", "getUser:onCancelled", databaseError.toException());
-//                    }
-//                });
+
         mData.child("Users").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {

@@ -3,4 +3,5 @@
     <string name="edit_message">Enter a message</string>
     <string name="button_send">Send</string>
     <string name="description">Express yourself. . .</string>
+    <string name="calendar">dd/mm/yyyy</string>
 </resources>

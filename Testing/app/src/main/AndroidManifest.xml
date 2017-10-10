@@ -23,7 +23,7 @@
                 <!--android:value=".FirstActivity" />-->
         </activity>
         <activity android:name=".GraphActivity" />
-        <activity android:name=".ProjectsActivity"></activity>
+        <activity android:name=".ProjectsActivity" />
     </application>
 
 </manifest>

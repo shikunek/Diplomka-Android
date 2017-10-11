@@ -78,8 +78,8 @@ public class FirstActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("NECO", "signInWithEmail:success");
-                            goToReport(view);
-                            //goToGraph(view);
+                            //goToReport(view);
+                            goToGraph(view);
 //                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.

@@ -12,6 +12,24 @@
         android:inputType="textPersonName"
         android:text="Name" />
 
+    <Button
+        android:id="@+id/addUsersButton"
+        android:layout_width="59dp"
+        android:layout_height="wrap_content"
+        android:text="+" />
+
+    <ScrollView
+        android:id="@+id/usersScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="171dp">
+
+        <LinearLayout
+            android:id="@+id/usersLinLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </ScrollView>
+
     <EditText
         android:id="@+id/userNameToProject"
         android:layout_width="match_parent"
@@ -30,5 +48,5 @@
         android:id="@+id/addProjectButton"
         android:layout_width="155dp"
         android:layout_height="wrap_content"
-        android:text="Add" />
+        android:text="Create project" />
 </LinearLayout>

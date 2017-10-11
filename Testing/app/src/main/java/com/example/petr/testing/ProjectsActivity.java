@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -38,6 +39,8 @@ import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+
+import static com.example.petr.testing.R.id.parent;
 
 public class ProjectsActivity extends AppCompatActivity {
 
@@ -131,6 +134,15 @@ public class ProjectsActivity extends AppCompatActivity {
     }
 
 
+    public void addUser(View view)
+    {
+        setContentView(R.layout.create_project_dialog);
+        final LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.usersLinLayout);
+        TextView tw = new TextView(this);
+        tw.setText("ADAM");
+        linearLayout.addView(tw);
+    }
+
     public void addProject(View view) {
         // Create custom dialog object
         final Dialog dialog = new Dialog(ProjectsActivity.this);
@@ -138,7 +150,7 @@ public class ProjectsActivity extends AppCompatActivity {
         dialog.setContentView(R.layout.create_project_dialog);
         // Set dialog title
         dialog.setTitle("Custom Dialog");
-        dialog.getWindow().setLayout(575, 550);
+//        dialog.getWindow().setLayout(575, 550);
         TextView text = (TextView) dialog.findViewById(R.id.newProjectName);
         text.setText("TAM");
         final TextView text1 = (TextView) dialog.findViewById(R.id.userNameToProject);
@@ -152,6 +164,16 @@ public class ProjectsActivity extends AppCompatActivity {
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         Button addButton = (Button) dialog.findViewById(R.id.addProjectButton);
 
+        Button addUserButton = (Button) dialog.findViewById(R.id.addUsersButton);
+        addUserButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                LayoutInflater inflater = (LayoutInflater) ProjectsActivity.this
+//                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//                View rowView = inflater.inflate(R.layout.row_item, v, false);
+//                LinearLayout linearLayout = (LinearLayout) rowView.findViewById(R.id.lin);
+            }
+        });
         Calendar c = Calendar.getInstance();
         final ArrayList<String> usersUID = new ArrayList<>();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");

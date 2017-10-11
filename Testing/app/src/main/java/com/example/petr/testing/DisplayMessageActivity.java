@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,6 +29,7 @@ import java.util.Locale;
 
 public class DisplayMessageActivity extends AppCompatActivity {
     Calendar myCalendar = Calendar.getInstance();
+    ImageButton floatButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,14 @@ public class DisplayMessageActivity extends AppCompatActivity {
 
         final EditText edittext = (EditText) findViewById(R.id.date);
         myCalendar = Calendar.getInstance();
+
+        floatButton = (ImageButton) findViewById(R.id.sendReport);
+        floatButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Toast.makeText(getApplicationContext(), "Button is clicked", Toast.LENGTH_LONG).show();
+            }
+        });
 
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
 

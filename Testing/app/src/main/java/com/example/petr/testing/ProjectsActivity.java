@@ -59,7 +59,7 @@ public class ProjectsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_projects);
 
-        final ProjectClass newProject = new ProjectClass();
+
         adapter = new RowAdapter(this, projects, mobileArray);
         mData = FirebaseDatabase.getInstance().getReference();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -87,7 +87,7 @@ public class ProjectsActivity extends AppCompatActivity {
                         }
                         for (final DataSnapshot project : projs.child(currentUser.getUid()).child("Projects").getChildren())
                         {
-
+                            final ProjectClass newProject = new ProjectClass();
                             mData.child("Projects").child(project.getKey()).addListenerForSingleValueEvent(
                                     new ValueEventListener() {
                                         @Override
@@ -171,16 +171,16 @@ public class ProjectsActivity extends AppCompatActivity {
         final ProjectClass newProject = new ProjectClass();
         // Set dialog title
         dialog.setTitle("Custom Dialog");
-//        dialog.getWindow().setLayout(575, 550);
+        dialog.getWindow().setLayout(675, 750);
         TextView text = (TextView) dialog.findViewById(R.id.newProjectName);
         text.setText("SIN");
 
-        final TextView text1 = (TextView) dialog.findViewById(R.id.userNameToProject);
-        text1.setText("x@f.cz");
-        final TextView text2 = (TextView) dialog.findViewById(R.id.user2);
-        text2.setText("g@f.cz");
-        final String[] str = new String[]{text1.getText().toString(), text2.getText().toString()};
-
+//        final TextView text1 = (TextView) dialog.findViewById(R.id.userNameToProject);
+//        text1.setText("x@f.cz");
+//        final TextView text2 = (TextView) dialog.findViewById(R.id.user2);
+//        text2.setText("g@f.cz");
+//        final String[] str = new String[]{text1.getText().toString(), text2.getText().toString()};
+//
 
         dialog.show();
         final DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
@@ -210,11 +210,11 @@ public class ProjectsActivity extends AppCompatActivity {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 final int editTextsCount = linearLayout.getChildCount();
-                                for (int i = 0; i < 2; i++) {
+                                for (int i = 0; i < editTextsCount; i++) {
                                     Boolean allRight = false;
                                     for (DataSnapshot user : dataSnapshot.getChildren()) {
                                         EditText eT = (EditText) linearLayout.getChildAt(i);
-                                        if (user.child("email").getValue().toString().equals(str[i])) {
+                                        if (user.child("email").getValue().toString().equals(eT.getText().toString())) {
                                             usersUID.add(user.getKey());
                                             allRight = true;
                                         }
@@ -238,6 +238,9 @@ public class ProjectsActivity extends AppCompatActivity {
                                 for (int i = 0; i < usersUID.size(); i++) {
                                     Report report = new Report(0, "", 0);
 
+                                    EditText eT = (EditText) linearLayout.getChildAt(i);
+                                    newProject.addProjectUsers(eT.getText().toString());
+
                                     Map updatedUserData = new HashMap();
                                     updatedUserData.put("Projects/" + projectKey + "/" +
                                             usersUID.get(i) + "/" + formattedDate , report);
@@ -251,8 +254,8 @@ public class ProjectsActivity extends AppCompatActivity {
 
                                     mData.updateChildren(updatedUserData);
                                 }
-                                newProject.addProjectUsers(text1.getText().toString());
-                                newProject.addProjectUsers(text2.getText().toString());
+//                                newProject.addProjectUsers(text1.getText().toString());
+//                                newProject.addProjectUsers(text2.getText().toString());
 
                                 mobileArray.add("asd");
                                 projects.add(newProject);

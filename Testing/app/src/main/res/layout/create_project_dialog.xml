@@ -4,6 +4,12 @@
     android:layout_height="match_parent"
     android:weightSum="1">
 
+    <Button
+        android:id="@+id/addProjectButton"
+        android:layout_width="155dp"
+        android:layout_height="wrap_content"
+        android:text="Create project" />
+
     <EditText
         android:id="@+id/newProjectName"
         android:layout_width="match_parent"
@@ -21,7 +27,7 @@
     <ScrollView
         android:id="@+id/usersScrollView"
         android:layout_width="match_parent"
-        android:layout_height="49dp">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:id="@+id/usersLinLayout"
@@ -30,23 +36,4 @@
             android:orientation="vertical" />
     </ScrollView>
 
-    <EditText
-        android:id="@+id/userNameToProject"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName" />
-
-    <EditText
-        android:id="@+id/user2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName" />
-
-    <Button
-        android:id="@+id/addProjectButton"
-        android:layout_width="155dp"
-        android:layout_height="wrap_content"
-        android:text="Create project" />
 </LinearLayout>

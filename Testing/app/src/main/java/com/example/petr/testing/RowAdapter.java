@@ -48,8 +48,7 @@ public class RowAdapter extends ArrayAdapter<String>
         linearLayout.setTag(project.get(position).getID());
         linearLayout.addView(textView1);
 //        for (int i = (users.size() - usersOnProjectCount.get(position)); i < users.size() ; i++)
-
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < project.get(position).getProjectUsers().size(); i++)
         {
             // Add textview 1
             TextView textView = new TextView(context);

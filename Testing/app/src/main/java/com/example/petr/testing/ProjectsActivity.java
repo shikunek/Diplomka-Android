@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -41,12 +42,16 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.petr.testing.R.id.parent;
+
 public class ProjectsActivity extends AppCompatActivity {
 
     RowAdapter adapter;
     ArrayList<String> mobileArray = new ArrayList<String>();
-    ArrayList<String> users = new ArrayList<String>();
-    ArrayList<String> ids = new ArrayList<String>();
+//    ArrayList<String> users = new ArrayList<String>();
+//    ArrayList<String> ids = new ArrayList<String>();
+//    ArrayList<Integer> usersOnProjectCount = new ArrayList<Integer>();
+    ArrayList<ProjectClass> projects = new ArrayList<>();
     DatabaseReference mData;
     FirebaseUser currentUser;
     @Override
@@ -54,7 +59,8 @@ public class ProjectsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_projects);
 
-        adapter = new RowAdapter(this, mobileArray, users, ids);
+        final ProjectClass newProject = new ProjectClass();
+        adapter = new RowAdapter(this, projects, mobileArray);
         mData = FirebaseDatabase.getInstance().getReference();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         final ListView listView = (ListView) findViewById(R.id.projects_list);
@@ -70,48 +76,65 @@ public class ProjectsActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
 
         final ArrayList<String> usersUID = new ArrayList<>();
-        mData.child("Uzivatel").child(currentUser.getUid()).addListenerForSingleValueEvent(
+        mData.child("Uzivatel").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot projects) {
+                    public void onDataChange(final DataSnapshot projs) {
 
-                        if (!projects.hasChild("Projects"))
+                        if (!projs.child(currentUser.getUid()).hasChild("Projects"))
                         {
                             return;
                         }
-                        for (DataSnapshot project : projects.child("Projects").getChildren())
+                        for (final DataSnapshot project : projs.child(currentUser.getUid()).child("Projects").getChildren())
                         {
-                            mobileArray.add(project.child("projectName").getValue().toString());
-                            ids.add(project.getKey());
+
                             mData.child("Projects").child(project.getKey()).addListenerForSingleValueEvent(
                                     new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot projectUsers) {
 
+//                                            mobileArray.add(project.child("projectName").getValue().toString());
+                                            newProject.setProjectName(project.child("projectName").getValue().toString());
+                                            newProject.setId(project.getKey());
+//                                            ids.add(project.getKey());
                                             Boolean allRight = false;
-                                            for (final DataSnapshot user : projectUsers.getChildren()) {
-                                                if (user.getKey().equals("projectName")) {
+                                            for (final DataSnapshot user : projectUsers.getChildren())
+                                            {
+                                                if (user.getKey().equals("projectName"))
+                                                {
                                                     continue;
                                                 }
-                                                mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                        for (DataSnapshot uzivatel1 : dataSnapshot.getChildren()) {
-                                                                if (uzivatel1.getKey().equals(user.getKey())) {
-                                                                    users.add(uzivatel1.child("email").getValue().toString());
-                                                                }
 
-                                                        }
-                                                        adapter.notifyDataSetChanged();
+                                                for (DataSnapshot uzivatel1 : projs.getChildren())
+                                                {
+                                                    if (uzivatel1.getKey().equals(user.getKey()))
+                                                    {
+                                                        newProject.addProjectUsers(uzivatel1.child("email").getValue().toString());
                                                     }
 
-                                                    @Override
-                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                    }
-                                                });
+                                                }
+//                                                mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
+//                                                    @Override
+//                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+//                                                        int usersCount = 0;
+//
+////                                                        usersOnProjectCount.add(usersCount);
+//                                                        projects.add(newProject);
+//                                                        mobileArray.add("asd");
+//                                                        adapter.notifyDataSetChanged();
+//                                                    }
+//
+//                                                    @Override
+//                                                    public void onCancelled(DatabaseError databaseError) {
+//
+//                                                    }
+//                                                });
 
                                             }
+                                            projects.add(newProject);
+                                            mobileArray.add("asd");
+                                            adapter.notifyDataSetChanged();
+
 
                                         }
 
@@ -120,6 +143,7 @@ public class ProjectsActivity extends AppCompatActivity {
 
                                         }
                                     });
+
 
 
 
@@ -138,29 +162,43 @@ public class ProjectsActivity extends AppCompatActivity {
     }
 
 
-    public void addProject(View view) {
+
+    public void addProject(final View view) {
         // Create custom dialog object
         final Dialog dialog = new Dialog(ProjectsActivity.this);
         // Include dialog.xml file
         dialog.setContentView(R.layout.create_project_dialog);
+        final ProjectClass newProject = new ProjectClass();
         // Set dialog title
         dialog.setTitle("Custom Dialog");
-        dialog.getWindow().setLayout(575, 550);
+//        dialog.getWindow().setLayout(575, 550);
         TextView text = (TextView) dialog.findViewById(R.id.newProjectName);
-        text.setText("TAM");
-        final TextView text1 = (TextView) dialog.findViewById(R.id.userNameToProject);
-        text1.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail().toString());
+        text.setText("SIN");
 
+        final TextView text1 = (TextView) dialog.findViewById(R.id.userNameToProject);
+        text1.setText("x@f.cz");
         final TextView text2 = (TextView) dialog.findViewById(R.id.user2);
-        text2.setText("x@f.cz");
+        text2.setText("g@f.cz");
         final String[] str = new String[]{text1.getText().toString(), text2.getText().toString()};
+
+
         dialog.show();
         final DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
         Button addButton = (Button) dialog.findViewById(R.id.addProjectButton);
-
+        final LinearLayout linearLayout = (LinearLayout) dialog.findViewById(R.id.usersLinLayout);
+        Button addUserButton = (Button) dialog.findViewById(R.id.addUsersButton);
+        addUserButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EditText tw = new EditText(v.getContext());
+                tw.setText("g@f.cz");
+                linearLayout.addView(tw);
+            }
+        });
         Calendar c = Calendar.getInstance();
         final ArrayList<String> usersUID = new ArrayList<>();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+//        usersOnProjectCount = 0;
         final String formattedDate = df.format(c.getTime());
 
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -171,10 +209,11 @@ public class ProjectsActivity extends AppCompatActivity {
                         new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-
+                                final int editTextsCount = linearLayout.getChildCount();
                                 for (int i = 0; i < 2; i++) {
                                     Boolean allRight = false;
                                     for (DataSnapshot user : dataSnapshot.getChildren()) {
+                                        EditText eT = (EditText) linearLayout.getChildAt(i);
                                         if (user.child("email").getValue().toString().equals(str[i])) {
                                             usersUID.add(user.getKey());
                                             allRight = true;
@@ -182,6 +221,7 @@ public class ProjectsActivity extends AppCompatActivity {
                                     }
                                     if (!allRight) {
                                         // ERROR
+//                                        return;
                                     }
                                 }
                                 TextView text = (TextView) dialog.findViewById(R.id.newProjectName);
@@ -190,10 +230,13 @@ public class ProjectsActivity extends AppCompatActivity {
                                 mData.child("Projects").child(projectKey).child("projectName").
                                         setValue(projectName);
 
+                                newProject.setProjectName(projectName);
+                                newProject.setId(projectKey);
 
-                                for (int i = 0; i < 2; i++) {
+
+
+                                for (int i = 0; i < usersUID.size(); i++) {
                                     Report report = new Report(0, "", 0);
-
 
                                     Map updatedUserData = new HashMap();
                                     updatedUserData.put("Projects/" + projectKey + "/" +
@@ -202,19 +245,17 @@ public class ProjectsActivity extends AppCompatActivity {
                                     updatedUserData.put("Uzivatel/" + usersUID.get(i) + "/" +
                                             "Active" , projectKey);
 
+
                                     updatedUserData.put("Uzivatel/" + usersUID.get(i) + "/" +
                                             "Projects/" + projectKey + "/" + "projectName" , projectName);
 
                                     mData.updateChildren(updatedUserData);
                                 }
+                                newProject.addProjectUsers(text1.getText().toString());
+                                newProject.addProjectUsers(text2.getText().toString());
 
-
-                                mobileArray.add(projectName);
-                                users.add(text1.getText().toString());
-                                users.add(text2.getText().toString());
-                                ids.add(projectKey);
-
-
+                                mobileArray.add("asd");
+                                projects.add(newProject);
                                 adapter.notifyDataSetChanged();
                                 dialog.dismiss();
 
@@ -232,7 +273,7 @@ public class ProjectsActivity extends AppCompatActivity {
 
     }
 
-    public void deleteProject(View view){
+    public void deleteProject(final View view){
         mData.child("Uzivatel").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot activeProject) {
@@ -251,6 +292,18 @@ public class ProjectsActivity extends AppCompatActivity {
                         "Active" , null);
 
                 mData.updateChildren(updatedUserData);
+
+                for (ProjectClass prj : projects)
+                {
+                    if (prj.getID().equals(activeProject.child("Active").getValue().toString()))
+                    {
+                        projects.remove(prj);
+                        mobileArray.remove(mobileArray.size()-1);
+
+                        adapter.notifyDataSetChanged();
+                        break;
+                    }
+                }
 
                 mData.child("Uzivatel").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -271,7 +324,6 @@ public class ProjectsActivity extends AppCompatActivity {
 
                     }
                 });
-                setContentView(R.layout.activity_projects);
 
             }
 

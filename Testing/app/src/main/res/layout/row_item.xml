@@ -8,8 +8,8 @@
 
     <LinearLayout
         android:id="@+id/lin"
-        android:layout_width="163dp"
-        android:layout_height="118dp"
+        android:layout_width="167dp"
+        android:layout_height="115dp"
         android:orientation="vertical">
 
     </LinearLayout>

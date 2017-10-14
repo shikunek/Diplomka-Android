@@ -8,9 +8,10 @@
 
     <LinearLayout
         android:id="@+id/lin"
-        android:layout_width="163dp"
-        android:layout_height="118dp"
-        android:orientation="vertical">
+        android:layout_width="167dp"
+        android:layout_height="154dp"
+        android:orientation="vertical"
+        android:layout_weight="0.07">
 
     </LinearLayout>
 

@@ -43,7 +43,13 @@ public class DisplayMessageActivity extends AppCompatActivity {
         floatButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                Toast.makeText(getApplicationContext(), "Button is clicked", Toast.LENGTH_LONG).show();
+
+                /*
+                TODO - udelat lepsi Toast; pokud uz za dany den byl zadan report - ohlasi to
+                uzivateli
+                */
+
+                Toast.makeText(getApplicationContext(), "Report has been sent!", Toast.LENGTH_LONG).show();
             }
         });
 

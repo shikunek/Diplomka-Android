@@ -51,28 +51,37 @@ public class GraphActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graph);
 
-        lineChart = (LineChart) findViewById(R.id.lineChart);
+//        lineChart = (LineChart) findViewById(R.id.lineChart);
 
         mData = FirebaseDatabase.getInstance().getReference();
         user = FirebaseAuth.getInstance().getCurrentUser();
         // dataset creation from array
 
 //        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        final YAxis yAxis = lineChart.getAxisLeft();
-        final XAxis xAxis = lineChart.getXAxis();
-        
+
         mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(final DataSnapshot uzivatel) {
 
-                if (!dataSnapshot.hasChild("Active"))
+                if (!uzivatel.hasChild("Active"))
                 {
+                    setContentView(R.layout.activity_graph);
                     return;
                 }
-                mData.child("Projects").child(dataSnapshot.child("Active").getValue().toString()).addValueEventListener(
+
+                mData.child("Projects").child(uzivatel.child("Active").getValue().toString()).addListenerForSingleValueEvent(
                         new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                if (!dataSnapshot.hasChild(user.getUid()))
+                                {
+                                    setContentView(R.layout.activity_graph);
+                                    return;
+                                }
+                                lineChart = (LineChart) findViewById(R.id.lineChart);
+                                final YAxis yAxis = lineChart.getAxisLeft();
+                                final XAxis xAxis = lineChart.getXAxis();
 
                                 final ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
                                 int y = 0;

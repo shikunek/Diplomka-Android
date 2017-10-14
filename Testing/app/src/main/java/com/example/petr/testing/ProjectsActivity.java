@@ -39,6 +39,8 @@ import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.example.petr.testing.R.id.parent;
 
@@ -46,8 +48,10 @@ public class ProjectsActivity extends AppCompatActivity {
 
     RowAdapter adapter;
     ArrayList<String> mobileArray = new ArrayList<String>();
-    ArrayList<String> users = new ArrayList<String>();
-    ArrayList<String> ids = new ArrayList<String>();
+//    ArrayList<String> users = new ArrayList<String>();
+//    ArrayList<String> ids = new ArrayList<String>();
+//    ArrayList<Integer> usersOnProjectCount = new ArrayList<Integer>();
+    ArrayList<ProjectClass> projects = new ArrayList<>();
     DatabaseReference mData;
     FirebaseUser currentUser;
     @Override
@@ -55,7 +59,8 @@ public class ProjectsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_projects);
 
-        adapter = new RowAdapter(this, mobileArray, users, ids);
+
+        adapter = new RowAdapter(this, projects, mobileArray);
         mData = FirebaseDatabase.getInstance().getReference();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         final ListView listView = (ListView) findViewById(R.id.projects_list);
@@ -71,43 +76,65 @@ public class ProjectsActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
 
         final ArrayList<String> usersUID = new ArrayList<>();
-        mData.child("Uzivatel").child(currentUser.getUid()).child("Projects").addListenerForSingleValueEvent(
+        mData.child("Uzivatel").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot projects) {
-                        for (DataSnapshot project : projects.getChildren())
+                    public void onDataChange(final DataSnapshot projs) {
+
+                        if (!projs.child(currentUser.getUid()).hasChild("Projects"))
                         {
-                            mobileArray.add(project.child("projectName").getValue().toString());
-                            ids.add(project.getKey());
+                            return;
+                        }
+                        for (final DataSnapshot project : projs.child(currentUser.getUid()).child("Projects").getChildren())
+                        {
+                            final ProjectClass newProject = new ProjectClass();
                             mData.child("Projects").child(project.getKey()).addListenerForSingleValueEvent(
                                     new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot projectUsers) {
 
+//                                            mobileArray.add(project.child("projectName").getValue().toString());
+                                            newProject.setProjectName(project.child("projectName").getValue().toString());
+                                            newProject.setId(project.getKey());
+//                                            ids.add(project.getKey());
                                             Boolean allRight = false;
-                                            for (final DataSnapshot user : projectUsers.getChildren()) {
-                                                if (user.getKey().equals("projectName")) {
+                                            for (final DataSnapshot user : projectUsers.getChildren())
+                                            {
+                                                if (user.getKey().equals("projectName"))
+                                                {
                                                     continue;
                                                 }
-                                                mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                        for (DataSnapshot uzivatel1 : dataSnapshot.getChildren()) {
-                                                                if (uzivatel1.getKey().equals(user.getKey())) {
-                                                                    users.add(uzivatel1.child("email").getValue().toString());
-                                                                }
 
-                                                        }
-                                                        adapter.notifyDataSetChanged();
+                                                for (DataSnapshot uzivatel1 : projs.getChildren())
+                                                {
+                                                    if (uzivatel1.getKey().equals(user.getKey()))
+                                                    {
+                                                        newProject.addProjectUsers(uzivatel1.child("email").getValue().toString());
                                                     }
 
-                                                    @Override
-                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                    }
-                                                });
+                                                }
+//                                                mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
+//                                                    @Override
+//                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+//                                                        int usersCount = 0;
+//
+////                                                        usersOnProjectCount.add(usersCount);
+//                                                        projects.add(newProject);
+//                                                        mobileArray.add("asd");
+//                                                        adapter.notifyDataSetChanged();
+//                                                    }
+//
+//                                                    @Override
+//                                                    public void onCancelled(DatabaseError databaseError) {
+//
+//                                                    }
+//                                                });
 
                                             }
+                                            projects.add(newProject);
+                                            mobileArray.add("asd");
+                                            adapter.notifyDataSetChanged();
+
 
                                         }
 
@@ -116,6 +143,7 @@ public class ProjectsActivity extends AppCompatActivity {
 
                                         }
                                     });
+
 
 
 
@@ -134,51 +162,45 @@ public class ProjectsActivity extends AppCompatActivity {
     }
 
 
-    public void addUser(View view)
-    {
-        setContentView(R.layout.create_project_dialog);
-        final LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.usersLinLayout);
-        TextView tw = new TextView(this);
-        tw.setText("ADAM");
-        linearLayout.addView(tw);
-    }
 
-    public void addProject(View view) {
+    public void addProject(final View view) {
         // Create custom dialog object
         final Dialog dialog = new Dialog(ProjectsActivity.this);
         // Include dialog.xml file
         dialog.setContentView(R.layout.create_project_dialog);
+        final ProjectClass newProject = new ProjectClass();
         // Set dialog title
         dialog.setTitle("Custom Dialog");
-//        dialog.getWindow().setLayout(575, 550);
+        dialog.getWindow().setLayout(675, 750);
         TextView text = (TextView) dialog.findViewById(R.id.newProjectName);
-        text.setText("TAM");
-        final TextView text1 = (TextView) dialog.findViewById(R.id.userNameToProject);
-        text1.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail().toString());
+        text.setText("SIN");
 
-        final TextView text2 = (TextView) dialog.findViewById(R.id.user2);
-        text2.setText("zbrandejs@gmail.com");
-        final String[] str = new String[]{text1.getText().toString(), text2.getText().toString()};
+//        final TextView text1 = (TextView) dialog.findViewById(R.id.userNameToProject);
+//        text1.setText("x@f.cz");
+//        final TextView text2 = (TextView) dialog.findViewById(R.id.user2);
+//        text2.setText("g@f.cz");
+//        final String[] str = new String[]{text1.getText().toString(), text2.getText().toString()};
+//
+
         dialog.show();
         final DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         Button addButton = (Button) dialog.findViewById(R.id.addProjectButton);
-
+        final LinearLayout linearLayout = (LinearLayout) dialog.findViewById(R.id.usersLinLayout);
         Button addUserButton = (Button) dialog.findViewById(R.id.addUsersButton);
         addUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                LayoutInflater inflater = (LayoutInflater) ProjectsActivity.this
-//                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//                View rowView = inflater.inflate(R.layout.row_item, v, false);
-//                LinearLayout linearLayout = (LinearLayout) rowView.findViewById(R.id.lin);
+                EditText tw = new EditText(v.getContext());
+                tw.setText("g@f.cz");
+                linearLayout.addView(tw);
             }
         });
         Calendar c = Calendar.getInstance();
         final ArrayList<String> usersUID = new ArrayList<>();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+//        usersOnProjectCount = 0;
         final String formattedDate = df.format(c.getTime());
-        // if decline button is clicked, close the custom dialog
+
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -187,17 +209,19 @@ public class ProjectsActivity extends AppCompatActivity {
                         new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                for (int i = 0; i < 2; i++) {
+                                final int editTextsCount = linearLayout.getChildCount();
+                                for (int i = 0; i < editTextsCount; i++) {
                                     Boolean allRight = false;
                                     for (DataSnapshot user : dataSnapshot.getChildren()) {
-                                        if (user.child("email").getValue().toString().equals(str[i])) {
+                                        EditText eT = (EditText) linearLayout.getChildAt(i);
+                                        if (user.child("email").getValue().toString().equals(eT.getText().toString())) {
                                             usersUID.add(user.getKey());
                                             allRight = true;
                                         }
                                     }
-                                    if (allRight == false) {
+                                    if (!allRight) {
                                         // ERROR
+//                                        return;
                                     }
                                 }
                                 TextView text = (TextView) dialog.findViewById(R.id.newProjectName);
@@ -206,29 +230,35 @@ public class ProjectsActivity extends AppCompatActivity {
                                 mData.child("Projects").child(projectKey).child("projectName").
                                         setValue(projectName);
 
+                                newProject.setProjectName(projectName);
+                                newProject.setId(projectKey);
 
-                                for (int i = 0; i < 2; i++) {
+
+
+                                for (int i = 0; i < usersUID.size(); i++) {
                                     Report report = new Report(0, "", 0);
 
-                                    mData.child("Projects").child(projectKey).child(usersUID.get(i)).
-                                            child(formattedDate).setValue(report);
+                                    EditText eT = (EditText) linearLayout.getChildAt(i);
+                                    newProject.addProjectUsers(eT.getText().toString());
 
-                                    mData.child("Uzivatel").child(usersUID.get(i)).
-                                            child("Projects").child(projectKey).child("projectName").
-                                            setValue(projectName);
-                                    mData.child("Uzivatel").child(usersUID.get(i)).child("Active").
-                                            setValue(projectKey);
+                                    Map updatedUserData = new HashMap();
+                                    updatedUserData.put("Projects/" + projectKey + "/" +
+                                            usersUID.get(i) + "/" + formattedDate , report);
+
+                                    updatedUserData.put("Uzivatel/" + usersUID.get(i) + "/" +
+                                            "Active" , projectKey);
 
 
+                                    updatedUserData.put("Uzivatel/" + usersUID.get(i) + "/" +
+                                            "Projects/" + projectKey + "/" + "projectName" , projectName);
+
+                                    mData.updateChildren(updatedUserData);
                                 }
+//                                newProject.addProjectUsers(text1.getText().toString());
+//                                newProject.addProjectUsers(text2.getText().toString());
 
-
-                                mobileArray.add(projectName);
-                                users.add(text1.getText().toString());
-                                users.add(text2.getText().toString());
-                                ids.add(projectKey);
-
-
+                                mobileArray.add("asd");
+                                projects.add(newProject);
                                 adapter.notifyDataSetChanged();
                                 dialog.dismiss();
 
@@ -246,14 +276,57 @@ public class ProjectsActivity extends AppCompatActivity {
 
     }
 
-    public void deleteProject(View view){
-        mData.child("Projects").child("Active").addListenerForSingleValueEvent(new ValueEventListener() {
+    public void deleteProject(final View view){
+        mData.child("Uzivatel").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot activeProject) {
-//                mData.child("Projects").child("Active").setValue("");
-//                mData.child("Projects").child(activeProject.getKey()).child(currentUser.getUid()).removeValue();
-//                mData.child("Uzivatel").child(currentUser.getUid()).child("Projects").
-//                        child(activeProject.getKey()).removeValue();
+
+                if (!activeProject.hasChild("Active"))
+                {
+                    return;
+                }
+                Map updatedUserData = new HashMap();
+                updatedUserData.put("Uzivatel/" + currentUser.getUid() + "/" +
+                        "Projects/" + activeProject.child("Active").getValue().toString() + "/"  , null);
+
+                updatedUserData.put("Projects/" + activeProject.child("Active").getValue().toString() + "/" +
+                        currentUser.getUid() + "/" , null);
+                updatedUserData.put("Uzivatel/" + currentUser.getUid() + "/" +
+                        "Active" , null);
+
+                mData.updateChildren(updatedUserData);
+
+                for (ProjectClass prj : projects)
+                {
+                    if (prj.getID().equals(activeProject.child("Active").getValue().toString()))
+                    {
+                        projects.remove(prj);
+                        mobileArray.remove(mobileArray.size()-1);
+
+                        adapter.notifyDataSetChanged();
+                        break;
+                    }
+                }
+
+                mData.child("Uzivatel").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.hasChild("Projects"))
+                        {
+                            for (DataSnapshot firstProject : dataSnapshot.child("Projects").getChildren())
+                            {
+                                mData.child("Uzivatel").child(currentUser.getUid()).child("Active").setValue(firstProject.getKey());
+                                break;
+                            }
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
             }
 

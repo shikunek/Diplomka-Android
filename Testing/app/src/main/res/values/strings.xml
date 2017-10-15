@@ -1,8 +1,14 @@
 <resources>
     <string name="app_name">NudgeMe</string>
     <string name="edit_message">Enter a message</string>
+
     <string name="button_send">Send</string>
+    <string name="button_sign_in">Sign In</string>
+    <string name="button_sign_up">Sign Up</string>
+
     <string name="description">Express yourself. . .</string>
     <string name="calendar">dd/mm/yyyy</string>
     <string name="button_description">Float confirm button</string>
+    <string name="usr_hint">example@email.com</string>
+    <string name="pswd_hint">password</string>
 </resources>

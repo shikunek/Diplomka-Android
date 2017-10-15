@@ -36,6 +36,7 @@ public class FirstActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first);
+        getSupportActionBar().setTitle("Welcome");
 
         mAuth = FirebaseAuth.getInstance();
         mEmailField = (EditText) findViewById(R.id.loginTB);

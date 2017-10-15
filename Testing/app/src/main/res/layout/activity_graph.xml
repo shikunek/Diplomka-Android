@@ -6,21 +6,22 @@
     android:layout_height="match_parent"
     tools:context="com.example.petr.testing.GraphActivity">
 
-
+    <!-- Chart -->
     <com.github.mikephil.charting.charts.LineChart
         android:layout_width="0dp"
         android:layout_height="300dp"
         android:id="@+id/lineChart"
+        android:background="@drawable/chart_border"
         android:layout_marginLeft="12dp"
-        app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginRight="12dp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="79dp"
-        app:layout_constraintHorizontal_bias="0.0"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp"
-    />
+        android:layout_marginTop="79dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        />
 
     <!-- Projects Button -->
     <Button
@@ -36,7 +37,8 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        android:layout_marginStart="16dp" />
+        android:layout_marginStart="16dp"
+    />
 
     <!-- Actual Project Name label -->
     <TextView
@@ -51,32 +53,36 @@
         app:layout_constraintHorizontal_bias="0.466"
         app:layout_constraintBaseline_toBaselineOf="@+id/projects"
         android:layout_marginStart="130dp"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginEnd="8dp"
+    />
 
     <!-- Button to report page -->
     <ImageButton
-        android:contentDescription="Zadej report"
         android:id="@+id/goToReportButton"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Let's report your feeling about a day"
         android:onClick="goToReport"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:background="@drawable/smart"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:src="@drawable/smart"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lineChart"
-        app:layout_constraintRight_toRightOf="@id/nudgeMyTeam" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="@+id/nudgeMyTeam"
+        app:layout_constraintTop_toBottomOf="@+id/lineChart" />
 
     <!-- Button to Nudge all -->
     <ImageButton
-        android:contentDescription="Jebni vsetkych po palici, kokotov jednych"
+        android:contentDescription="Nudge people from project"
         android:id="@+id/nudgeMyTeam"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:background="@drawable/fist"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:src="@drawable/fist"
+        android:background="@null"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lineChart"
-        app:layout_constraintLeft_toLeftOf="@id/goToReportButton" />
+        app:layout_constraintLeft_toLeftOf="@id/goToReportButton"
+    />
 
 
 </android.support.constraint.ConstraintLayout>

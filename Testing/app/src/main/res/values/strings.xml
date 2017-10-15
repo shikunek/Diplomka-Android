@@ -11,4 +11,8 @@
     <string name="button_description">Float confirm button</string>
     <string name="usr_hint">example@email.com</string>
     <string name="pswd_hint">password</string>
+
+    <string name="first_act">Welcome</string>
+    <string name="graph_act">Welcome</string>
+    <string name="report_act">Welcome</string>
 </resources>

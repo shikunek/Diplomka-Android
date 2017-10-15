@@ -35,6 +35,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_message);
+        getSupportActionBar().setTitle("Report your day");
 
         final EditText edittext = (EditText) findViewById(R.id.date);
         myCalendar = Calendar.getInstance();

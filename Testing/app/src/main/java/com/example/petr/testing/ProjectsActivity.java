@@ -58,7 +58,7 @@ public class ProjectsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_projects);
-
+        getSupportActionBar().setTitle("Projects list");
 
         adapter = new RowAdapter(this, projects, mobileArray);
         mData = FirebaseDatabase.getInstance().getReference();
@@ -143,15 +143,8 @@ public class ProjectsActivity extends AppCompatActivity {
 
                                         }
                                     });
-
-
-
-
                         }
-
-
                     }
-
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
 
@@ -160,7 +153,6 @@ public class ProjectsActivity extends AppCompatActivity {
         );
 
     }
-
 
 
     public void addProject(final View view) {

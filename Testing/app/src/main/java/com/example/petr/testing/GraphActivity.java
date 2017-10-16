@@ -44,6 +44,7 @@ public class GraphActivity extends AppCompatActivity {
 
     private DatabaseReference mData;
     private FirebaseUser user;
+    Random randomGenerator = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +66,7 @@ public class GraphActivity extends AppCompatActivity {
                     return;
                 }
 
-                mData.child("Projects").child(uzivatel.child("Active").getValue().toString()).addListenerForSingleValueEvent(
+                mData.child("Projects").child(uzivatel.child("Active").getValue().toString()).addValueEventListener(
                         new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -196,6 +197,8 @@ public class GraphActivity extends AppCompatActivity {
                                 lineChart.notifyDataSetChanged(); // let the chart know it's data changed
                                 lineChart.setVisibleXRangeMaximum(numShownDays-1);
                                 lineChart.setVisibleXRangeMinimum(numShownDays-1);
+
+                                leftDay = numDays-numShownDays+1 >= 0 ? numDays-numShownDays+1 : 0;
                                 lineChart.moveViewToX(leftDay);
 
                             }
@@ -256,16 +259,6 @@ public class GraphActivity extends AppCompatActivity {
         Intent intent = new Intent(this, ProjectsActivity.class);
         startActivity(intent);
     }
-
-    public void createGraph(ArrayList<Entry> yAxes)
-    {
-
-
-
-    }
-
-
-
 
     // creates y-value from old y-value and new smile
     private float translateEntry(float old_y, int smile) {

@@ -19,6 +19,8 @@ public class RowAdapter extends ArrayAdapter<String>
 {
     private final Context context;
     private final ArrayList<ProjectClass> project;
+    private ArrayList<String> mobileArray = new ArrayList<String>();
+    private final ArrayList<ProjectClass> project;
     private ArrayList<String> mobileArray = new ArrayList<>();
 
     public RowAdapter(Context context, ArrayList<ProjectClass> project , ArrayList<String> mobileArray) {

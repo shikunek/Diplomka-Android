@@ -38,6 +38,7 @@ public class ProjectsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_projects);
+        getSupportActionBar().setTitle("Projects list");
 
 
         adapter = new RowAdapter(this, projectListToShow, arrayListJustForTriggerAdapter);

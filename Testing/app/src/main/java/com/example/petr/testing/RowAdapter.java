@@ -6,11 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.example.petr.testing.R;
 
 import java.util.ArrayList;
 
@@ -22,7 +19,7 @@ public class RowAdapter extends ArrayAdapter<String>
 {
     private final Context context;
     private final ArrayList<ProjectClass> project;
-    private ArrayList<String> mobileArray = new ArrayList<String>();
+    private ArrayList<String> mobileArray = new ArrayList<>();
 
     public RowAdapter(Context context, ArrayList<ProjectClass> project , ArrayList<String> mobileArray) {
         super(context, R.layout.row_item, mobileArray);
@@ -36,28 +33,26 @@ public class RowAdapter extends ArrayAdapter<String>
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View rowView = inflater.inflate(R.layout.row_item, parent, false);
-        LinearLayout linearLayout = (LinearLayout) rowView.findViewById(R.id.lin);
+        LinearLayout rowLinearLayout = (LinearLayout) rowView.findViewById(R.id.lin);
 
-        TextView textView1 = new TextView(context);
-        textView1.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+        TextView projectNameView = new TextView(context);
+        projectNameView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
-        textView1.setText(project.get(position).getProjectName());
-        textView1.setTextColor(Color.BLACK);
+        projectNameView.setText(project.get(position).getProjectName());
+        projectNameView.setTextColor(Color.BLACK);
 
-        textView1.setPadding(20, 20, 20, 20);// in pixels (left, top, right, bottom)
-        linearLayout.setTag(project.get(position).getID());
-        linearLayout.addView(textView1);
-//        for (int i = (users.size() - usersOnProjectCount.get(position)); i < users.size() ; i++)
+        projectNameView.setPadding(20, 20, 20, 20);
+        rowLinearLayout.setTag(project.get(position).getID());
+        rowLinearLayout.addView(projectNameView);
         for (int i = 0; i < project.get(position).getProjectUsers().size(); i++)
         {
-            // Add textview 1
-            TextView textView = new TextView(context);
-            textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+            TextView userOnProjectView = new TextView(context);
+            userOnProjectView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT));
-            textView.setText(project.get(position).getProjectUsers().get(i));
-            textView.setTextColor(Color.RED);
-            textView.setPadding(20, 20, 20, 20);// in pixels (left, top, right, bottom)
-            linearLayout.addView(textView);
+            userOnProjectView.setText(project.get(position).getProjectUsers().get(i));
+            userOnProjectView.setTextColor(Color.RED);
+            userOnProjectView.setPadding(20, 20, 20, 20);
+            rowLinearLayout.addView(userOnProjectView);
         }
 
 

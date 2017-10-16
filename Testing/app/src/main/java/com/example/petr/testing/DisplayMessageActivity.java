@@ -1,17 +1,13 @@
 package com.example.petr.testing;
 
 import android.app.DatePickerDialog;
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -64,7 +60,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
     }
 
     private void updateLabel(Calendar myCalendar, EditText edittext) {
-        String myFormat = "yyyy-MM-dd"; //In which you need put here
+        String myFormat = "yyyy-MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
         Log.d("NECO","Yesterday's date was "+sdf.format(myCalendar.getTime()));
         edittext.setText(sdf.format(myCalendar.getTime()));
@@ -75,9 +71,13 @@ public class DisplayMessageActivity extends AppCompatActivity {
     public void sendReport(View view)
     {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null)
+        {
+            return;
+        }
         final String userID =  user.getUid();
         myCalendar.add(Calendar.DATE, -1);
-        String myFormat = "yyyy-MM-dd"; //In which you need put here
+        String myFormat = "yyyy-MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
         Log.d("NECO","Yesterday's date was "+sdf.format(myCalendar.getTime()));
         final String yesterday = sdf.format(myCalendar.getTime());
@@ -97,14 +97,12 @@ public class DisplayMessageActivity extends AppCompatActivity {
                             public void onDataChange(DataSnapshot dataSnapshot)
                             {
 
-                                // nactu si text a hodnotu radiobuttonu
                                 EditText message = (EditText) findViewById(R.id.reportText);
                                 String str = message.getText().toString();
                                 RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
                                 String dateTime = ((EditText) findViewById(R.id.date)).getText().toString();
                                 int selectedId = radioGroup.getCheckedRadioButtonId();
                                 int selectedValue = 0;
-
 
                                 switch (selectedId)
                                 {
@@ -126,20 +124,14 @@ public class DisplayMessageActivity extends AppCompatActivity {
 
                                 Report report = new Report(previousValue, str, selectedValue);
                                 mData.child("Projects").child(currentUser.child("Active").getValue().toString()).child(userID).child(dateTime).setValue(report);
-//                        mData.child("Users").child(userID).child(dateTime).child("Y").setValue(previousValue);
-//                        mData.child("Users").child(userID).child(dateTime).child("sendValue").setValue(selectedValue);
-//                        mData.child("Users").child(userID).child(dateTime).child("repotedText").setValue(str);
-//                        mData.child("Users").child(userID).child("LastAdded").child("Y").setValue(previousValue);
 
                                 Log.d("myTag", Integer.toString(selectedValue));
                             }
 
                             @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                            public void onCancelled(DatabaseError databaseError)
+                            {
                                 Log.w("NECO", "getUser:onCancelled", databaseError.toException());
-//                        // [START_EXCLUDE]
-//                        setEditingEnabled(true);
-//                        // [END_EXCLUDE]
                             }
 
                         });

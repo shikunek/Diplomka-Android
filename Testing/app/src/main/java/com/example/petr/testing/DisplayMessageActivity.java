@@ -1,13 +1,19 @@
 package com.example.petr.testing;
 
 import android.app.DatePickerDialog;
-import android.os.Bundle;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -23,15 +29,30 @@ import java.util.Locale;
 
 public class DisplayMessageActivity extends AppCompatActivity {
     Calendar myCalendar = Calendar.getInstance();
+    ImageButton floatButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_message);
-
+        getSupportActionBar().setTitle("Report your day");
 
         final EditText edittext = (EditText) findViewById(R.id.date);
         myCalendar = Calendar.getInstance();
+
+        floatButton = (ImageButton) findViewById(R.id.sendReport);
+        floatButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+
+                /*
+                TODO - udelat lepsi Toast; pokud uz za dany den byl zadan report - ohlasi to
+                uzivateli
+                */
+
+                Toast.makeText(getApplicationContext(), "Report has been sent!", Toast.LENGTH_LONG).show();
+            }
+        });
 
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
 
@@ -60,7 +81,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
     }
 
     private void updateLabel(Calendar myCalendar, EditText edittext) {
-        String myFormat = "yyyy-MM-dd";
+        String myFormat = "yyyy-MM-dd"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
         Log.d("NECO","Yesterday's date was "+sdf.format(myCalendar.getTime()));
         edittext.setText(sdf.format(myCalendar.getTime()));

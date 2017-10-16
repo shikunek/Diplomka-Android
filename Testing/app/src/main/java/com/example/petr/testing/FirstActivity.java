@@ -1,10 +1,12 @@
 package com.example.petr.testing;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -34,6 +36,7 @@ public class FirstActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first);
+        getSupportActionBar().setTitle("Welcome");
 
         mAuth = FirebaseAuth.getInstance();
         mEmailField = (EditText) findViewById(R.id.loginTB);
@@ -81,6 +84,13 @@ public class FirstActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d("NECO", "signInWithEmail:failure", task.getException());
+                            Context context = getApplicationContext();
+                            CharSequence text = "Your email or password is incorrect!";
+                            int duration = Toast.LENGTH_SHORT;
+
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.setGravity(Gravity.CENTER| Gravity.CENTER, 0, 0);
+                            toast.show();
                         }
 
                         if (!task.isSuccessful()) {
@@ -113,18 +123,15 @@ public class FirstActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d("myID", "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(FirstActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-//                            updateUI(null);
+                            Toast toast = Toast.makeText(FirstActivity.this,
+                                    "Your email or password is incorrect", Toast.LENGTH_SHORT);
+                            toast.setGravity(Gravity.CENTER| Gravity.CENTER, 0, 0);
+                            toast.show();
                         }
 
-                        // [START_EXCLUDE]
-//                        hideProgressDialog();
-                        // [END_EXCLUDE]
                     }
                 });
 
-        // [END create_user_with_email]
     }
 
     public void sendMessage(View view)

@@ -1,5 +1,6 @@
 package com.example.petr.testing;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -7,19 +8,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.IMarker;
 import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.MarkerView;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.MPPointF;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -30,8 +36,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
+import java.util.Calendar;
 
 public class GraphActivity extends AppCompatActivity {
 
@@ -40,6 +51,8 @@ public class GraphActivity extends AppCompatActivity {
     int numDays = 0;
     int leftDay = 0;
     int numShownDays = 14;
+    int firstDayOfWeek = 0;
+    Date firstDayShown = null;
     final String[] xLabels = new String[] { "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su" };
 
     private DatabaseReference mData;
@@ -96,25 +109,56 @@ public class GraphActivity extends AppCompatActivity {
                                     float y = 0f;
                                     yValues.add(new Entry(0, y)); // first entry is 0
                                     int i = 1;
+                                    Date date;
+                                    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+                                    Calendar actDate = Calendar.getInstance();
+                                    Calendar targetDate = Calendar.getInstance();
                                     for (DataSnapshot value : user.getChildren())
                                     {
                                         if (!value.exists())
                                         {
                                             return;
                                         }
-                                        //String key = value.getKey();
-
-                                        Log.d("A", String.valueOf(value.child("Y").getValue()));
+                                        // get the smile
                                         long smile = (long) value.child("sendValue").getValue();
+                                        // get the date
+                                        String key = value.getKey();
+                                        try {
+                                            date = dateFormatter.parse(key);
+                                            targetDate.setTime(date);
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                        if (i == 1) {
+                                            Log.d("DATE_TEST", "actDate initialized");
+                                            if (firstDayShown == null || targetDate.before(firstDayShown)) {
+                                                firstDayShown = targetDate.getTime();
+                                                firstDayOfWeek = (targetDate.get(Calendar.DAY_OF_WEEK)+ 4) % 7; // DAY_OF_WEEK start 1 = Su
+                                                Log.d("DATE_TEST", "firstDayShown is " + targetDate.getTime());
+                                                Log.d("DATE_TEST", "firstDayOfWeek is " + xLabels[firstDayOfWeek]);
+                                            }
+                                            actDate.setTime(targetDate.getTime());
+                                        }
+                                        Log.d("DATE_TEST", "actDate: " + dateFormatter.format(actDate.getTime()) + ", targetDate: " + dateFormatter.format(targetDate.getTime()));
+                                        while (!actDate.equals(targetDate)  /*actDate.compareTo(targetDate) != 0*/) {
+                                            yValues.add(new Entry(i, -1f));
+                                            i++;
+                                            actDate.add(Calendar.DATE, 1);
+                                        }
+                                        //Log.d("DATE_TEST", "value for " + dateFormatter.format(date) + " added");
                                         y = translateEntry(y, (int)smile);
                                         yValues.add(new Entry(i, y)); // data entry creation
                                         i++;
+                                        actDate.add(Calendar.DATE, 1);
                                     }
                                     if (i-1 > numDays) numDays = i-1;
                                     //lastDay = (int) yAxes.get((int)user.getChildrenCount()-1).getY();
 
                                     LineDataSet lineDataSet = new LineDataSet(yValues, "data label");
                                     lineDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+                                    lineDataSet.setHighlightEnabled(true);
+                                    lineDataSet.setDrawHighlightIndicators(false);
                                     lineDataSet.setDrawCircles(true);
                                     lineDataSet.setCircleRadius(3f);
                                     lineDataSet.setCircleHoleRadius(1f);
@@ -164,20 +208,20 @@ public class GraphActivity extends AppCompatActivity {
                                 if (numDays <= 14) xAxis.setLabelCount(numDays+1, true);
                                 else xAxis.setLabelCount(numShownDays, true);
 
-                                IAxisValueFormatter formatter = new IAxisValueFormatter() {
+                                IAxisValueFormatter labelFormatter = new IAxisValueFormatter() {
 
                                     @Override
                                     public String getFormattedValue(float value, AxisBase axis) {
                                         int day = Math.round(value);
                                         if (day < 0) return "";
                                         else if (day == numDays) return "Today";
-                                        else if (day > numDays - 7) return xLabels[day % 7];
+                                        else if (day > numDays - 7) return xLabels[(day+firstDayOfWeek) % 7];
                                         else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)
                                             return (numDays+1) / 7 - day / 7 + "w ago";
                                         else return "";
                                     }
                                 };
-                                xAxis.setValueFormatter(formatter);
+                                xAxis.setValueFormatter(labelFormatter);
 
                                 data = new LineData(dataSets);
                                 lineChart.setData(data);
@@ -193,6 +237,16 @@ public class GraphActivity extends AppCompatActivity {
                                 lineChart.setDrawBorders(false);
                                 Legend legend = lineChart.getLegend();
                                 legend.setEnabled(false);
+
+                                /*IMarker marker = new MarkerView(getApplicationContext(), R.layout.activity_graph) {
+                                    @Override
+                                    public void refreshContent(Entry e, Highlight highlight) {
+                                        tvContent.setText("" + e.getY());
+                                        // this will perform necessary layouting
+                                        super.refreshContent(e, highlight);
+                                    }
+                                };
+                                lineChart.setMarker(marker);*/
 
                                 lineChart.notifyDataSetChanged(); // let the chart know it's data changed
                                 lineChart.setVisibleXRangeMaximum(numShownDays-1);

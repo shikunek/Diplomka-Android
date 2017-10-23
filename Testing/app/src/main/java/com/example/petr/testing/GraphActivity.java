@@ -101,7 +101,6 @@ public class GraphActivity extends AppCompatActivity {
                                     {
                                         continue;
                                     }
-                                    Log.d("DATE_TEST", "User: " + user.child("userName").getValue());
 
                                     ArrayList<Entry> yValues = new ArrayList<>();
                                     ArrayList<Entry> yValuesMiss = new ArrayList<>();
@@ -276,7 +275,7 @@ public class GraphActivity extends AppCompatActivity {
     private float translateEntry(float old_y, int smile) {
         float new_y = 0f;
         float x_delta;
-        float shiftPar = 0.25f; // the smaller the number, the slower the change
+        float shiftPar = 0.4f; // the smaller the number, the slower the change
         if (old_y >= 1 || old_y <= -1) { // old value is outside of bounds
             throw new IllegalArgumentException("Y-value not within bounds (-1,1)");
         }
@@ -358,68 +357,77 @@ public class GraphActivity extends AppCompatActivity {
         lineDataSet.setDrawHighlightIndicators(false);
         lineDataSet.setDrawValues(false);
         lineDataSet.setLineWidth(4f);
-        /*if (miss) {
+        if (miss) {
             lineDataSet.setDrawCircles(false);
-            float lineLength = 20f;
+            lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+            lineDataSet.setCubicIntensity(0.2f);
+            /*float lineLength = 20f;
             float spaceLength = 6f;
             float phase = 0.5f;
-            lineDataSet.enableDashedLine(lineLength, spaceLength, phase);
-        } else {*/
+            lineDataSet.enableDashedLine(lineLength, spaceLength, phase);*/
+        } else {
             lineDataSet.setDrawCircles(true);
             lineDataSet.setCircleRadius(4f);
             lineDataSet.setCircleHoleRadius(1.5f);
-        //}
+        }
 
-        //lineDataSet.setMode(LineDataSet.Mode.LINEAR);
+        //lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        //lineDataSet.setCubicIntensity(0.2f);
     }
 
     public void setDatasetColor(LineDataSet lineDataSet, int user, boolean miss) {
+        if (miss) {
+            lineDataSet.setColor(Color.DKGRAY);
+            lineDataSet.setCircleColor(Color.DKGRAY);
+            return;
+        }
+
         switch (user)
         {
             case 0: // Base_Red: #e57373, Miss_Red: #ffcdd2
-                if (!miss) {
+                //if (!miss) {
                     lineDataSet.setColor(Color.argb(255, 229, 115, 115));
                     lineDataSet.setCircleColor(Color.argb(255, 229, 115, 115));
-                } else {
-                    lineDataSet.setColor(Color.argb(255, 255, 205, 210));
-                    lineDataSet.setCircleColor(Color.argb(255, 255, 205, 210));
-                }
+                //} else {
+                //    lineDataSet.setColor(Color.argb(255, 255, 205, 210));
+                //    lineDataSet.setCircleColor(Color.argb(255, 255, 205, 210));
+                //}
                 break;
             case 1: // Base_Light-Blue: #4fc3f7, Miss_Light-Blue: #b3e5fc
-                if (!miss) {
+                //if (!miss) {
                     lineDataSet.setColor(Color.argb(255, 79, 195, 247));
                     lineDataSet.setCircleColor(Color.argb(255, 79, 195, 247));
-                } else {
-                    lineDataSet.setColor(Color.argb(255, 179, 229, 252));
-                    lineDataSet.setCircleColor(Color.argb(255, 179, 229, 252));
-                }
+                //} else {
+                //    lineDataSet.setColor(Color.argb(255, 179, 229, 252));
+                //    lineDataSet.setCircleColor(Color.argb(255, 179, 229, 252));
+                //}
                 break;
             case 2: // Base_Green: #81c784, Miss_Green: #c8e6c9
-                if (!miss) {
+                //if (!miss) {
                     lineDataSet.setColor(Color.argb(255, 129, 199, 132));
                     lineDataSet.setCircleColor(Color.argb(255, 129, 199, 132));
-                } else {
-                    lineDataSet.setColor(Color.argb(255, 200, 230, 201));
-                    lineDataSet.setCircleColor(Color.argb(255, 200, 230, 201));
-                }
+                //} else {
+                //    lineDataSet.setColor(Color.argb(255, 200, 230, 201));
+                //    lineDataSet.setCircleColor(Color.argb(255, 200, 230, 201));
+                //}
                 break;
             case 3: // Base_Purple: #ba68c8, Miss_Purple: #e1bee7
-                if (!miss) {
+                //if (!miss) {
                     lineDataSet.setColor(Color.argb(255, 186, 104, 200));
                     lineDataSet.setCircleColor(Color.argb(255, 186, 104, 200));
-                } else {
-                    lineDataSet.setColor(Color.argb(255, 225, 190, 231));
-                    lineDataSet.setCircleColor(Color.argb(255, 225, 190, 231));
-                }
+                //} else {
+                //    lineDataSet.setColor(Color.argb(255, 225, 190, 231));
+                //    lineDataSet.setCircleColor(Color.argb(255, 225, 190, 231));
+                //}
                 break;
             default:
-                if (!miss) {
+                //if (!miss) {
                     lineDataSet.setColor(Color.BLUE);
                     lineDataSet.setCircleColor(Color.BLUE);
-                } else {
-                lineDataSet.setColor(Color.GRAY);
-                    lineDataSet.setCircleColor(Color.GRAY);
-                }
+                //} else {
+                //lineDataSet.setColor(Color.GRAY);
+                //    lineDataSet.setCircleColor(Color.GRAY);
+                //}
                 break;
         }
     }

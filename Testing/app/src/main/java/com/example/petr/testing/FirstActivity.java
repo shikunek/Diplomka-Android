@@ -36,6 +36,7 @@ public class FirstActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first);
+        getSupportActionBar().setTitle("Welcome");
 
         mAuth = FirebaseAuth.getInstance();
         mEmailField = (EditText) findViewById(R.id.loginTB);
@@ -78,6 +79,7 @@ public class FirstActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("NECO", "signInWithEmail:success");
+                            //goToReport(view);
                             goToGraph(view);
 //                            updateUI(user);
                         } else {

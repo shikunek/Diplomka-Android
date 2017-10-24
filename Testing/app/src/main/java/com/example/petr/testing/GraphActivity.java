@@ -3,11 +3,13 @@ package com.example.petr.testing;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -27,24 +29,32 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 public class GraphActivity extends AppCompatActivity {
 
     LineChart lineChart;
     LineData data;
-    int lastDay;
-    int numDays;
+    int numDays = 0;
     int leftDay = 0;
-    int numShownDays = 0;
-    final String[] xLabels = new String[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+    int numShownDays = 14;
+    int firstDayOfWeek = 0;
+    Date firstDayShown = null;
+    final String[] xLabels = new String[] { "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su" };
 
     private DatabaseReference mData;
     private FirebaseUser user;
+    Random randomGenerator = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +62,71 @@ public class GraphActivity extends AppCompatActivity {
         setContentView(R.layout.activity_graph);
         getSupportActionBar().setTitle("Project chart");
 
-//        lineChart = (LineChart) findViewById(R.id.lineChart);
-
         mData = FirebaseDatabase.getInstance().getReference();
         user = FirebaseAuth.getInstance().getCurrentUser();
-        // dataset creation from array
+        final Spinner activeProjectNameSpinner = (Spinner) findViewById(R.id.projectNameSpinner);
 
-//        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(final DataSnapshot uzivatel) {
+                ArrayList<String> projectsList = new ArrayList<>();
+                final ArrayList<String> projectsIDs = new ArrayList<>();
+                for (DataSnapshot project : uzivatel.child("Projects").getChildren())
+                {
+                    projectsList.add(project.child("projectName").getValue().toString());
+                    projectsIDs.add(project.getKey());
+                }
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(GraphActivity.this, android.R.layout.simple_spinner_dropdown_item, projectsList);
+
+                activeProjectNameSpinner.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+
+                activeProjectNameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id)
+                    {
+                        Map<String, Object> updatedUserData = new HashMap<>();
+
+                        updatedUserData.put("Uzivatel/" + uzivatel.getKey() + "/" +
+                                "Active" , projectsIDs.get(position));
+
+                        mData.updateChildren(updatedUserData);
+//                        switch (position)
+//                        {
+//                            case 0:
+//                                projectsIDs.get(position);
+//                                Toast.makeText(GraphActivity.this, String.valueOf(id), Toast.LENGTH_SHORT).show();
+//                                break;
+//                            case 1:
+//                                Toast.makeText(GraphActivity.this, String.valueOf(id), Toast.LENGTH_SHORT).show();
+//                                break;
+//                            case 2:
+//                                Toast.makeText(GraphActivity.this, String.valueOf(id), Toast.LENGTH_SHORT).show();
+//                                break;
+//                        }
+
+                        // your code here
+//                        Intent mIntent=new Intent(dynamic_spinner_main.this,sampleLocalization.class);
+//                        mIntent.putExtra("lang", m_myDynamicSpinner.getItemIdAtPosition(position));
+//                        System.out.println("Spinner value...."+m_myDynamicSpinner.getSelectedItem().toString());
+//                        startActivity(mIntent);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parentView) {
+                        // your code here
+                    }
+
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
@@ -70,7 +138,8 @@ public class GraphActivity extends AppCompatActivity {
                     return;
                 }
 
-                mData.child("Projects").child(uzivatel.child("Active").getValue().toString()).addListenerForSingleValueEvent(
+
+                mData.child("Projects").child(uzivatel.child("Active").getValue().toString()).addValueEventListener(
                         new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -80,136 +149,128 @@ public class GraphActivity extends AppCompatActivity {
                                     setContentView(R.layout.activity_graph);
                                     return;
                                 }
+                                numDays = leftDay = 0;
                                 lineChart = (LineChart) findViewById(R.id.lineChart);
                                 final YAxis yAxis = lineChart.getAxisLeft();
                                 final XAxis xAxis = lineChart.getXAxis();
+                                final ArrayList<ILineDataSet> dataSets = new ArrayList<>();
 
-                                final ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
-                                int y = 0;
+                                int iUser = 0;
                                 for (DataSnapshot user : dataSnapshot.getChildren())
                                 {
                                     if (user.getKey().equals("projectName"))
                                     {
                                         continue;
                                     }
-                                    Log.d("B", String.valueOf(user.getKey()));
+
+                                    ArrayList<Entry> yValues = new ArrayList<>();
+                                    ArrayList<Entry> yValuesMiss = new ArrayList<>();
+
+                                    float y = 0f;
+                                    yValues.add(new Entry(0, y)); // first entry is 0
+                                    Entry lastEntry = new Entry(0, y);
                                     int i = 1;
-
-                                    final ArrayList<Entry> yAxes = new ArrayList<>();
-
-                                    xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
-
-                                    final int numDataPoints = numDays = numShownDays;
-                                    Random randomGenerator = new Random();
-                                    float number = 0f;
-                                    yAxes.add(new Entry(0, 0)); // first entry is 0
-
+                                    boolean split = false;
+                                    Date date;
+                                    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+                                    Calendar actDate = Calendar.getInstance();
+                                    Calendar targetDate = Calendar.getInstance();
                                     for (DataSnapshot value : user.getChildren())
                                     {
                                         if (!value.exists())
                                         {
                                             return;
                                         }
-                                        String key = value.getKey();
-
-                                        Log.d("A", String.valueOf(value.child("Y").getValue()));
+                                        // get the smile
                                         long smile = (long) value.child("sendValue").getValue();
-                                        number = translateEntry(number, (int)smile);
-                                        yAxes.add(new Entry(i, number)); // data entry creation
+                                        // get the date
+                                        String key = value.getKey();
+                                        try {
+                                            date = dateFormatter.parse(key);
+                                            targetDate.setTime(date);
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                        if (i == 1) {
+                                            if (firstDayShown == null || targetDate.before(firstDayShown)) {
+                                                firstDayShown = targetDate.getTime();
+                                                // DAY_OF_WEEK start 1 = Su
+                                                firstDayOfWeek = (targetDate.get(Calendar.DAY_OF_WEEK)+ 4) % 7;
+                                            }
+                                            actDate.setTime(targetDate.getTime());
+                                        }
+                                        Log.d("DATE_TEST", "actDate: " + dateFormatter.format(actDate.getTime()) +
+                                                ", targetDate: " + dateFormatter.format(targetDate.getTime()));
+                                        Entry lastMissEntry = null;
+                                        while (!actDate.equals(targetDate)) {
+                                            if (lastMissEntry == null) {
+                                                yValuesMiss.add(lastEntry);
+                                            }
+
+                                            y = translateEntry(y, -1);
+                                            yValuesMiss.add(new Entry(i, y));
+                                            lastMissEntry = new Entry(i, y);
+                                            i++;
+                                            actDate.add(Calendar.DATE, 1);
+                                            split = true;
+                                        }
+
+                                        if (split) { // missing values between last and this date
+                                            LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
+                                            setUpDataset(lineDataSet, false);
+                                            setDatasetColor(lineDataSet, iUser, false);
+                                            dataSets.add(0, lineDataSet);
+
+                                            LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
+                                            setUpDataset(lineDataSetMiss, true);
+                                            setDatasetColor(lineDataSetMiss, iUser, true);
+                                            dataSets.add(0, lineDataSetMiss);
+
+                                            yValues = new ArrayList<>();
+                                            // entry to connect last miss and first base entry in base color
+                                            yValues.add(lastMissEntry);
+
+                                            yValuesMiss = new ArrayList<>();
+
+                                            split = false;
+                                        }
+                                        //Log.d("DATE_TEST", "value for " + dateFormatter.format(date) + " added");
+                                        y = translateEntry(y, (int)smile);
+                                        yValues.add(new Entry(i, y)); // data entry creation
+                                        lastEntry = new Entry(i, y);
                                         i++;
+                                        actDate.add(Calendar.DATE, 1);
                                     }
 
-                                    lastDay = (int) yAxes.get((int)user.getChildrenCount()-1).getY();
+                                    if (i-1 > numDays) numDays = i-1;
 
-                                    LineDataSet lineDataSet = new LineDataSet(yAxes, "data label to be removed");
-                                    lineDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-                                    lineDataSet.setDrawCircles(true);
-                                    lineDataSet.setCircleRadius(5f);
-                                    lineDataSet.setCircleHoleRadius(2f);
-                                    switch (y)
-                                    {
-                                        case 1:
-                                        {
-                                            lineDataSet.setColor(Color.argb(255, 79, 195, 247));
-                                            lineDataSet.setCircleColor(Color.argb(255, 79, 195, 247));
-                                            break;
-                                        }
-                                        case 2:
-                                            lineDataSet.setColor(Color.argb(255, 129, 199, 132));
-                                            lineDataSet.setCircleColor(Color.argb(255, 129, 199, 132));
-                                            break;
-
-                                        case 3:
-                                            lineDataSet.setColor(Color.argb(255, 186, 104, 200));
-                                            lineDataSet.setCircleColor(Color.argb(255, 186, 104, 200));
-                                            break;
-                                        default:
-                                            lineDataSet.setColor(Color.BLUE);
-                                            break;
-
-
+                                    if (yValues.size() > 0) {
+                                        LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
+                                        setUpDataset(lineDataSet, false);
+                                        setDatasetColor(lineDataSet, iUser, false);
+                                        dataSets.add(0, lineDataSet);
                                     }
-                                    y++;
+                                    if (yValuesMiss.size() > 0) {
+                                        LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
+                                        setUpDataset(lineDataSetMiss, true);
+                                        setDatasetColor(lineDataSetMiss, iUser, true);
+                                        dataSets.add(0, lineDataSetMiss);
+                                    }
 
-                                    lineDataSet.setDrawValues(false);
-                                    lineDataSet.setLineWidth(3f);
-                                    lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-                                    lineDataSet.setCubicIntensity(0.2f);
-
-                                    lineDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
-                                    lineDataSet.setDrawCircles(true);
-                                    lineDataSet.setCircleRadius(3f);
-                                    lineDataSet.setCircleHoleRadius(1f);
-                                    lineDataSet.setDrawValues(false);
-                                    lineDataSet.setLineWidth(3f);
-                                    // Modes: LINEAR, STEPPED, CUBIC_BEZIER, HORIZONTAL_BEZIER
-                                    lineDataSet.setMode(LineDataSet.Mode.LINEAR);
-                                    dataSets.add(lineDataSet);
-
-
-                                    yAxis.setDrawGridLines(false);
-                                    yAxis.setDrawAxisLine(false);
-                                    yAxis.setAxisMinimum(-1f);
-                                    yAxis.setAxisMaximum(1f);
-                                    xAxis.setGranularityEnabled(true);
-                                    xAxis.setGranularity(1); // minimum axis-step (interval) is 1
-                                    xAxis.setLabelCount(numShownDays, true);
-                                    xAxis.setDrawAxisLine(false);
-                                    xAxis.setDrawGridLines(false);
-                                    xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-                                    xAxis.setTextSize(10);
-                                    xAxis.setTypeface(Typeface.DEFAULT_BOLD);
-                                    xAxis.setGridColor(Color.BLACK);
-                                    IAxisValueFormatter formatter = new IAxisValueFormatter() {
-
-                                        @Override
-                                        public String getFormattedValue(float value, AxisBase axis) {
-                                            if (Math.round(value) == numDays - 14) return "2w ago";
-                                            else if (Math.round(value) == numDays - 9) return "1w ago";
-                                            else if (Math.round(value) > numDays - 8) return xLabels[(int) value % 7];
-                                            else return "";
-                                        }
-                                    };
-                                    xAxis.setValueFormatter(formatter);
-
+                                    iUser++;
                                 }
+
                                 data = new LineData(dataSets);
                                 lineChart.setData(data);
 
-                                Description description = new Description();
-                                description.setText("");
-                                lineChart.getAxisLeft().setEnabled(false);
-                                lineChart.getAxisRight().setEnabled(false);
-                                lineChart.setDescription(description);
-                                lineChart.setBackgroundColor(Color.TRANSPARENT);
-                                lineChart.setDrawGridBackground(false);// this is a must
-                                lineChart.animateY(1000);
-                                lineChart.setDrawBorders(false);
-                                Legend legend = lineChart.getLegend();
-                                legend.setEnabled(false);
+                                setUpChart(lineChart);
 
                                 lineChart.notifyDataSetChanged(); // let the chart know it's data changed
                                 lineChart.setVisibleXRangeMaximum(numShownDays-1);
+                                lineChart.setVisibleXRangeMinimum(numShownDays-1);
+
+                                leftDay = numDays-numShownDays+1 >= 0 ? numDays-numShownDays+1 : 0;
                                 lineChart.moveViewToX(leftDay);
 
                             }
@@ -271,21 +332,11 @@ public class GraphActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void createGraph(ArrayList<Entry> yAxes)
-    {
-
-
-
-    }
-
-
-
-
     // creates y-value from old y-value and new smile
     private float translateEntry(float old_y, int smile) {
         float new_y = 0f;
         float x_delta;
-        float shiftPar = 0.25f; // the smaller the number, the slower the change
+        float shiftPar = 0.4f; // the smaller the number, the slower the change
         if (old_y >= 1 || old_y <= -1) { // old value is outside of bounds
             throw new IllegalArgumentException("Y-value not within bounds (-1,1)");
         }
@@ -361,39 +412,142 @@ public class GraphActivity extends AppCompatActivity {
         return new_y;
     }
 
-    public void entryMinus(View view) {
-        int newDay = lastDay - 1;
+    public void setUpDataset(LineDataSet lineDataSet, boolean miss) {
+        lineDataSet.setAxisDependency(YAxis.AxisDependency.LEFT);
+        lineDataSet.setHighlightEnabled(true);
+        lineDataSet.setDrawHighlightIndicators(false);
+        lineDataSet.setDrawValues(false);
+        lineDataSet.setLineWidth(4f);
+        if (miss) {
+            lineDataSet.setDrawCircles(false);
+            lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+            lineDataSet.setCubicIntensity(0.2f);
+            /*float lineLength = 20f;
+            float spaceLength = 6f;
+            float phase = 0.5f;
+            lineDataSet.enableDashedLine(lineLength, spaceLength, phase);*/
+        } else {
+            lineDataSet.setDrawCircles(true);
+            lineDataSet.setCircleRadius(4f);
+            lineDataSet.setCircleHoleRadius(1.5f);
+        }
 
-        data.addEntry(new Entry(numDays, newDay), 0);
-        lineChart.notifyDataSetChanged(); // let the chart know it's data changed
-        //lineChart.invalidate(); // refresh
-        lineChart.setVisibleXRangeMaximum(numShownDays-1);
-        lineChart.moveViewToX(++leftDay);
-
-        lastDay = newDay;
-        numDays++;
+        //lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        //lineDataSet.setCubicIntensity(0.2f);
     }
 
-    public void entryZero(View view) {
-        data.addEntry(new Entry(numDays, lastDay), 0);
-        lineChart.notifyDataSetChanged(); // let the chart know it's data changed
-        //lineChart.invalidate(); // refresh
-        lineChart.setVisibleXRangeMaximum(numShownDays-1);
-        lineChart.moveViewToX(++leftDay);
+    public void setDatasetColor(LineDataSet lineDataSet, int user, boolean miss) {
+        if (miss) {
+            lineDataSet.setColor(Color.DKGRAY);
+            lineDataSet.setCircleColor(Color.DKGRAY);
+            return;
+        }
 
-        numDays++;
+        switch (user)
+        {
+            case 0: // Base_Red: #e57373, Miss_Red: #ffcdd2
+                //if (!miss) {
+                    lineDataSet.setColor(Color.argb(255, 229, 115, 115));
+                    lineDataSet.setCircleColor(Color.argb(255, 229, 115, 115));
+                //} else {
+                //    lineDataSet.setColor(Color.argb(255, 255, 205, 210));
+                //    lineDataSet.setCircleColor(Color.argb(255, 255, 205, 210));
+                //}
+                break;
+            case 1: // Base_Light-Blue: #4fc3f7, Miss_Light-Blue: #b3e5fc
+                //if (!miss) {
+                    lineDataSet.setColor(Color.argb(255, 79, 195, 247));
+                    lineDataSet.setCircleColor(Color.argb(255, 79, 195, 247));
+                //} else {
+                //    lineDataSet.setColor(Color.argb(255, 179, 229, 252));
+                //    lineDataSet.setCircleColor(Color.argb(255, 179, 229, 252));
+                //}
+                break;
+            case 2: // Base_Green: #81c784, Miss_Green: #c8e6c9
+                //if (!miss) {
+                    lineDataSet.setColor(Color.argb(255, 129, 199, 132));
+                    lineDataSet.setCircleColor(Color.argb(255, 129, 199, 132));
+                //} else {
+                //    lineDataSet.setColor(Color.argb(255, 200, 230, 201));
+                //    lineDataSet.setCircleColor(Color.argb(255, 200, 230, 201));
+                //}
+                break;
+            case 3: // Base_Purple: #ba68c8, Miss_Purple: #e1bee7
+                //if (!miss) {
+                    lineDataSet.setColor(Color.argb(255, 186, 104, 200));
+                    lineDataSet.setCircleColor(Color.argb(255, 186, 104, 200));
+                //} else {
+                //    lineDataSet.setColor(Color.argb(255, 225, 190, 231));
+                //    lineDataSet.setCircleColor(Color.argb(255, 225, 190, 231));
+                //}
+                break;
+            default:
+                //if (!miss) {
+                    lineDataSet.setColor(Color.BLUE);
+                    lineDataSet.setCircleColor(Color.BLUE);
+                //} else {
+                //lineDataSet.setColor(Color.GRAY);
+                //    lineDataSet.setCircleColor(Color.GRAY);
+                //}
+                break;
+        }
     }
 
-    public void entryPlus(View view) {
-        int newDay = lastDay + 1;
+    public void setUpChart(LineChart lineChart) {
+        final YAxis yAxis = lineChart.getAxisLeft();
+        final XAxis xAxis = lineChart.getXAxis();
 
-        data.addEntry(new Entry(numDays, newDay), 0);
-        lineChart.notifyDataSetChanged(); // let the chart know it's data changed
-        //lineChart.invalidate(); // refresh
-        lineChart.setVisibleXRangeMaximum(numShownDays-1);
-        lineChart.moveViewToX(++leftDay);
+        yAxis.setDrawGridLines(false);
+        yAxis.setDrawAxisLine(false);
+        yAxis.setAxisMinimum(-1f);
+        yAxis.setAxisMaximum(1f);
+        xAxis.setGranularityEnabled(true);
+        xAxis.setGranularity(1); // minimum axis-step (interval) is 1
+        xAxis.setDrawAxisLine(false);
+        xAxis.setDrawGridLines(false);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setTextSize(10);
+        xAxis.setTypeface(Typeface.DEFAULT_BOLD);
+        xAxis.setGridColor(Color.BLACK);
 
-        lastDay = newDay;
-        numDays++;
+        if (numDays <= 14) xAxis.setLabelCount(numDays+1, true);
+        else xAxis.setLabelCount(numShownDays, true);
+
+        IAxisValueFormatter labelFormatter = new IAxisValueFormatter() {
+
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                int day = Math.round(value);
+                if (day < 0) return "";
+                else if (day == numDays) return "Today";
+                else if (day > numDays - 7) return xLabels[(day+firstDayOfWeek) % 7];
+                else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)
+                    return (numDays+1) / 7 - day / 7 + "w ago";
+                else return "";
+            }
+        };
+        xAxis.setValueFormatter(labelFormatter);
+
+        Description description = new Description();
+        description.setText("");
+        lineChart.getAxisLeft().setEnabled(false);
+        lineChart.getAxisRight().setEnabled(false);
+        lineChart.setDescription(description);
+        lineChart.setBackgroundColor(Color.TRANSPARENT);
+        lineChart.setDrawGridBackground(false);// this is a must
+        lineChart.animateY(1000);
+        lineChart.setDrawBorders(false);
+        Legend legend = lineChart.getLegend();
+        legend.setEnabled(false);
+
+        /*IMarker marker = new MarkerView(getApplicationContext(), R.layout.activity_graph) {
+            @Override
+            public void refreshContent(Entry e, Highlight highlight) {
+                tvContent.setText("" + e.getY());
+                // this will perform necessary layouting
+                super.refreshContent(e, highlight);
+            }
+        };
+        lineChart.setMarker(marker);*/
     }
 }

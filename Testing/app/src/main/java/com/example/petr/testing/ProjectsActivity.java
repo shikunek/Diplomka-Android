@@ -3,8 +3,12 @@ package com.example.petr.testing;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -33,6 +37,7 @@ public class ProjectsActivity extends AppCompatActivity {
     ArrayList<String> arrayListJustForTriggerAdapter = new ArrayList<>();
     ArrayList<ProjectClass> projectListToShow = new ArrayList<>();
     DatabaseReference mData;
+    ArrayList<String> listOfRegisteredUsers = new ArrayList<>();
     FirebaseUser currentUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +65,11 @@ public class ProjectsActivity extends AppCompatActivity {
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(final DataSnapshot userProjects) {
+
+                        for (DataSnapshot user : userProjects.getChildren())
+                        {
+                            listOfRegisteredUsers.add(user.child("email").getValue().toString());
+                        }
 
                         if (!userProjects.child(currentUser.getUid()).hasChild("Projects"))
                         {
@@ -124,7 +134,7 @@ public class ProjectsActivity extends AppCompatActivity {
 
         createNewProjectDialog.setTitle("Custom Dialog");
         createNewProjectDialog.getWindow().setLayout(675, 750);
-        TextView manualProjectName = (TextView) createNewProjectDialog.findViewById(R.id.newProjectName);
+        final TextView manualProjectName = (TextView) createNewProjectDialog.findViewById(R.id.newProjectName);
         manualProjectName.setText("SIN");
 
         createNewProjectDialog.show();
@@ -135,8 +145,41 @@ public class ProjectsActivity extends AppCompatActivity {
         addUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText manualUserEditText = new EditText(v.getContext());
-                manualUserEditText.setText("g@f.cz");
+                final AutoCompleteTextView manualUserEditText = new AutoCompleteTextView(v.getContext());
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(v.getContext(),
+                        android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
+                manualUserEditText.setAdapter(adapter);
+                manualUserEditText.setThreshold(1);
+                manualUserEditText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//                        if(s.length() >= 2) {
+//                            if (!manualUserEditText.isPopupShowing()) {
+//                                manualUserEditText.setError("Not found");
+//                                return;
+//                            }
+//                        }
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                        if (s.length() > 1 && (!manualUserEditText.isPopupShowing()) && !manualUserEditText.isPerformingCompletion()) {
+//                            manualUserEditText.setError("Not found");
+//                            return;
+//                        }
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+
+//                            if (!manualUserEditText.isPerformingCompletion()) {
+//                                manualUserEditText.setError("Not found");
+//                                return;
+//                            }
+
+                    }
+                });
+
                 createProjectLayout.addView(manualUserEditText);
             }
         });

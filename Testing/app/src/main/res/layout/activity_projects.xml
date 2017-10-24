@@ -8,8 +8,8 @@
 
     <ListView
         android:id="@+id/projects_list"
-        android:layout_width="452dp"
-        android:layout_height="214dp"
+        android:layout_width="391dp"
+        android:layout_height="398dp"
         android:layout_marginBottom="0dp"
         android:layout_marginLeft="0dp"
         android:layout_marginTop="8dp"
@@ -17,14 +17,14 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        tools:layout_editor_absoluteX="30dp" />
+        tools:layout_editor_absoluteX="20dp" />
 
     <Button
         android:id="@+id/addProject"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="85dp"
-        android:layout_marginTop="86dp"
+        android:layout_marginRight="61dp"
+        android:layout_marginTop="54dp"
         android:onClick="addProject"
         android:text="Add"
         app:layout_constraintRight_toRightOf="parent"

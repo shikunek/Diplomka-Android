@@ -158,6 +158,7 @@ public class GraphActivity extends AppCompatActivity {
                                     {
                                         continue;
                                     }
+                                    Log.d("SMILE_TEST", "NEW USER");
 
                                     ArrayList<Entry> yValues = new ArrayList<>();
                                     ArrayList<Entry> yValuesMiss = new ArrayList<>();
@@ -165,78 +166,78 @@ public class GraphActivity extends AppCompatActivity {
                                     float y = 0f;
                                     yValues.add(new Entry(0, y)); // first entry is 0
                                     Entry lastEntry = new Entry(0, y);
+                                    Entry lastMissEntry = null;
                                     int i = 1;
-                                    boolean split = false;
+                                    //boolean preReport = true; // solution for late addition of user and his missed reports
+                                    boolean lastMiss = false;
+                                    boolean thisMiss;
                                     Date date;
                                     SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
                                     Calendar actDate = Calendar.getInstance();
-                                    Calendar targetDate = Calendar.getInstance();
                                     for (DataSnapshot value : user.getChildren())
                                     {
-                                        if (!value.exists())
-                                        {
+                                        if (!value.exists()) {
                                             return;
                                         }
                                         // get the smile
                                         long smile = (long) value.child("sendValue").getValue();
+                                        Log.d("SMILE_TEST", "smile: " + (int)smile);
                                         // get the date
                                         String key = value.getKey();
                                         try {
                                             date = dateFormatter.parse(key);
-                                            targetDate.setTime(date);
+                                            actDate.setTime(date);
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }
+                                        Log.d("SMILE_TEST", "actDate: " + dateFormatter.format(actDate.getTime()));
 
-                                        if (i == 1) {
-                                            if (firstDayShown == null || targetDate.before(firstDayShown)) {
-                                                firstDayShown = targetDate.getTime();
-                                                // DAY_OF_WEEK start 1 = Su
-                                                firstDayOfWeek = (targetDate.get(Calendar.DAY_OF_WEEK)+ 4) % 7;
+                                        thisMiss = smile < -1f;
+                                        /*if (preReport) { // let all missed days before first report go
+                                            if (thisMiss) {
+                                                i++;
+                                                continue;
                                             }
-                                            actDate.setTime(targetDate.getTime());
+                                            else preReport = false;
+                                        }*/
+
+                                        if (i == 1 && (firstDayShown == null || actDate.before(firstDayShown))) {
+                                            firstDayShown = actDate.getTime();
+                                            // DAY_OF_WEEK start 1 = Su
+                                            firstDayOfWeek = (actDate.get(Calendar.DAY_OF_WEEK)+ 4) % 7;
                                         }
-                                        Log.d("DATE_TEST", "actDate: " + dateFormatter.format(actDate.getTime()) +
-                                                ", targetDate: " + dateFormatter.format(targetDate.getTime()));
-                                        Entry lastMissEntry = null;
-                                        while (!actDate.equals(targetDate)) {
-                                            if (lastMissEntry == null) {
-                                                yValuesMiss.add(lastEntry);
-                                            }
 
+                                        if (thisMiss) { // just add new value to miss dataset
+                                            if (!lastMiss)
+                                                yValuesMiss.add(lastEntry);
                                             y = translateEntry(y, -1);
                                             yValuesMiss.add(new Entry(i, y));
                                             lastMissEntry = new Entry(i, y);
-                                            i++;
-                                            actDate.add(Calendar.DATE, 1);
-                                            split = true;
+                                        }
+                                        else { // !thisMiss && !lastMiss => just add new value to dataset
+                                            if (lastMiss) {
+                                                LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
+                                                setUpDataset(lineDataSet, false);
+                                                setDatasetColor(lineDataSet, iUser, false);
+                                                dataSets.add(0, lineDataSet);
+
+                                                LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
+                                                setUpDataset(lineDataSetMiss, true);
+                                                setDatasetColor(lineDataSetMiss, iUser, true);
+                                                dataSets.add(0, lineDataSetMiss);
+
+                                                yValues = new ArrayList<>();
+                                                // entry to connect last miss and first base entry in base color
+                                                yValues.add(lastMissEntry);
+                                                yValuesMiss = new ArrayList<>();
+                                            }
+                                            y = translateEntry(y, (int)smile);
+                                            yValues.add(new Entry(i, y));
+                                            lastEntry = new Entry(i, y);
                                         }
 
-                                        if (split) { // missing values between last and this date
-                                            LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
-                                            setUpDataset(lineDataSet, false);
-                                            setDatasetColor(lineDataSet, iUser, false);
-                                            dataSets.add(0, lineDataSet);
-
-                                            LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
-                                            setUpDataset(lineDataSetMiss, true);
-                                            setDatasetColor(lineDataSetMiss, iUser, true);
-                                            dataSets.add(0, lineDataSetMiss);
-
-                                            yValues = new ArrayList<>();
-                                            // entry to connect last miss and first base entry in base color
-                                            yValues.add(lastMissEntry);
-
-                                            yValuesMiss = new ArrayList<>();
-
-                                            split = false;
-                                        }
-                                        //Log.d("DATE_TEST", "value for " + dateFormatter.format(date) + " added");
-                                        y = translateEntry(y, (int)smile);
-                                        yValues.add(new Entry(i, y)); // data entry creation
-                                        lastEntry = new Entry(i, y);
+                                        lastMiss = thisMiss;
                                         i++;
-                                        actDate.add(Calendar.DATE, 1);
                                     }
 
                                     if (i-1 > numDays) numDays = i-1;
@@ -413,31 +414,28 @@ public class GraphActivity extends AppCompatActivity {
         lineDataSet.setHighlightEnabled(true);
         lineDataSet.setDrawHighlightIndicators(false);
         lineDataSet.setDrawValues(false);
-        lineDataSet.setLineWidth(4f);
+        lineDataSet.setLineWidth(3f);
+        lineDataSet.setDrawCircles(false);
+        lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        lineDataSet.setCubicIntensity(0.1f);
         if (miss) {
-            lineDataSet.setDrawCircles(false);
-            lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-            lineDataSet.setCubicIntensity(0.2f);
-            /*float lineLength = 20f;
+            float lineLength = 20f;
             float spaceLength = 6f;
             float phase = 0.5f;
-            lineDataSet.enableDashedLine(lineLength, spaceLength, phase);*/
+            lineDataSet.enableDashedLine(lineLength, spaceLength, phase);
         } else {
             lineDataSet.setDrawCircles(true);
-            lineDataSet.setCircleRadius(4f);
-            lineDataSet.setCircleHoleRadius(1.5f);
+            lineDataSet.setCircleRadius(3f);
+            lineDataSet.setCircleHoleRadius(1f);
         }
-
-        //lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        //lineDataSet.setCubicIntensity(0.2f);
     }
 
     public void setDatasetColor(LineDataSet lineDataSet, int user, boolean miss) {
-        if (miss) {
+        /*if (miss) {
             lineDataSet.setColor(Color.DKGRAY);
             lineDataSet.setCircleColor(Color.DKGRAY);
             return;
-        }
+        }*/
 
         switch (user)
         {
@@ -502,7 +500,7 @@ public class GraphActivity extends AppCompatActivity {
         xAxis.setDrawAxisLine(false);
         xAxis.setDrawGridLines(false);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextSize(10);
+        xAxis.setTextSize(11);
         xAxis.setTypeface(Typeface.DEFAULT_BOLD);
         xAxis.setGridColor(Color.BLACK);
 

@@ -42,7 +42,7 @@ public class FirstActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mEmailField = (EditText) findViewById(R.id.loginTB);
         mPasswordField = (EditText) findViewById(R.id.passwordTB);
-        mEmailField.setText("g@f.cz", TextView.BufferType.EDITABLE);
+        mEmailField.setText("zbrandejs@gmail.com", TextView.BufferType.EDITABLE);
         mPasswordField.setText("set123", TextView.BufferType.EDITABLE);
         mData = FirebaseDatabase.getInstance().getReference();
     }

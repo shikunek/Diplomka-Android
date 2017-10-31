@@ -60,7 +60,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 
 public class GraphActivity extends AppCompatActivity {
 
@@ -75,15 +74,14 @@ public class GraphActivity extends AppCompatActivity {
 
     private DatabaseReference mData;
     private FirebaseUser user;
-    Random randomGenerator = new Random();
 
 
-    private void sendFCMPush() {
+    private void sendFCMPush(String token) {
 
         final String Legacy_SERVER_KEY = "AIzaSyCB88Oy7989Wj319s4Q4PCDy1oGZo7SMAI";
-        String msg = "Send a report bitch";
-        String title = "ASSHOLE";
-        String token = "fQcRp3cNTQY:APA91bEu9yj1Od9H2KUn0qhY7kfWVob2xFd-tzEigppaetOYWiPEAsW0_7qlZO2zT6gTQD0s8zMhwRKgeV7VgXve4UxBLXao4nWU2HtAaqRmqbuWvMCtBGFJk5HvA0gLbeGxvAO6gdpS";
+        String msg = "PLEASE SEND YOUR REPORT";
+        String title = "DEAR CO-WORKER";
+//        String token = "fQcRp3cNTQY:APA91bEu9yj1Od9H2KUn0qhY7kfWVob2xFd-tzEigppaetOYWiPEAsW0_7qlZO2zT6gTQD0s8zMhwRKgeV7VgXve4UxBLXao4nWU2HtAaqRmqbuWvMCtBGFJk5HvA0gLbeGxvAO6gdpS";
 
         JSONObject obj = null;
         JSONObject objData = null;
@@ -216,7 +214,7 @@ public class GraphActivity extends AppCompatActivity {
                 FirebaseMessaging.getInstance().subscribeToTopic("cats");
 
                 // [END subscribe_topics]
-                sendFCMPush();
+                sendFCMPush(token);
                 // Log and toast
 
                 Toast.makeText(GraphActivity.this, "SSS", Toast.LENGTH_SHORT).show();

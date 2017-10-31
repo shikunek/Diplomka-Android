@@ -1,16 +1,32 @@
 package com.example.petr.testing;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
@@ -30,6 +46,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,6 +61,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+
 
 public class GraphActivity extends AppCompatActivity {
 
@@ -56,6 +78,92 @@ public class GraphActivity extends AppCompatActivity {
     private FirebaseUser user;
     Random randomGenerator = new Random();
 
+
+    private void sendFCMPush() {
+
+        final String Legacy_SERVER_KEY = "AIzaSyCB88Oy7989Wj319s4Q4PCDy1oGZo7SMAI";
+        String msg = "Send a report bitch";
+        String title = "ASSHOLE";
+        String token = "fQcRp3cNTQY:APA91bEu9yj1Od9H2KUn0qhY7kfWVob2xFd-tzEigppaetOYWiPEAsW0_7qlZO2zT6gTQD0s8zMhwRKgeV7VgXve4UxBLXao4nWU2HtAaqRmqbuWvMCtBGFJk5HvA0gLbeGxvAO6gdpS";
+
+        JSONObject obj = null;
+        JSONObject objData = null;
+        JSONObject dataobjData = null;
+
+        try {
+            obj = new JSONObject();
+            objData = new JSONObject();
+
+            objData.put("body", msg);
+            objData.put("title", title);
+            objData.put("sound", "default");
+            objData.put("icon", "icon_name"); //   icon_name image must be there in drawable
+            objData.put("tag", token);
+            objData.put("priority", "high");
+
+            dataobjData = new JSONObject();
+            dataobjData.put("text", msg);
+            dataobjData.put("title", title);
+
+            obj.put("to", "/topics/cats");
+            //obj.put("priority", "high");
+//            obj.put("topic","news");
+            obj.put("notification", objData);
+            obj.put("data", dataobjData);
+
+            Log.e("!_@rj@_@@_PASS:>", obj.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.POST, "https://fcm.googleapis.com/fcm/send", obj,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.e("!_@@_SUCESS", response + "");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("!_@@_Errors--", error + "");
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization", "key=" + Legacy_SERVER_KEY);
+                params.put("Content-Type", "application/json");
+                return params;
+            }
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        int socketTimeout = 1000 * 60;// 60 seconds
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsObjRequest.setRetryPolicy(policy);
+        requestQueue.add(jsObjRequest);
+//        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+//
+//            @Override
+//            public void onResponse(JSONObject arg0) {
+//                // TODO Auto-generated method stub
+//
+//            }
+//        }, new Response.ErrorListener() {
+//
+//            @Override
+//            public void onErrorResponse(VolleyError arg0) {
+//                // TODO Auto-generated method stub
+//
+//            }
+//        });
+//        };
+//        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//        int socketTimeout = 1000 * 60;// 60 seconds
+//        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+//        jsObjRequest.setRetryPolicy(policy);
+//        requestQueue.add(jsObjRequest);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +172,64 @@ public class GraphActivity extends AppCompatActivity {
 
         mData = FirebaseDatabase.getInstance().getReference();
         user = FirebaseAuth.getInstance().getCurrentUser();
+
+
+        // The id of the channel.
+        String CHANNEL_ID = "my_channel_01";
+        final NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.checked)
+                        .setContentTitle("My notification")
+                        .setContentText("Hello World!");
+    // Creates an explicit intent for an Activity in your app
+        Intent resultIntent = new Intent(this, DisplayMessageActivity.class);
+
+    // The stack builder object will contain an artificial back stack for the
+    // started Activity.
+    // This ensures that navigating backward from the Activity leads out of
+    // your app to the Home screen.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+    // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(GraphActivity.class);
+    // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+        final NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+//     mNotificationId is a unique integer your app uses to identify the
+//     notification. For example, to cancel the notification, you can pass its ID
+//     number to NotificationManager.cancel().
+
+        mBuilder.setAutoCancel(true);
+        ImageButton nudgeMeButton = (ImageButton) findViewById(R.id.nudgeMyTeam);
+        nudgeMeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int mNotificationId = 001;
+//                mNotificationManager.notify(mNotificationId, mBuilder.build());
+                String token = FirebaseInstanceId.getInstance().getToken();
+                FirebaseMessaging.getInstance().subscribeToTopic("cats");
+
+                // [END subscribe_topics]
+                sendFCMPush();
+                // Log and toast
+
+                Toast.makeText(GraphActivity.this, "SSS", Toast.LENGTH_SHORT).show();
+                // Log and toast
+                String msg = token;
+                Log.d("HELLO", msg);
+
+            }
+        });
+
         final Spinner activeProjectNameSpinner = (Spinner) findViewById(R.id.projectNameSpinner);
+
 
 
         mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {

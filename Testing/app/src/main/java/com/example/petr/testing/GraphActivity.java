@@ -62,7 +62,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
-
 public class GraphActivity extends AppCompatActivity {
 
     LineChart lineChart;

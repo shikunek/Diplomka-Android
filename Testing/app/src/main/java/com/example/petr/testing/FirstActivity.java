@@ -2,9 +2,9 @@ package com.example.petr.testing;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -14,16 +14,13 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-//import com.google.firebase.auth.FirebaseCredentials;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.io.FileInputStream;
+//import com.google.firebase.auth.FirebaseCredentials;
 
 public class FirstActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
@@ -44,6 +41,8 @@ public class FirstActivity extends AppCompatActivity {
         mEmailField.setText("g@f.cz", TextView.BufferType.EDITABLE);
         mPasswordField.setText("set123", TextView.BufferType.EDITABLE);
         mData = FirebaseDatabase.getInstance().getReference();
+
+
     }
 
 
@@ -81,6 +80,7 @@ public class FirstActivity extends AppCompatActivity {
                             Log.d("NECO", "signInWithEmail:success");
                             //goToReport(view);
                             goToGraph(view);
+
 //                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.

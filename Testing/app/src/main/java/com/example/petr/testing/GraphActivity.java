@@ -224,6 +224,15 @@ public class GraphActivity extends AppCompatActivity {
 
         final Spinner activeProjectNameSpinner = (Spinner) findViewById(R.id.projectNameSpinner);
 
+        ImageButton goToReport = (ImageButton) findViewById(R.id.goToReportButton);
+        goToReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GraphActivity.this, DisplayMessageActivity.class);
+                startActivity(intent);
+            }
+        });
+
         mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot uzivatel) {
@@ -234,16 +243,6 @@ public class GraphActivity extends AppCompatActivity {
                     projectsList.add(project.child("projectName").getValue().toString());
                     projectsIDs.add(project.getKey());
                 }
-
-                ImageButton goToReport = (ImageButton) findViewById(R.id.goToReportButton);
-                goToReport.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(GraphActivity.this, DisplayMessageActivity.class);
-                        intent.putExtra("activeProject",uzivatel.child("Active").getValue().toString());
-                        startActivity(intent);
-                    }
-                });
 
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(GraphActivity.this, android.R.layout.simple_spinner_dropdown_item, projectsList);
 

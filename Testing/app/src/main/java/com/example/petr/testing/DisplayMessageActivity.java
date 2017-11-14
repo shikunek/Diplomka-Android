@@ -1,7 +1,6 @@
 package com.example.petr.testing;
 
 import android.app.DatePickerDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -31,6 +30,7 @@ import java.util.Locale;
 public class DisplayMessageActivity extends AppCompatActivity {
     Calendar myCalendar = Calendar.getInstance();
     ImageButton floatButton;
+    DatabaseReference mData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Report your day");
 
         final EditText edittext = (EditText) findViewById(R.id.date);
-
+        mData = FirebaseDatabase.getInstance().getReference();
 
         floatButton = (ImageButton) findViewById(R.id.sendReport);
         floatButton.setOnClickListener(new View.OnClickListener(){
@@ -79,43 +79,56 @@ public class DisplayMessageActivity extends AppCompatActivity {
                 final DatePickerDialog datePickerDialog = new DatePickerDialog(DisplayMessageActivity.this, date, myCalendar
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH));
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(Calendar.getInstance().getTime());
                 datePickerDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
-                Intent intent = getIntent();
-                String activeProjectName = intent.getExtras().getString("activeProject");
-                mData = FirebaseDatabase.getInstance().getReference();
-                mData.child("Projects").child(activeProjectName)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot choosenProject) {
-
-                        Iterator<DataSnapshot> firstUser =  choosenProject.getChildren().iterator();
-
-                        while (firstUser.hasNext())
+                    public void onDataChange(DataSnapshot currentUser) {
+                        if (!currentUser.hasChild("Active"))
                         {
-                            if (firstUser.next().getKey().equals("Ending"))
-                            {
-                                continue;
-                            }
-                            Iterator<DataSnapshot> firstDate = firstUser.next().getChildren().iterator();
-                            while (firstDate.hasNext())
-                            {
-                                String myFormat = "yyyy-MM-dd";
-                                final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
-                                Date date;
-                                try {
-                                    date = sdf.parse(firstDate.next().getKey());
-                                    datePickerDialog.getDatePicker().setMinDate(date.getTime());
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-
-
-                                break;
-                            }
-                            break;
+                            return;
                         }
+                        mData.child("Projects").child(currentUser.child("Active").getValue().toString())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot choosenProject) {
+
+                                        Iterator<DataSnapshot> firstUser =  choosenProject.getChildren().iterator();
+
+                                        while (firstUser.hasNext())
+                                        {
+                                            if (firstUser.next().getKey().equals("Ending"))
+                                            {
+                                                continue;
+                                            }
+                                            Iterator<DataSnapshot> firstDate = firstUser.next().getChildren().iterator();
+                                            while (firstDate.hasNext())
+                                            {
+                                                String myFormat = "yyyy-MM-dd";
+                                                final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
+                                                Date date;
+                                                try {
+                                                    date = sdf.parse(firstDate.next().getKey());
+                                                    datePickerDialog.getDatePicker().setMinDate(date.getTime());
+                                                } catch (ParseException e) {
+                                                    e.printStackTrace();
+                                                }
+
+
+                                                break;
+                                            }
+                                            break;
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
                     }
 
                     @Override
@@ -136,7 +149,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
         edittext.setText(sdf.format(myCalendar.getTime()));
     }
 
-    private DatabaseReference mData;
+
 
     public void sendReport(View view)
     {

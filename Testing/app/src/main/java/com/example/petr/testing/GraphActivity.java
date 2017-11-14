@@ -1,8 +1,6 @@
 package com.example.petr.testing;
 
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -11,10 +9,13 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -38,6 +39,8 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.ChartTouchListener;
+import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -46,8 +49,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,19 +71,18 @@ public class GraphActivity extends AppCompatActivity {
     int numShownDays = 14;
     int firstDayOfWeek = 0;
     Date firstDayShown = null;
+    LinearLayout usersLinearLayout;
     final String[] xLabels = new String[] { "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su" };
 
     private DatabaseReference mData;
     private FirebaseUser user;
 
 
-    private void sendFCMPush(String token) {
+    private void sendFCMPush(String userID) {
 
         final String Legacy_SERVER_KEY = "AIzaSyCB88Oy7989Wj319s4Q4PCDy1oGZo7SMAI";
         String msg = "PLEASE SEND YOUR REPORT";
         String title = "DEAR CO-WORKER";
-//        String token = "fQcRp3cNTQY:APA91bEu9yj1Od9H2KUn0qhY7kfWVob2xFd-tzEigppaetOYWiPEAsW0_7qlZO2zT6gTQD0s8zMhwRKgeV7VgXve4UxBLXao4nWU2HtAaqRmqbuWvMCtBGFJk5HvA0gLbeGxvAO6gdpS";
-
         JSONObject obj = null;
         JSONObject objData = null;
         JSONObject dataobjData = null;
@@ -95,16 +95,13 @@ public class GraphActivity extends AppCompatActivity {
             objData.put("title", title);
             objData.put("sound", "default");
             objData.put("icon", "icon_name"); //   icon_name image must be there in drawable
-            objData.put("tag", token);
             objData.put("priority", "high");
 
             dataobjData = new JSONObject();
             dataobjData.put("text", msg);
             dataobjData.put("title", title);
 
-            obj.put("to", "/topics/cats");
-            //obj.put("priority", "high");
-//            obj.put("topic","news");
+            obj.put("to", "/topics/" + userID);
             obj.put("notification", objData);
             obj.put("data", dataobjData);
 
@@ -127,7 +124,7 @@ public class GraphActivity extends AppCompatActivity {
                 }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<>();
                 params.put("Authorization", "key=" + Legacy_SERVER_KEY);
                 params.put("Content-Type", "application/json");
                 return params;
@@ -138,27 +135,6 @@ public class GraphActivity extends AppCompatActivity {
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         jsObjRequest.setRetryPolicy(policy);
         requestQueue.add(jsObjRequest);
-//        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-//
-//            @Override
-//            public void onResponse(JSONObject arg0) {
-//                // TODO Auto-generated method stub
-//
-//            }
-//        }, new Response.ErrorListener() {
-//
-//            @Override
-//            public void onErrorResponse(VolleyError arg0) {
-//                // TODO Auto-generated method stub
-//
-//            }
-//        });
-//        };
-//        RequestQueue requestQueue = Volley.newRequestQueue(this);
-//        int socketTimeout = 1000 * 60;// 60 seconds
-//        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-//        jsObjRequest.setRetryPolicy(policy);
-//        requestQueue.add(jsObjRequest);
     }
 
     @Override
@@ -170,15 +146,12 @@ public class GraphActivity extends AppCompatActivity {
         mData = FirebaseDatabase.getInstance().getReference();
         user = FirebaseAuth.getInstance().getCurrentUser();
 
-
-        // The id of the channel.
-        String CHANNEL_ID = "my_channel_01";
         final NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.checked)
                         .setContentTitle("My notification")
                         .setContentText("Hello World!");
-    // Creates an explicit intent for an Activity in your app
+
         Intent resultIntent = new Intent(this, DisplayMessageActivity.class);
 
     // The stack builder object will contain an artificial back stack for the
@@ -196,38 +169,60 @@ public class GraphActivity extends AppCompatActivity {
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
         mBuilder.setContentIntent(resultPendingIntent);
-        final NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-//     mNotificationId is a unique integer your app uses to identify the
-//     notification. For example, to cancel the notification, you can pass its ID
-//     number to NotificationManager.cancel().
 
         mBuilder.setAutoCancel(true);
         ImageButton nudgeMeButton = (ImageButton) findViewById(R.id.nudgeMyTeam);
         nudgeMeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int mNotificationId = 001;
-//                mNotificationManager.notify(mNotificationId, mBuilder.build());
-                String token = FirebaseInstanceId.getInstance().getToken();
-                FirebaseMessaging.getInstance().subscribeToTopic("cats");
 
-                // [END subscribe_topics]
-                sendFCMPush(token);
-                // Log and toast
+                Calendar myCalendar = Calendar.getInstance();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY);
+                String id = user.getUid();
+                final String formattedDate = dateFormat.format(myCalendar.getTime());
+                mData.child("Uzivatel").child(id).child("Active")
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(final DataSnapshot activeProject) {
 
-                Toast.makeText(GraphActivity.this, "SSS", Toast.LENGTH_SHORT).show();
-                // Log and toast
-                String msg = token;
-                Log.d("HELLO", msg);
+                            mData.child("Projects").child(activeProject.getValue().toString())
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot currentProject) {
+                                            for (DataSnapshot user1 : currentProject.getChildren())
+                                            {
+                                                if (user1.getKey().equals("projectName") || user1.getKey().equals("Ending"))
+                                                {
+                                                    continue;
+                                                }
+                                                if (!user1.hasChild(formattedDate))
+                                                {
+                                                    sendFCMPush(user1.getKey());
+                                                }
+                                            }
+
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+                Toast.makeText(GraphActivity.this, "NudgeMe send", Toast.LENGTH_SHORT).show();
 
             }
         });
 
         final Spinner activeProjectNameSpinner = (Spinner) findViewById(R.id.projectNameSpinner);
-
-
 
         mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -239,6 +234,16 @@ public class GraphActivity extends AppCompatActivity {
                     projectsList.add(project.child("projectName").getValue().toString());
                     projectsIDs.add(project.getKey());
                 }
+
+                ImageButton goToReport = (ImageButton) findViewById(R.id.goToReportButton);
+                goToReport.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(GraphActivity.this, DisplayMessageActivity.class);
+                        intent.putExtra("activeProject",uzivatel.child("Active").getValue().toString());
+                        startActivity(intent);
+                    }
+                });
 
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(GraphActivity.this, android.R.layout.simple_spinner_dropdown_item, projectsList);
 
@@ -255,25 +260,6 @@ public class GraphActivity extends AppCompatActivity {
                                 "Active" , projectsIDs.get(position));
 
                         mData.updateChildren(updatedUserData);
-//                        switch (position)
-//                        {
-//                            case 0:
-//                                projectsIDs.get(position);
-//                                Toast.makeText(GraphActivity.this, String.valueOf(id), Toast.LENGTH_SHORT).show();
-//                                break;
-//                            case 1:
-//                                Toast.makeText(GraphActivity.this, String.valueOf(id), Toast.LENGTH_SHORT).show();
-//                                break;
-//                            case 2:
-//                                Toast.makeText(GraphActivity.this, String.valueOf(id), Toast.LENGTH_SHORT).show();
-//                                break;
-//                        }
-
-                        // your code here
-//                        Intent mIntent=new Intent(dynamic_spinner_main.this,sampleLocalization.class);
-//                        mIntent.putExtra("lang", m_myDynamicSpinner.getItemIdAtPosition(position));
-//                        System.out.println("Spinner value...."+m_myDynamicSpinner.getSelectedItem().toString());
-//                        startActivity(mIntent);
                     }
 
                     @Override
@@ -304,7 +290,7 @@ public class GraphActivity extends AppCompatActivity {
                 mData.child("Projects").child(uzivatel.child("Active").getValue().toString()).addValueEventListener(
                         new ValueEventListener() {
                             @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
+                            public void onDataChange(final DataSnapshot dataSnapshot) {
 
                                 if (!dataSnapshot.hasChild(user.getUid()))
                                 {
@@ -315,14 +301,36 @@ public class GraphActivity extends AppCompatActivity {
                                 lineChart = (LineChart) findViewById(R.id.lineChart);
                                 final ArrayList<ILineDataSet> dataSets = new ArrayList<>();
 
+                                usersLinearLayout = (LinearLayout) findViewById(R.id.projectUsersLayout);
+                                usersLinearLayout.removeAllViews();
                                 int iUser = 0;
-                                for (DataSnapshot user : dataSnapshot.getChildren())
+                                for (final DataSnapshot user : dataSnapshot.getChildren())
                                 {
-                                    if (user.getKey().equals("projectName"))
+                                    if (user.getKey().equals("projectName") || user.getKey().equals("Ending"))
                                     {
                                         continue;
                                     }
                                     Log.d("SMILE_TEST", "NEW USER");
+
+                                    Button userOnProjectButton = new Button(GraphActivity.this);
+                                    userOnProjectButton.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                                    userOnProjectButton.setText("USER" + String.valueOf(iUser+1));
+
+                                    userOnProjectButton.setTextColor(Color.RED);
+                                    userOnProjectButton.setPadding(20, 20, 20, 20);
+                                    userOnProjectButton.setTag(user.getKey());
+                                    usersLinearLayout.addView(userOnProjectButton);
+                                    userOnProjectButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Intent intent = new Intent(GraphActivity.this, UserReportsActivity.class);
+                                            intent.putExtra("projectName", dataSnapshot.getKey());
+                                            intent.putExtra("userName", user.getKey());
+                                            intent.putExtra("email", uzivatel.child("email").getValue().toString());
+                                            startActivity(intent);
+                                        }
+                                    });
 
                                     ArrayList<Entry> yValues = new ArrayList<>();
                                     ArrayList<Entry> yValuesMiss = new ArrayList<>();
@@ -404,7 +412,11 @@ public class GraphActivity extends AppCompatActivity {
                                         i++;
                                     }
 
-                                    if (i-1 > numDays) numDays = i-1;
+                                    if (i-1 > numDays)
+                                    {
+                                        numDays = i-1;
+                                    }
+
 
                                     if (yValues.size() > 0) {
                                         LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
@@ -651,7 +663,7 @@ public class GraphActivity extends AppCompatActivity {
         }
     }
 
-    public void setUpChart(LineChart lineChart) {
+    public void setUpChart(final LineChart lineChart) {
         final YAxis yAxis = lineChart.getAxisLeft();
         final XAxis xAxis = lineChart.getXAxis();
 
@@ -668,23 +680,83 @@ public class GraphActivity extends AppCompatActivity {
         xAxis.setTypeface(Typeface.DEFAULT_BOLD);
         xAxis.setGridColor(Color.BLACK);
 
-        if (numDays <= 14) xAxis.setLabelCount(numDays+1, true);
-        else xAxis.setLabelCount(numShownDays, true);
+        if (numDays <= 14)
+        {
+            xAxis.setLabelCount(numDays+1, true);
+        }
+
+        else
+        {
+            xAxis.setLabelCount(numShownDays, true);
+        }
+
 
         IAxisValueFormatter labelFormatter = new IAxisValueFormatter() {
 
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
                 int day = Math.round(value);
-                if (day < 0) return "";
-                else if (day == numDays) return "Today";
-                else if (day > numDays - 7) return xLabels[(day+firstDayOfWeek) % 7];
+                if (day < 0)
+                    return "";
+
+                else if (day == numDays)
+                    return "Today";
+
+                else if (day > numDays - 7)
+                    return xLabels[(day+firstDayOfWeek) % 7];
+
                 else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)
                     return (numDays+1) / 7 - day / 7 + "w ago";
+
                 else return "";
             }
         };
         xAxis.setValueFormatter(labelFormatter);
+
+        OnChartGestureListener gestureListener = new OnChartGestureListener() {
+            @Override
+            public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+
+            }
+
+            @Override
+            public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+
+            }
+
+            @Override
+            public void onChartLongPressed(MotionEvent me) {
+
+            }
+
+            @Override
+            public void onChartDoubleTapped(MotionEvent me) {
+
+            }
+
+            @Override
+            public void onChartSingleTapped(MotionEvent me) {
+
+            }
+
+            @Override
+            public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
+
+            }
+
+            @Override
+            public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
+//                lineChart.zoomIn();
+            }
+
+            @Override
+            public void onChartTranslate(MotionEvent me, float dX, float dY) {
+
+            }
+        };
+
+        lineChart.setTouchEnabled(true);
+        lineChart.setOnChartGestureListener(gestureListener);
 
         Description description = new Description();
         description.setText("");
@@ -693,6 +765,7 @@ public class GraphActivity extends AppCompatActivity {
         lineChart.setDescription(description);
         lineChart.setBackgroundColor(Color.TRANSPARENT);
         lineChart.setDrawGridBackground(false);// this is a must
+
         lineChart.animateY(1000);
         lineChart.setDrawBorders(false);
         Legend legend = lineChart.getLegend();

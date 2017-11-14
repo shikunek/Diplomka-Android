@@ -9,8 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".FirstActivity">
+        <activity android:name=".FirstActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,33 +19,35 @@
         <activity
             android:name=".DisplayMessageActivity"
             android:windowSoftInputMode="stateHidden">
-            <!--<meta-data-->
-                <!--android:name="android.support.PARENT_ACTIVITY"-->
-                <!--android:value=".FirstActivity" />-->
+
+            <!-- <meta-data -->
+            <!-- android:name="android.support.PARENT_ACTIVITY" -->
+            <!-- android:value=".FirstActivity" /> -->
         </activity>
-        <activity
-            android:name=".GraphActivity"
-        />
-        <activity
-            android:name=".ProjectsActivity"/>
-        <service
-            android:name=".ReceiveMessage">
+        <activity android:name=".GraphActivity" />
+        <activity android:name=".ProjectsActivity" />
+
+        <service android:name=".ReceiveMessage">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <!-- [END firebase_service] -->
         <!-- [START firebase_iid_service] -->
-        <service
-            android:name=".TokenGetting">
+        <service android:name=".TokenGetting">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
-        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
-     See README(https://goo.gl/l4GJaQ) for more. -->
+        <!--
+     Set custom default icon. This is used when no icon is set for incoming notification messages.
+     See README(https://goo.gl/l4GJaQ) for more.
+        -->
 
+        <activity android:name=".ProjectInfoActivity" />
+        <activity android:name=".UserReportsActivity" />
+        <activity android:name=".AddProjectActivity"></activity>
     </application>
 
 </manifest>

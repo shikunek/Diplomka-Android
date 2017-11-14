@@ -19,11 +19,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 //import com.google.firebase.auth.FirebaseCredentials;
 
 public class FirstActivity extends AppCompatActivity {
-    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
+
     private FirebaseAuth mAuth;
     private DatabaseReference mData;
     private EditText mEmailField;
@@ -41,11 +42,7 @@ public class FirstActivity extends AppCompatActivity {
         mEmailField.setText("g@f.cz", TextView.BufferType.EDITABLE);
         mPasswordField.setText("set123", TextView.BufferType.EDITABLE);
         mData = FirebaseDatabase.getInstance().getReference();
-
-
     }
-
-
 
     @Override
     public void onStart()
@@ -69,8 +66,6 @@ public class FirstActivity extends AppCompatActivity {
 
     public void singInUsers(final View view)
     {
-        FirebaseUser user;
-
         mAuth.signInWithEmailAndPassword(mEmailField.getText().toString(), mPasswordField.getText().toString())
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -78,10 +73,11 @@ public class FirstActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("NECO", "signInWithEmail:success");
-                            //goToReport(view);
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            FirebaseMessaging.getInstance().subscribeToTopic(user.getUid());
+
                             goToGraph(view);
 
-//                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d("NECO", "signInWithEmail:failure", task.getException());
@@ -119,6 +115,8 @@ public class FirstActivity extends AppCompatActivity {
                             final FirebaseUser user = mAuth.getCurrentUser();
                             mData.child("Uzivatel").child(user.getUid()).child("email").
                                     setValue(mEmailField.getText().toString());
+
+                            FirebaseMessaging.getInstance().subscribeToTopic(user.getUid());
                             goToGraph(view);
 //                            updateUI(user);
                         } else {
@@ -138,9 +136,6 @@ public class FirstActivity extends AppCompatActivity {
     public void sendMessage(View view)
     {
         Intent intent = new Intent(this, DisplayMessageActivity.class);
-//        EditText editText = (EditText) findViewById(R.id.editText2);
-//        String message = editText.getText().toString();
-//        intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
     }
     public void goToReport(View view)

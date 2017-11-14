@@ -1,19 +1,12 @@
 package com.example.petr.testing;
 
-import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -23,11 +16,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 
@@ -54,9 +44,12 @@ public class ProjectsActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                LinearLayout currentProjectLayout = (LinearLayout) view.findViewById(R.id.lin);
 
-                mData.child("Uzivatel").child(currentUser.getUid()).child("Active").setValue((String) currentProjectLayout.getTag());
+                LinearLayout currentProjectLayout = (LinearLayout) view.findViewById(R.id.lin);
+                Intent intent = new Intent(ProjectsActivity.this, ProjectInfoActivity.class);
+                intent.putExtra("projectName",(String) currentProjectLayout.getTag() );
+                startActivity(intent);
+
             }
         });
         projectsListView.setAdapter(adapter);
@@ -127,137 +120,8 @@ public class ProjectsActivity extends AppCompatActivity {
 
     public void addProject(final View view) {
 
-        final Dialog createNewProjectDialog = new Dialog(ProjectsActivity.this);
-
-        createNewProjectDialog.setContentView(R.layout.create_project_dialog);
-        final ProjectClass newProject = new ProjectClass();
-
-        createNewProjectDialog.setTitle("Custom Dialog");
-        createNewProjectDialog.getWindow().setLayout(675, 750);
-        final TextView manualProjectName = (TextView) createNewProjectDialog.findViewById(R.id.newProjectName);
-        manualProjectName.setText("SIN");
-
-        createNewProjectDialog.show();
-        final DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
-        Button addButton = (Button) createNewProjectDialog.findViewById(R.id.addProjectButton);
-        final LinearLayout createProjectLayout = (LinearLayout) createNewProjectDialog.findViewById(R.id.usersLinLayout);
-        Button addUserButton = (Button) createNewProjectDialog.findViewById(R.id.addUsersButton);
-        addUserButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final AutoCompleteTextView manualUserEditText = new AutoCompleteTextView(v.getContext());
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(v.getContext(),
-                        android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
-                manualUserEditText.setAdapter(adapter);
-                manualUserEditText.setThreshold(1);
-                manualUserEditText.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//                        if(s.length() >= 2) {
-//                            if (!manualUserEditText.isPopupShowing()) {
-//                                manualUserEditText.setError("Not found");
-//                                return;
-//                            }
-//                        }
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                        if (s.length() > 1 && (!manualUserEditText.isPopupShowing()) && !manualUserEditText.isPerformingCompletion()) {
-//                            manualUserEditText.setError("Not found");
-//                            return;
-//                        }
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-
-//                            if (!manualUserEditText.isPerformingCompletion()) {
-//                                manualUserEditText.setError("Not found");
-//                                return;
-//                            }
-
-                    }
-                });
-
-                createProjectLayout.addView(manualUserEditText);
-            }
-        });
-        Calendar myCalendar = Calendar.getInstance();
-        final ArrayList<String> usersUID = new ArrayList<>();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY);
-        final String formattedDate = dateFormat.format(myCalendar.getTime());
-
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mData.child("Uzivatel").addListenerForSingleValueEvent(
-                        new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot usersData) {
-                                final int editTextsCount = createProjectLayout.getChildCount();
-                                for (int i = 0; i < editTextsCount; i++) {
-                                    Boolean allUsersWereFound = false;
-                                    for (DataSnapshot user : usersData.getChildren()) {
-                                        EditText editText = (EditText) createProjectLayout.getChildAt(i);
-                                        if (user.child("email").getValue().toString().equals(editText.getText().toString())) {
-                                            usersUID.add(user.getKey());
-                                            allUsersWereFound = true;
-                                        }
-                                    }
-                                    if (!allUsersWereFound) {
-                                        // ERROR
-//                                        return;
-                                    }
-                                }
-                                TextView projectNameTextView = (TextView) createNewProjectDialog.findViewById(R.id.newProjectName);
-                                String projectName = projectNameTextView.getText().toString();
-                                String projectID = mData.child("Projects").push().getKey();
-                                mData.child("Projects").child(projectID).child("projectName").
-                                        setValue(projectName);
-
-                                newProject.setProjectName(projectName);
-                                newProject.setId(projectID);
-
-
-
-                                for (int i = 0; i < usersUID.size(); i++) {
-                                    Report report = new Report(0, "", 0);
-
-                                    EditText inputUserEditText = (EditText) createProjectLayout.getChildAt(i);
-                                    newProject.addProjectUsers(inputUserEditText.getText().toString());
-
-                                    Map<String, Object> updatedUserData = new HashMap<>();
-                                    updatedUserData.put("Projects/" + projectID + "/" +
-                                            usersUID.get(i) + "/" + formattedDate , report);
-
-                                    updatedUserData.put("Uzivatel/" + usersUID.get(i) + "/" +
-                                            "Active" , projectID);
-
-
-                                    updatedUserData.put("Uzivatel/" + usersUID.get(i) + "/" +
-                                            "Projects/" + projectID + "/" + "projectName" , projectName);
-
-                                    mData.updateChildren(updatedUserData);
-                                }
-
-                                arrayListJustForTriggerAdapter.add("asd");
-                                projectListToShow.add(newProject);
-                                adapter.notifyDataSetChanged();
-                                createNewProjectDialog.dismiss();
-
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        }
-                );
-
-            }
-        });
-
+        Intent intent = new Intent(ProjectsActivity.this, AddProjectActivity.class);
+        startActivity(intent);
     }
 
     public void deleteProject(final View view){

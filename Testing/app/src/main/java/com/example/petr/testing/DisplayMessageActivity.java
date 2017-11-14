@@ -1,6 +1,7 @@
 package com.example.petr.testing;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -24,6 +25,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
 
 public class DisplayMessageActivity extends AppCompatActivity {
@@ -37,7 +39,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Report your day");
 
         final EditText edittext = (EditText) findViewById(R.id.date);
-        myCalendar = Calendar.getInstance();
+
 
         floatButton = (ImageButton) findViewById(R.id.sendReport);
         floatButton.setOnClickListener(new View.OnClickListener(){
@@ -72,10 +74,57 @@ public class DisplayMessageActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
+
                 // TODO Auto-generated method stub
-                new DatePickerDialog(DisplayMessageActivity.this, date, myCalendar
+                final DatePickerDialog datePickerDialog = new DatePickerDialog(DisplayMessageActivity.this, date, myCalendar
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+                        myCalendar.get(Calendar.DAY_OF_MONTH));
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(Calendar.getInstance().getTime());
+                datePickerDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
+                Intent intent = getIntent();
+                String activeProjectName = intent.getExtras().getString("activeProject");
+                mData = FirebaseDatabase.getInstance().getReference();
+                mData.child("Projects").child(activeProjectName)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot choosenProject) {
+
+                        Iterator<DataSnapshot> firstUser =  choosenProject.getChildren().iterator();
+
+                        while (firstUser.hasNext())
+                        {
+                            if (firstUser.next().getKey().equals("Ending"))
+                            {
+                                continue;
+                            }
+                            Iterator<DataSnapshot> firstDate = firstUser.next().getChildren().iterator();
+                            while (firstDate.hasNext())
+                            {
+                                String myFormat = "yyyy-MM-dd";
+                                final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
+                                Date date;
+                                try {
+                                    date = sdf.parse(firstDate.next().getKey());
+                                    datePickerDialog.getDatePicker().setMinDate(date.getTime());
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+
+
+                                break;
+                            }
+                            break;
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+                datePickerDialog.show();
             }
         });
     }
@@ -97,11 +146,13 @@ public class DisplayMessageActivity extends AppCompatActivity {
             return;
         }
         final String userID =  user.getUid();
-        myCalendar.add(Calendar.DATE, -1);
+        Calendar calendar = Calendar.getInstance();
+        calendar = myCalendar;
+        calendar.add(Calendar.DATE, -1);
         String myFormat = "yyyy-MM-dd";
         final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
-        Log.d("NECO","Yesterday's date was "+sdf.format(myCalendar.getTime()));
-        final String yesterday = sdf.format(myCalendar.getTime());
+        Log.d("NECO","Yesterday's date was "+sdf.format(calendar.getTime()));
+        final String yesterday = sdf.format(calendar.getTime());
         mData = FirebaseDatabase.getInstance().getReference();
         mData.child("Uzivatel").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -78,7 +77,29 @@ public class GraphActivity extends AppCompatActivity {
     private FirebaseUser user;
 
 
-    private void sendFCMPush(String userID) {
+    public String completeCondition(ArrayList<String> usersToNudge)
+    {
+        StringBuilder completeCondition = new StringBuilder();
+        completeCondition.append("(");
+        for (int i = 0; i < usersToNudge.size(); i++)
+        {
+            if (i != 0)
+            {
+                completeCondition.append("&&");
+            }
+
+            completeCondition.append("'");
+            completeCondition.append(usersToNudge.get(i));
+            completeCondition.append("'");
+            completeCondition.append(" in topics");
+
+
+        }
+        completeCondition.append(")");
+        return completeCondition.toString();
+    }
+
+    public void sendFCMPush(String userID) {
 
         final String Legacy_SERVER_KEY = "AIzaSyCB88Oy7989Wj319s4Q4PCDy1oGZo7SMAI";
         String msg = "PLEASE SEND YOUR REPORT";
@@ -101,7 +122,12 @@ public class GraphActivity extends AppCompatActivity {
             dataobjData.put("text", msg);
             dataobjData.put("title", title);
 
+
+            obj.put("content_available", true);
+//            obj.put("condition", condition2);
             obj.put("to", "/topics/" + userID);
+            obj.put("priority", 10);
+//            obj.put("topic","news");
             obj.put("notification", objData);
             obj.put("data", dataobjData);
 
@@ -131,6 +157,8 @@ public class GraphActivity extends AppCompatActivity {
             }
         };
         RequestQueue requestQueue = Volley.newRequestQueue(this);
+//        RequestQueue requestQueue = SingletonRequestForNudgeMe.getInstance(this.getApplicationContext()).getRequestQueue();
+
         int socketTimeout = 1000 * 60;// 60 seconds
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         jsObjRequest.setRetryPolicy(policy);
@@ -216,8 +244,6 @@ public class GraphActivity extends AppCompatActivity {
 
                     }
                 });
-
-                Toast.makeText(GraphActivity.this, "NudgeMe send", Toast.LENGTH_SHORT).show();
 
             }
         });

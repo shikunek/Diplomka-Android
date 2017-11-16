@@ -60,6 +60,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class GraphActivity extends AppCompatActivity {
 
@@ -459,6 +460,15 @@ public class GraphActivity extends AppCompatActivity {
                                     iUser++;
                                 }
 
+                                ArrayList<Entry> filler = fillEmptyDays();
+                                if (filler.size() > 0) {
+                                    LineDataSet lineDataSetFill = new LineDataSet(filler, "fill");
+                                    setUpDataset(lineDataSetFill, true);
+                                    lineDataSetFill.setColor(Color.TRANSPARENT);
+                                    lineDataSetFill.setCircleColor(Color.TRANSPARENT);
+                                    dataSets.add(0, lineDataSetFill);
+                                }
+
                                 data = new LineData(dataSets);
                                 lineChart.setData(data);
 
@@ -805,5 +815,29 @@ public class GraphActivity extends AppCompatActivity {
             }
         };
         lineChart.setMarker(marker);*/
+    }
+
+    public ArrayList<Entry> fillEmptyDays() {
+        Calendar firstDay = Calendar.getInstance();
+        firstDay.setTime(firstDayShown);
+        //Log.d("TODAY", "first day: " + firstDayShown);
+        firstDay.set(Calendar.HOUR_OF_DAY, 0);
+        firstDay.set(Calendar.MINUTE, 0);
+        firstDay.set(Calendar.SECOND, 0);
+        firstDay.set(Calendar.MILLISECOND, 0);
+        Calendar now = Calendar.getInstance();
+        long daysBetween = TimeUnit.MILLISECONDS.toDays(
+                Math.abs(now.getTimeInMillis() - firstDay.getTimeInMillis()))+1;
+        //Log.d("TODAY", "days between: " + daysBetween + ", numdays: " + numDays);
+
+        ArrayList<Entry> filler = new ArrayList<>();
+
+        for (int i = numDays+1; i <= daysBetween; i++) {
+            //Log.d("TODAY", "adding transparent day at: " + i);
+            filler.add(new Entry(i, 0));
+            numDays++;
+        }
+
+        return filler;
     }
 }

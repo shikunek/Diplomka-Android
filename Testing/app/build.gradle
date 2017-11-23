@@ -37,6 +37,7 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:10.0.1'
     compile 'com.mcxiaoke.volley:library:1.0.0'
     compile 'com.android.support:recyclerview-v7:25.3.1'
+    compile 'com.pkmmte.view:circularimageview:1.1'
     testCompile 'junit:junit:4.12'
 }
 

@@ -39,6 +39,9 @@ public class DisplayMessageActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Report your day");
 
         final EditText edittext = (EditText) findViewById(R.id.date);
+        String myFormat = "yyyy-MM-dd"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
+        edittext.setText(sdf.format(myCalendar.getTime()));
         mData = FirebaseDatabase.getInstance().getReference();
 
         floatButton = (ImageButton) findViewById(R.id.sendReport);
@@ -51,8 +54,6 @@ public class DisplayMessageActivity extends AppCompatActivity {
                 TODO - udelat lepsi Toast; pokud uz za dany den byl zadan report - ohlasi to
                 uzivateli
                 */
-
-                Toast.makeText(getApplicationContext(), "Report has been sent!", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -162,6 +163,12 @@ public class DisplayMessageActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         calendar = myCalendar;
         calendar.add(Calendar.DATE, -1);
+        EditText message = (EditText) findViewById(R.id.reportText);
+        if (message.getText().toString().equals(""))
+        {
+            Toast.makeText(getApplicationContext(), "You have to fill the message!", Toast.LENGTH_LONG).show();
+            return;
+        }
         String myFormat = "yyyy-MM-dd";
         final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
         Log.d("NECO","Yesterday's date was "+sdf.format(calendar.getTime()));
@@ -257,7 +264,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
 
                                 Report report = new Report(previousValue, str, selectedValue);
                                 mData.child("Projects").child(currentUser.child("Active").getValue().toString()).child(userID).child(dateTime).setValue(report);
-
+                                Toast.makeText(getApplicationContext(), "Report has been sent!", Toast.LENGTH_LONG).show();
                                 Log.d("myTag", Integer.toString(selectedValue));
                             }
 

@@ -9,6 +9,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -62,12 +63,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+
 public class GraphActivity extends AppCompatActivity {
 
     LineChart lineChart;
     LineData data;
     int numDays = 0;
     int leftDay = 0;
+    Boolean isSpinnerInitilised = false;
     int numShownDays = 14;
     int firstDayOfWeek = 0;
     Date firstDayShown = null;
@@ -263,7 +266,7 @@ public class GraphActivity extends AppCompatActivity {
         mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot uzivatel) {
-                ArrayList<String> projectsList = new ArrayList<>();
+                final ArrayList<String> projectsList = new ArrayList<>();
                 final ArrayList<String> projectsIDs = new ArrayList<>();
                 for (DataSnapshot project : uzivatel.child("Projects").getChildren())
                 {
@@ -273,6 +276,7 @@ public class GraphActivity extends AppCompatActivity {
 
                 ArrayAdapter<String> adapter = new ArrayAdapter<>(GraphActivity.this, android.R.layout.simple_spinner_dropdown_item, projectsList);
 
+
                 activeProjectNameSpinner.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
 
@@ -280,12 +284,28 @@ public class GraphActivity extends AppCompatActivity {
                     @Override
                     public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id)
                     {
-                        Map<String, Object> updatedUserData = new HashMap<>();
+                        if (isSpinnerInitilised)
+                        {
+                            Map<String, Object> updatedUserData = new HashMap<>();
 
-                        updatedUserData.put("Uzivatel/" + uzivatel.getKey() + "/" +
-                                "Active" , projectsIDs.get(position));
+                            updatedUserData.put("Uzivatel/" + uzivatel.getKey() + "/" +
+                                    "Active" , projectsIDs.get(position));
 
-                        mData.updateChildren(updatedUserData);
+                            mData.updateChildren(updatedUserData);
+                        }
+                        else
+                        {
+                            isSpinnerInitilised = true;
+
+                            if (uzivatel.hasChild("Active"))
+                            {
+                                String userActiveProject = uzivatel.child("Active").getValue().toString();
+                                activeProjectNameSpinner.setSelection(projectsIDs.indexOf(userActiveProject));
+                            }
+
+                        }
+
+
                     }
 
                     @Override
@@ -336,14 +356,71 @@ public class GraphActivity extends AppCompatActivity {
                                     {
                                         continue;
                                     }
-                                    Log.d("SMILE_TEST", "NEW USER");
 
-                                    Button userOnProjectButton = new Button(GraphActivity.this);
-                                    userOnProjectButton.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                                            LinearLayout.LayoutParams.WRAP_CONTENT));
-                                    userOnProjectButton.setText("USER" + String.valueOf(iUser+1));
 
-                                    userOnProjectButton.setTextColor(Color.RED);
+                                    final Button userOnProjectButton = new Button(GraphActivity.this);
+
+
+                                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(usersLinearLayout.getHeight(), usersLinearLayout.getHeight());
+                                    int margin = 10;
+                                    int size = 130;
+                                    params.setMargins(margin, 0, margin, 0);
+                                    params.gravity = Gravity.CENTER;
+                                    userOnProjectButton.setLayoutParams(params);
+//                                    ShapeDrawable shapedrawable = new ShapeDrawable();
+//
+//                                    shapedrawable.setBounds( 0 , -(size/2), (size/2), 0 );
+//                                    shapedrawable.setShape(new OvalShape());
+//                                    shapedrawable.getPaint().setColor(Color.RED);
+//                                    userOnProjectButton.setBackgroundColor(Color.WHITE);
+//                                    shapedrawable.getPaint().setStrokeWidth(10f);
+//                                    shapedrawable.getPaint().setStyle(Paint.Style.STROKE);
+
+//                                    userOnProjectButton.setImageDrawable(shapedrawable);
+//                                    userOnProjectButton.setCompoundDrawables( shapedrawable, null, null, null);
+
+                                    switch (iUser)
+                                    {
+                                        case 0:
+                                            userOnProjectButton.setBackgroundResource(R.drawable.round_button_red);
+                                            break;
+
+                                        case 1:
+                                            userOnProjectButton.setBackgroundResource(R.drawable.round_button_blue);
+                                            break;
+
+                                        case 2:
+                                            userOnProjectButton.setBackgroundResource(R.drawable.round_button_green);
+                                            break;
+
+                                        default:
+                                            userOnProjectButton.setBackgroundResource(R.drawable.round_button_red);
+                                            break;
+                                    }
+
+
+                                    userOnProjectButton.setTextColor(Color.BLACK);
+                                    mData.child("Uzivatel").child(user.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            int indexOfAt = dataSnapshot.child("email").getValue().toString().indexOf("@");
+                                            if (indexOfAt != -1)
+                                            {
+                                                String emailName = dataSnapshot.child("email").getValue().toString().substring(0 , indexOfAt);
+                                                userOnProjectButton.setText(emailName);
+                                            }
+                                            else
+                                            {
+                                                userOnProjectButton.setText("USER");
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+
                                     userOnProjectButton.setPadding(20, 20, 20, 20);
                                     userOnProjectButton.setTag(user.getKey());
                                     usersLinearLayout.addView(userOnProjectButton);

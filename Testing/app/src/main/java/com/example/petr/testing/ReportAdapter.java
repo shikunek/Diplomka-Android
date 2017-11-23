@@ -14,8 +14,9 @@ import java.util.ArrayList;
  */
 
 public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder> {
-    private ArrayList<String> mDataset;
-    private ArrayList<String> mImageSet;
+    private ArrayList<String> mTextset;
+    private ArrayList<String> mImageset;
+    private ArrayList<String> mDateset;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -24,18 +25,22 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
         // each data item is just a string in this case
         public TextView mReportedTextView;
         public ImageView mReportedSmile;
+        public TextView mReportedDate;
         public ViewHolder(View v) {
             super(v);
 
             mReportedTextView = (TextView) v.findViewById(R.id.reportText);
             mReportedSmile = (ImageView) v.findViewById(R.id.reportedSmile);
+            mReportedDate = (TextView) v.findViewById(R.id.dateView);
         }
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ReportAdapter(ArrayList<String> myDataset, ArrayList<String> mImageSet) {
-        mDataset = myDataset;
-        this.mImageSet = mImageSet;
+    public ReportAdapter(ArrayList<String> myDataset, ArrayList<String> mImageset, ArrayList<String> mDateset) {
+        mTextset = myDataset;
+        this.mImageset = mImageset;
+        this.mDateset = mDateset;
+
     }
 
     // Create new views (invoked by the layout manager)
@@ -47,7 +52,6 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.report_item, parent, false);
         // set the view's size, margins, paddings and layout parameters
-        ViewHolder vh = new ViewHolder(v);
         return new ReportAdapter.ViewHolder(itemView);
     }
 
@@ -56,8 +60,9 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder.mReportedTextView.setText(mDataset.get(position));
-        switch (mImageSet.get(position))
+        holder.mReportedTextView.setText(mTextset.get(position));
+        holder.mReportedDate.setText(mDateset.get(position));
+        switch (mImageset.get(position))
         {
             case "1":
                 holder.mReportedSmile.setImageResource(R.drawable.happy);
@@ -81,6 +86,6 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mDataset.size();
+        return mTextset.size();
     }
 }

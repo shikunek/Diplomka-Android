@@ -12,7 +12,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class UserReportsActivity extends AppCompatActivity {
 
@@ -28,8 +32,9 @@ public class UserReportsActivity extends AppCompatActivity {
 
         mData = FirebaseDatabase.getInstance().getReference();
         Intent intent = getIntent();
-        final ArrayList<String> myDataset = new ArrayList<>();
-        final ArrayList<String> myImageSet = new ArrayList<>();
+        final ArrayList<String> myReportedTextset = new ArrayList<>();
+        final ArrayList<String> myReportedImageset = new ArrayList<>();
+        final ArrayList<String> myReportDateset = new ArrayList<>();
         mData.child("Uzivatel").child(intent.getExtras().getString("userName"))
                 .addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -44,7 +49,7 @@ public class UserReportsActivity extends AppCompatActivity {
         });
 
         mRecyclerView = (RecyclerView) findViewById(R.id.reportsList);
-        mAdapter = new ReportAdapter(myDataset, myImageSet);
+        mAdapter = new ReportAdapter(myReportedTextset, myReportedImageset, myReportDateset);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
@@ -55,8 +60,20 @@ public class UserReportsActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot user) {
                 for (DataSnapshot report : user.getChildren())
                 {
-                    myDataset.add(report.child("reportedText").getValue().toString());
-                    myImageSet.add(report.child("sendValue").getValue().toString());
+                    myReportedTextset.add(report.child("reportedText").getValue().toString());
+                    myReportedImageset.add(report.child("sendValue").getValue().toString());
+                    String myFormat = "yyyy-MM-dd";
+                    final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
+                    try {
+                        Date dateValue = sdf.parse(report.getKey());
+                        SimpleDateFormat newDateFormat = new SimpleDateFormat("dd.MM.yyyy");
+                        myReportDateset.add(newDateFormat.format(dateValue).toString());
+                    }
+                    catch (ParseException e){
+                        e.printStackTrace();
+                    }
+
+
                 }
                 mRecyclerView.setAdapter(mAdapter);
             }

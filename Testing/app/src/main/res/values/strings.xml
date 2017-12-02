@@ -1,4 +1,7 @@
 <resources>
+    <string name="userLabel">e-mail:</string>
+    <string name="passLabel">password:</string>
+
     <string name="app_name">NudgeMe</string>
     <string name="edit_message">Enter a message</string>
 
@@ -6,11 +9,15 @@
     <string name="button_sign_in">Sign In</string>
     <string name="button_sign_up">Sign Up</string>
 
-    <string name="description">Express yourself. . .</string>
+    <string name="description">express yourself. . .</string>
     <string name="calendar">dd/mm/yyyy</string>
     <string name="button_description">Float confirm button</string>
     <string name="usr_hint">example@email.com</string>
     <string name="pswd_hint">password</string>
+
+    <string name="dateLabel">date:</string>
+    <string name="descLabel">description:</string>
+    <string name="feelLabel">choose your feeling:</string>
 
     <string name="first_act">Welcome</string>
     <string name="graph_act">Welcome</string>

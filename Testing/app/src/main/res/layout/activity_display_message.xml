@@ -12,7 +12,6 @@
         android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
         android:layout_marginTop="30dp"
         android:background="@drawable/label_bkg"
         android:ems="10"
@@ -48,7 +47,6 @@
         android:layout_width="84dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
         android:layout_marginTop="30dp"
         android:background="@drawable/label_bkg"
         android:ems="10"
@@ -79,13 +77,28 @@
         app:layout_constraintTop_toBottomOf="@+id/descriptionLabel" />
 
     <!-- Smiles -->
+
+    <!-- Float button oval-->
+    <ImageButton
+        android:id="@+id/sendReport"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="25dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginRight="25dp"
+        android:background="@drawable/oval"
+        android:contentDescription="@string/button_description"
+        android:onClick="sendReport"
+        android:src="@drawable/checked"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
     <!-- Feeling label-->
     <TextView
         android:id="@+id/feelingLabel"
         android:layout_width="135dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
         android:layout_marginTop="30dp"
         android:background="@drawable/label_bkg"
         android:ems="10"
@@ -98,12 +111,13 @@
         android:id="@+id/radioGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="5dp"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
-        android:padding="5dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/feelingLabel">
@@ -115,6 +129,7 @@
             android:layout_height="70dp"
             android:button="@null"
             android:drawableTop="@drawable/happy_sel"
+            android:padding="5dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
 
@@ -127,6 +142,7 @@
             android:layout_marginStart="20dp"
             android:button="@null"
             android:drawableTop="@drawable/confused_sel"
+            android:padding="5dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/happySmile" />
@@ -140,23 +156,10 @@
             android:layout_marginStart="20dp"
             android:button="@null"
             android:drawableTop="@drawable/mad_sel"
+            android:padding="5dp"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/normalSmile" />
     </RadioGroup>
-
-    <!-- Float button oval-->
-    <ImageButton
-        android:id="@+id/sendReport"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="25dp"
-        android:layout_marginRight="25dp"
-        android:background="@drawable/oval"
-        android:contentDescription="@string/button_description"
-        android:onClick="sendReport"
-        android:src="@drawable/checked"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"

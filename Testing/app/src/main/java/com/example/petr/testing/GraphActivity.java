@@ -71,7 +71,7 @@ public class GraphActivity extends AppCompatActivity {
     int numDays = 0;
     int leftDay = 0;
     Boolean isSpinnerInitilised = false;
-    int numShownDays = 14;
+    int numShownDays = 10;
     int firstDayOfWeek = 0;
     Date firstDayShown = null;
     LinearLayout usersLinearLayout;
@@ -456,7 +456,7 @@ public class GraphActivity extends AppCompatActivity {
                                         }
                                         // get the smile
                                         long smile = (long) value.child("sendValue").getValue();
-                                        Log.d("SMILE_TEST", "smile: " + (int)smile);
+                                        //Log.d("SMILE_TEST", "smile: " + (int)smile);
                                         // get the date
                                         String key = value.getKey();
                                         try {
@@ -465,7 +465,7 @@ public class GraphActivity extends AppCompatActivity {
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }
-                                        Log.d("SMILE_TEST", "actDate: " + dateFormatter.format(actDate.getTime()));
+                                        //Log.d("SMILE_TEST", "actDate: " + dateFormatter.format(actDate.getTime()));
 
                                         thisMiss = smile < -1f;
                                         /*if (preReport) { // let all missed days before first report go
@@ -553,7 +553,9 @@ public class GraphActivity extends AppCompatActivity {
 
                                 lineChart.notifyDataSetChanged(); // let the chart know it's data changed
                                 lineChart.setVisibleXRangeMaximum(numShownDays-1);
+                                //lineChart.setVisibleXRangeMaximum(numDays);
                                 lineChart.setVisibleXRangeMinimum(numShownDays-1);
+                                lineChart.setExtraOffsets(0, 0, 0, 5);
 
                                 leftDay = numDays-numShownDays+1 >= 0 ? numDays-numShownDays+1 : 0;
                                 lineChart.moveViewToX(leftDay);
@@ -781,8 +783,8 @@ public class GraphActivity extends AppCompatActivity {
 
         yAxis.setDrawGridLines(false);
         yAxis.setDrawAxisLine(false);
-        yAxis.setAxisMinimum(-1f);
-        yAxis.setAxisMaximum(1f);
+        //yAxis.setAxisMinimum(-1f);
+        //yAxis.setAxisMaximum(1f);
         xAxis.setGranularityEnabled(true);
         xAxis.setGranularity(1); // minimum axis-step (interval) is 1
         xAxis.setDrawAxisLine(false);
@@ -792,15 +794,14 @@ public class GraphActivity extends AppCompatActivity {
         xAxis.setTypeface(Typeface.DEFAULT_BOLD);
         xAxis.setGridColor(Color.BLACK);
 
-        if (numDays <= 14)
-        {
-            xAxis.setLabelCount(numDays+1, true);
-        }
-
+        /*if (numDays <= numShownDays)
+        {*/
+            xAxis.setLabelCount(numDays+1, false);
+        /*}
         else
-        {
-            xAxis.setLabelCount(numShownDays, true);
-        }
+        {*/
+            //xAxis.setLabelCount(numShownDays, false);
+        //}*/
 
 
         IAxisValueFormatter labelFormatter = new IAxisValueFormatter() {
@@ -808,19 +809,24 @@ public class GraphActivity extends AppCompatActivity {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
                 int day = Math.round(value);
-                if (day < 0)
-                    return "";
-
-                else if (day == numDays)
-                    return "Today";
-
-                else if (day > numDays - 7)
-                    return xLabels[(day+firstDayOfWeek) % 7];
-
-                else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)
-                    return (numDays+1) / 7 - day / 7 + "w ago";
-
-                else return "";
+                if (lineChart.getVisibleXRange() > 14) {
+                    lineChart.getXAxis().setLabelCount(numDays+1, true);
+                    if (day == numDays)
+                        return "Today";
+                    else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)
+                        return (numDays+1) / 7 - day / 7 + "w ago";
+                } else {
+                    lineChart.getXAxis().setLabelCount(numDays+1, false);
+                    if (day < 0)
+                        return "";
+                    else if (day == numDays)
+                        return "Today";
+                    else if (day > numDays - 7)
+                        return xLabels[(day + firstDayOfWeek) % 7];
+                    else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)
+                        return (numDays + 1) / 7 - day / 7 + "w ago";
+                }
+                return "";
             }
         };
         xAxis.setValueFormatter(labelFormatter);
@@ -828,7 +834,7 @@ public class GraphActivity extends AppCompatActivity {
         OnChartGestureListener gestureListener = new OnChartGestureListener() {
             @Override
             public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
-
+                lineChart.setVisibleXRangeMaximum(numDays);
             }
 
             @Override
@@ -877,6 +883,7 @@ public class GraphActivity extends AppCompatActivity {
         lineChart.setDescription(description);
         lineChart.setBackgroundColor(Color.TRANSPARENT);
         lineChart.setDrawGridBackground(false);// this is a must
+        lineChart.setScaleYEnabled(false);
 
         lineChart.animateY(1000);
         lineChart.setDrawBorders(false);

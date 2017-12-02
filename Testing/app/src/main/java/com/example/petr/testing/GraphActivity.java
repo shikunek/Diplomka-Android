@@ -810,7 +810,7 @@ public class GraphActivity extends AppCompatActivity {
             public String getFormattedValue(float value, AxisBase axis) {
                 int day = Math.round(value);
                 if (lineChart.getVisibleXRange() > 14) {
-                    lineChart.getXAxis().setLabelCount(numDays+1, true);
+                    lineChart.getXAxis().setLabelCount(numDays+1, false);
                     if (day == numDays)
                         return "Today";
                     else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)

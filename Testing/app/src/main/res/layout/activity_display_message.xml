@@ -12,6 +12,7 @@
         android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="30dp"
         android:background="@drawable/label_bkg"
         android:ems="10"
@@ -47,6 +48,7 @@
         android:layout_width="84dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="30dp"
         android:background="@drawable/label_bkg"
         android:ems="10"
@@ -99,6 +101,7 @@
         android:layout_width="135dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="30dp"
         android:background="@drawable/label_bkg"
         android:ems="10"
@@ -155,8 +158,8 @@
             android:layout_marginLeft="20dp"
             android:layout_marginStart="20dp"
             android:button="@null"
+            android:padding="3dp"
             android:drawableTop="@drawable/mad_sel"
-            android:padding="5dp"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/normalSmile" />
     </RadioGroup>

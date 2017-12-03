@@ -12,18 +12,29 @@
         android:layout_height="match_parent"
  />
 
+    <!-- Create project button -->
     <Button
         android:id="@+id/addProject"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="addProject"
-        android:text="Add"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/projects_list"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="15dp"
-        android:layout_marginBottom="15dp" />
+        android:layout_marginBottom="25dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginRight="25dp"
+        android:text="+"
+        android:textSize="35sp"
+        android:textColor="#ffffff"
+        android:background="@drawable/oval"
+        android:contentDescription="@string/button_description"
+        android:onClick="addProject"
+        android:src="@drawable/plus"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+    />
 
     <Button
         android:id="@+id/deleteProjectButton"

@@ -15,6 +15,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
@@ -75,6 +76,9 @@ public class UserReportsActivity extends AppCompatActivity {
 
 
                 }
+                Collections.reverse(myReportedImageset);
+                Collections.reverse(myReportedTextset);
+                Collections.reverse(myReportDateset);
                 mRecyclerView.setAdapter(mAdapter);
             }
 

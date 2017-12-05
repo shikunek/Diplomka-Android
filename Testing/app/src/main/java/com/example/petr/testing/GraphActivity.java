@@ -3,21 +3,28 @@ package com.example.petr.testing;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
+import android.widget.ListView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -63,8 +70,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static android.view.Menu.CATEGORY_ALTERNATIVE;
 
-public class GraphActivity extends AppCompatActivity {
+
+public class GraphActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     LineChart lineChart;
     LineData data;
@@ -75,6 +84,10 @@ public class GraphActivity extends AppCompatActivity {
     int firstDayOfWeek = 0;
     Date firstDayShown = null;
     LinearLayout usersLinearLayout;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private ArrayList<String> mPlanetTitles;
+    private ListView mDrawerList;
     final String[] xLabels = new String[] { "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su" };
 
     private DatabaseReference mData;
@@ -169,14 +182,248 @@ public class GraphActivity extends AppCompatActivity {
         requestQueue.add(jsObjRequest);
     }
 
+
+
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Pass the event to ActionBarDrawerToggle, if it returns
+//        // true, then it has handled the app icon touch event
+////        Intent ints = new Intent(this, MenuActivity.class);
+////        startActivity(ints);
+//        if(mDrawerLayout.isDrawerOpen(mDrawerList)){
+//            mDrawerLayout.closeDrawer(mDrawerList);
+//        }else {
+//            mDrawerLayout.openDrawer(mDrawerList);
+//        }
+//        if (mDrawerToggle.onOptionsItemSelected(item)) {
+//            return true;
+//        }
+//        // Handle your other action bar items...
+//
+//        return super.onOptionsItemSelected(item);
+//    }
+//
+//    /* The click listner for ListView in the navigation drawer */
+//    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+//        @Override
+//        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//            selectItem(position);
+//        }
+//    }
+//
+//    private void selectItem(int position) {
+//        // update the main content by replacing fragments
+//        Fragment fragment = new PlanetFragment();
+//        Bundle args = new Bundle();
+//        args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
+//        fragment.setArguments(args);
+//
+//        FragmentManager fragmentManager = getFragmentManager();
+//        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+//
+//        // update selected item and title, then close the drawer
+//        mDrawerList.setItemChecked(position, true);
+////        setTitle(mPlanetTitles.get(position));
+//        mDrawerLayout.closeDrawer(mDrawerList);
+//    }
+////
+////    @Override
+////    public void setTitle(CharSequence title) {
+////        mTitle = title;
+////        getActionBar().setTitle(mTitle);
+////    }
+//
+//    /**
+//     * When using the ActionBarDrawerToggle, you must call it during
+//     * onPostCreate() and onConfigurationChanged()...
+//     */
+//
+//    @Override
+//    protected void onPostCreate(Bundle savedInstanceState) {
+//        super.onPostCreate(savedInstanceState);
+//        // Sync the toggle state after onRestoreInstanceState has occurred.
+//        mDrawerToggle.syncState();
+//    }
+//
+//    @Override
+//    public void onConfigurationChanged(Configuration newConfig) {
+//        super.onConfigurationChanged(newConfig);
+//        // Pass any configuration change to the drawer toggls
+//        mDrawerToggle.onConfigurationChanged(newConfig);
+//    }
+//
+//    /**
+//     * Fragment that appears in the "content_frame", shows a planet
+//     */
+//    public static class PlanetFragment extends Fragment {
+//        public static final String ARG_PLANET_NUMBER = "planet_number";
+//
+//        public PlanetFragment() {
+//            // Empty constructor required for fragment subclasses
+//        }
+//
+//        @Override
+//        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//                                 Bundle savedInstanceState) {
+//            View rootView = inflater.inflate(R.layout.report_item, container, false);
+//            int i = getArguments().getInt(ARG_PLANET_NUMBER);
+//            String planet = "dsadad";
+//
+//            int imageId = getResources().getIdentifier(planet.toLowerCase(Locale.getDefault()),
+//                    "drawable", getActivity().getPackageName());
+//            ((ImageView) rootView.findViewById(R.id.reportedSmile)).setImageResource(R.drawable.happy);
+//            getActivity().setTitle(planet);
+//            return rootView;
+//        }
+//    }
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(final MenuItem item) {
+        // Handle navigation view item clicks here.
+
+        switch (item.getItemId())
+        {
+            case 1:
+            {
+                Intent intent = new Intent(this, ProjectsActivity.class);
+                startActivity(intent);
+            }
+
+            default:
+            {
+                mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(final DataSnapshot uzivatel) {
+
+                        int id = item.getItemId();
+                        for (DataSnapshot project : uzivatel.child("Projects").getChildren())
+                        {
+                            if (project.getKey().hashCode() == id)
+                            {
+                                Map<String, Object> updatedUserData = new HashMap<>();
+
+                                updatedUserData.put("Uzivatel/" + uzivatel.getKey() + "/" +
+                                        "Active" , project.getKey());
+
+                                mData.updateChildren(updatedUserData);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+
+        }
+
+
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graph);
-        getSupportActionBar().setTitle("Project chart");
 
-        mData = FirebaseDatabase.getInstance().getReference();
         user = FirebaseAuth.getInstance().getCurrentUser();
+        mData = FirebaseDatabase.getInstance().getReference();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.child("Active").exists())
+                {
+                    getSupportActionBar().setTitle(dataSnapshot.child("Projects").child(dataSnapshot.child("Active").getValue().toString()).child("projectName").getValue().toString());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
+
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        final Menu menu = navigationView.getMenu();
+        menu.clear();
+        menu.add(2, 1, CATEGORY_ALTERNATIVE, "Projects");
+        navigationView.setNavigationItemSelectedListener(this);
+
+
+        mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(final DataSnapshot uzivatel) {
+                final ArrayList<String> projectsList = new ArrayList<>();
+                final ArrayList<String> projectsIDs = new ArrayList<>();
+                for (DataSnapshot project : uzivatel.child("Projects").getChildren())
+                {
+                    menu.add(1, project.getKey().hashCode(), CATEGORY_ALTERNATIVE, project.child("projectName").getValue().toString());
+//                    projectsList.add(project.child("projectName").getValue().toString());
+//                    projectsIDs.add(project.getKey());
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
         final NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
@@ -252,7 +499,7 @@ public class GraphActivity extends AppCompatActivity {
             }
         });
 
-        final Spinner activeProjectNameSpinner = (Spinner) findViewById(R.id.projectNameSpinner);
+//        final Spinner activeProjectNameSpinner = (Spinner) findViewById(R.id.projectNameSpinner);
 
         ImageButton goToReport = (ImageButton) findViewById(R.id.goToReportButton);
         goToReport.setOnClickListener(new View.OnClickListener() {
@@ -263,64 +510,64 @@ public class GraphActivity extends AppCompatActivity {
             }
         });
 
-        mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(final DataSnapshot uzivatel) {
-                final ArrayList<String> projectsList = new ArrayList<>();
-                final ArrayList<String> projectsIDs = new ArrayList<>();
-                for (DataSnapshot project : uzivatel.child("Projects").getChildren())
-                {
-                    projectsList.add(project.child("projectName").getValue().toString());
-                    projectsIDs.add(project.getKey());
-                }
-
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(GraphActivity.this, android.R.layout.simple_spinner_dropdown_item, projectsList);
-
-
-                activeProjectNameSpinner.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
-
-                activeProjectNameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id)
-                    {
-                        if (isSpinnerInitilised)
-                        {
-                            Map<String, Object> updatedUserData = new HashMap<>();
-
-                            updatedUserData.put("Uzivatel/" + uzivatel.getKey() + "/" +
-                                    "Active" , projectsIDs.get(position));
-
-                            mData.updateChildren(updatedUserData);
-                        }
-                        else
-                        {
-                            isSpinnerInitilised = true;
-
-                            if (uzivatel.hasChild("Active"))
-                            {
-                                String userActiveProject = uzivatel.child("Active").getValue().toString();
-                                activeProjectNameSpinner.setSelection(projectsIDs.indexOf(userActiveProject));
-                            }
-
-                        }
-
-
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parentView) {
-                        // your code here
-                    }
-
-                });
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+//        mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(final DataSnapshot uzivatel) {
+//                final ArrayList<String> projectsList = new ArrayList<>();
+//                final ArrayList<String> projectsIDs = new ArrayList<>();
+//                for (DataSnapshot project : uzivatel.child("Projects").getChildren())
+//                {
+//                    projectsList.add(project.child("projectName").getValue().toString());
+//                    projectsIDs.add(project.getKey());
+//                }
+//
+//                ArrayAdapter<String> adapter = new ArrayAdapter<>(GraphActivity.this, android.R.layout.simple_spinner_dropdown_item, projectsList);
+//
+//
+//                activeProjectNameSpinner.setAdapter(adapter);
+//                adapter.notifyDataSetChanged();
+//
+//                activeProjectNameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//                    @Override
+//                    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id)
+//                    {
+//                        if (isSpinnerInitilised)
+//                        {
+//                            Map<String, Object> updatedUserData = new HashMap<>();
+//
+//                            updatedUserData.put("Uzivatel/" + uzivatel.getKey() + "/" +
+//                                    "Active" , projectsIDs.get(position));
+//
+//                            mData.updateChildren(updatedUserData);
+//                        }
+//                        else
+//                        {
+//                            isSpinnerInitilised = true;
+//
+//                            if (uzivatel.hasChild("Active"))
+//                            {
+//                                String userActiveProject = uzivatel.child("Active").getValue().toString();
+//                                activeProjectNameSpinner.setSelection(projectsIDs.indexOf(userActiveProject));
+//                            }
+//
+//                        }
+//
+//
+//                    }
+//
+//                    @Override
+//                    public void onNothingSelected(AdapterView<?> parentView) {
+//                        // your code here
+//                    }
+//
+//                });
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
 
         mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
@@ -367,34 +614,25 @@ public class GraphActivity extends AppCompatActivity {
                                     params.setMargins(margin, 0, margin, 0);
                                     params.gravity = Gravity.CENTER;
                                     userOnProjectButton.setLayoutParams(params);
-//                                    ShapeDrawable shapedrawable = new ShapeDrawable();
-//
-//                                    shapedrawable.setBounds( 0 , -(size/2), (size/2), 0 );
-//                                    shapedrawable.setShape(new OvalShape());
-//                                    shapedrawable.getPaint().setColor(Color.RED);
-//                                    userOnProjectButton.setBackgroundColor(Color.WHITE);
-//                                    shapedrawable.getPaint().setStrokeWidth(10f);
-//                                    shapedrawable.getPaint().setStyle(Paint.Style.STROKE);
 
-//                                    userOnProjectButton.setImageDrawable(shapedrawable);
-//                                    userOnProjectButton.setCompoundDrawables( shapedrawable, null, null, null);
-
+                                    userOnProjectButton.setBackgroundResource(R.drawable.round_button_blue);
+                                    Drawable drw = userOnProjectButton.getBackground();
                                     switch (iUser)
                                     {
                                         case 0:
-                                            userOnProjectButton.setBackgroundResource(R.drawable.round_button_red);
+                                            drw.setColorFilter(Color.argb(255, 229, 115, 115), PorterDuff.Mode.LIGHTEN);
                                             break;
 
                                         case 1:
-                                            userOnProjectButton.setBackgroundResource(R.drawable.round_button_blue);
+                                            drw.setColorFilter(Color.argb(255, 79, 195, 247), PorterDuff.Mode.LIGHTEN);
                                             break;
 
                                         case 2:
-                                            userOnProjectButton.setBackgroundResource(R.drawable.round_button_green);
+                                            drw.setColorFilter(Color.argb(255, 129, 199, 132), PorterDuff.Mode.LIGHTEN);
                                             break;
 
                                         default:
-                                            userOnProjectButton.setBackgroundResource(R.drawable.round_button_red);
+                                            drw.setColorFilter(Color.argb(255, 79, 195, 247), PorterDuff.Mode.LIGHTEN);
                                             break;
                                     }
 
@@ -606,6 +844,9 @@ public class GraphActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
 
     public void goToReport(View view)
     {
@@ -924,4 +1165,6 @@ public class GraphActivity extends AppCompatActivity {
 
         return filler;
     }
+
+
 }

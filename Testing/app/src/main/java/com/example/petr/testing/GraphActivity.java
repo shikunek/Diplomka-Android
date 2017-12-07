@@ -1,31 +1,46 @@
 package com.example.petr.testing;
 
-import android.content.Context;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
-import com.github.mikephil.charting.components.IMarker;
 import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.MarkerView;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.utils.MPPointF;
+import com.github.mikephil.charting.listener.ChartTouchListener;
+import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -33,16 +48,21 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Random;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 
 public class GraphActivity extends AppCompatActivity {
 
@@ -50,14 +70,103 @@ public class GraphActivity extends AppCompatActivity {
     LineData data;
     int numDays = 0;
     int leftDay = 0;
-    int numShownDays = 14;
+    Boolean isSpinnerInitilised = false;
+    int numShownDays = 10;
     int firstDayOfWeek = 0;
     Date firstDayShown = null;
-    final String[] xLabels = new String[] { "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su" };
+    LinearLayout usersLinearLayout;
 
     private DatabaseReference mData;
     private FirebaseUser user;
-    Random randomGenerator = new Random();
+
+
+    public String completeCondition(ArrayList<String> usersToNudge)
+    {
+        StringBuilder completeCondition = new StringBuilder();
+        completeCondition.append("(");
+        for (int i = 0; i < usersToNudge.size(); i++)
+        {
+            if (i != 0)
+            {
+                completeCondition.append("&&");
+            }
+
+            completeCondition.append("'");
+            completeCondition.append(usersToNudge.get(i));
+            completeCondition.append("'");
+            completeCondition.append(" in topics");
+
+
+        }
+        completeCondition.append(")");
+        return completeCondition.toString();
+    }
+
+    public void sendFCMPush(String userID) {
+
+        final String Legacy_SERVER_KEY = "AIzaSyCB88Oy7989Wj319s4Q4PCDy1oGZo7SMAI";
+        String msg = "PLEASE SEND YOUR REPORT";
+        String title = "DEAR CO-WORKER";
+        JSONObject obj = null;
+        JSONObject objData = null;
+        JSONObject dataobjData = null;
+
+        try {
+            obj = new JSONObject();
+            objData = new JSONObject();
+
+            objData.put("body", msg);
+            objData.put("title", title);
+            objData.put("sound", "default");
+            objData.put("icon", "icon_name"); //   icon_name image must be there in drawable
+            objData.put("priority", "high");
+
+            dataobjData = new JSONObject();
+            dataobjData.put("text", msg);
+            dataobjData.put("title", title);
+
+
+            obj.put("content_available", true);
+//            obj.put("condition", condition2);
+            obj.put("to", "/topics/" + userID);
+            obj.put("priority", 10);
+//            obj.put("topic","news");
+            obj.put("notification", objData);
+            obj.put("data", dataobjData);
+
+            Log.e("!_@rj@_@@_PASS:>", obj.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.POST, "https://fcm.googleapis.com/fcm/send", obj,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.e("!_@@_SUCESS", response + "");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("!_@@_Errors--", error + "");
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("Authorization", "key=" + Legacy_SERVER_KEY);
+                params.put("Content-Type", "application/json");
+                return params;
+            }
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//        RequestQueue requestQueue = SingletonRequestForNudgeMe.getInstance(this.getApplicationContext()).getRequestQueue();
+
+        int socketTimeout = 1000 * 60;// 60 seconds
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        jsObjRequest.setRetryPolicy(policy);
+        requestQueue.add(jsObjRequest);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +177,149 @@ public class GraphActivity extends AppCompatActivity {
         mData = FirebaseDatabase.getInstance().getReference();
         user = FirebaseAuth.getInstance().getCurrentUser();
 
-//        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        final NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.checked)
+                        .setContentTitle("My notification")
+                        .setContentText("Hello World!");
+
+        Intent resultIntent = new Intent(this, DisplayMessageActivity.class);
+
+    // The stack builder object will contain an artificial back stack for the
+    // started Activity.
+    // This ensures that navigating backward from the Activity leads out of
+    // your app to the Home screen.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+    // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(GraphActivity.class);
+    // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+
+        mBuilder.setAutoCancel(true);
+        ImageButton nudgeMeButton = (ImageButton) findViewById(R.id.nudgeMyTeam);
+        nudgeMeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Calendar myCalendar = Calendar.getInstance();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY);
+                String id = user.getUid();
+                final String formattedDate = dateFormat.format(myCalendar.getTime());
+                mData.child("Uzivatel").child(id).child("Active")
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(final DataSnapshot activeProject) {
+
+                            mData.child("Projects").child(activeProject.getValue().toString())
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot currentProject) {
+                                            for (DataSnapshot user1 : currentProject.getChildren())
+                                            {
+                                                if (user1.getKey().equals("projectName") || user1.getKey().equals("Ending"))
+                                                {
+                                                    continue;
+                                                }
+                                                if (!user1.hasChild(formattedDate))
+                                                {
+                                                    sendFCMPush(user1.getKey());
+                                                }
+                                            }
+
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+        });
+
+        final Spinner activeProjectNameSpinner = (Spinner) findViewById(R.id.projectNameSpinner);
+
+        ImageButton goToReport = (ImageButton) findViewById(R.id.goToReportButton);
+        goToReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GraphActivity.this, DisplayMessageActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(final DataSnapshot uzivatel) {
+                final ArrayList<String> projectsList = new ArrayList<>();
+                final ArrayList<String> projectsIDs = new ArrayList<>();
+                for (DataSnapshot project : uzivatel.child("Projects").getChildren())
+                {
+                    projectsList.add(project.child("projectName").getValue().toString());
+                    projectsIDs.add(project.getKey());
+                }
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(GraphActivity.this, android.R.layout.simple_spinner_dropdown_item, projectsList);
+
+
+                activeProjectNameSpinner.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+
+                activeProjectNameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id)
+                    {
+                        if (isSpinnerInitilised)
+                        {
+                            Map<String, Object> updatedUserData = new HashMap<>();
+
+                            updatedUserData.put("Uzivatel/" + uzivatel.getKey() + "/" +
+                                    "Active" , projectsIDs.get(position));
+
+                            mData.updateChildren(updatedUserData);
+                        }
+                        else
+                        {
+                            isSpinnerInitilised = true;
+
+                            if (uzivatel.hasChild("Active"))
+                            {
+                                String userActiveProject = uzivatel.child("Active").getValue().toString();
+                                activeProjectNameSpinner.setSelection(projectsIDs.indexOf(userActiveProject));
+                            }
+
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parentView) {
+                        // your code here
+                    }
+
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
@@ -80,10 +331,11 @@ public class GraphActivity extends AppCompatActivity {
                     return;
                 }
 
+
                 mData.child("Projects").child(uzivatel.child("Active").getValue().toString()).addValueEventListener(
                         new ValueEventListener() {
                             @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
+                            public void onDataChange(final DataSnapshot dataSnapshot) {
 
                                 if (!dataSnapshot.hasChild(user.getUid()))
                                 {
@@ -92,16 +344,95 @@ public class GraphActivity extends AppCompatActivity {
                                 }
                                 numDays = leftDay = 0;
                                 lineChart = (LineChart) findViewById(R.id.lineChart);
+                                final ArrayList<ILineDataSet> dataSets = new ArrayList<>();
 
-                                final ArrayList<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
-
+                                usersLinearLayout = (LinearLayout) findViewById(R.id.projectUsersLayout);
+                                usersLinearLayout.removeAllViews();
                                 int iUser = 0;
-                                for (DataSnapshot user : dataSnapshot.getChildren())
+                                for (final DataSnapshot user : dataSnapshot.getChildren())
                                 {
-                                    if (user.getKey().equals("projectName"))
+                                    if (user.getKey().equals("projectName") || user.getKey().equals("Ending"))
                                     {
                                         continue;
                                     }
+
+
+                                    final Button userOnProjectButton = new Button(GraphActivity.this);
+
+
+                                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(usersLinearLayout.getHeight(), usersLinearLayout.getHeight());
+                                    int margin = 10;
+                                    int size = 130;
+                                    params.setMargins(margin, 0, margin, 0);
+                                    params.gravity = Gravity.CENTER;
+                                    userOnProjectButton.setLayoutParams(params);
+//                                    ShapeDrawable shapedrawable = new ShapeDrawable();
+//
+//                                    shapedrawable.setBounds( 0 , -(size/2), (size/2), 0 );
+//                                    shapedrawable.setShape(new OvalShape());
+//                                    shapedrawable.getPaint().setColor(Color.RED);
+//                                    userOnProjectButton.setBackgroundColor(Color.WHITE);
+//                                    shapedrawable.getPaint().setStrokeWidth(10f);
+//                                    shapedrawable.getPaint().setStyle(Paint.Style.STROKE);
+
+//                                    userOnProjectButton.setImageDrawable(shapedrawable);
+//                                    userOnProjectButton.setCompoundDrawables( shapedrawable, null, null, null);
+
+                                    switch (iUser)
+                                    {
+                                        case 0:
+                                            userOnProjectButton.setBackgroundResource(R.drawable.round_button_red);
+                                            break;
+
+                                        case 1:
+                                            userOnProjectButton.setBackgroundResource(R.drawable.round_button_blue);
+                                            break;
+
+                                        case 2:
+                                            userOnProjectButton.setBackgroundResource(R.drawable.round_button_green);
+                                            break;
+
+                                        default:
+                                            userOnProjectButton.setBackgroundResource(R.drawable.round_button_red);
+                                            break;
+                                    }
+
+
+                                    userOnProjectButton.setTextColor(Color.BLACK);
+                                    mData.child("Uzivatel").child(user.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            int indexOfAt = dataSnapshot.child("email").getValue().toString().indexOf("@");
+                                            if (indexOfAt != -1)
+                                            {
+                                                String emailName = dataSnapshot.child("email").getValue().toString().substring(0 , indexOfAt);
+                                                userOnProjectButton.setText(emailName);
+                                            }
+                                            else
+                                            {
+                                                userOnProjectButton.setText("USER");
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+
+                                    userOnProjectButton.setPadding(20, 20, 20, 20);
+                                    userOnProjectButton.setTag(user.getKey());
+                                    usersLinearLayout.addView(userOnProjectButton);
+                                    userOnProjectButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            Intent intent = new Intent(GraphActivity.this, UserReportsActivity.class);
+                                            intent.putExtra("projectName", dataSnapshot.getKey());
+                                            intent.putExtra("userName", user.getKey());
+                                            intent.putExtra("email", uzivatel.child("email").getValue().toString());
+                                            startActivity(intent);
+                                        }
+                                    });
 
                                     ArrayList<Entry> yValues = new ArrayList<>();
                                     ArrayList<Entry> yValuesMiss = new ArrayList<>();
@@ -109,81 +440,85 @@ public class GraphActivity extends AppCompatActivity {
                                     float y = 0f;
                                     yValues.add(new Entry(0, y)); // first entry is 0
                                     Entry lastEntry = new Entry(0, y);
+                                    Entry lastMissEntry = null;
                                     int i = 1;
-                                    boolean split = false;
+                                    //boolean preReport = true; // solution for late addition of user and his missed reports
+                                    boolean lastMiss = false;
+                                    boolean thisMiss;
                                     Date date;
                                     SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
                                     Calendar actDate = Calendar.getInstance();
-                                    Calendar targetDate = Calendar.getInstance();
                                     for (DataSnapshot value : user.getChildren())
                                     {
-                                        if (!value.exists())
-                                        {
+                                        if (!value.exists()) {
                                             return;
                                         }
                                         // get the smile
                                         long smile = (long) value.child("sendValue").getValue();
+                                        //Log.d("SMILE_TEST", "smile: " + (int)smile);
                                         // get the date
                                         String key = value.getKey();
                                         try {
                                             date = dateFormatter.parse(key);
-                                            targetDate.setTime(date);
+                                            actDate.setTime(date);
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }
+                                        //Log.d("SMILE_TEST", "actDate: " + dateFormatter.format(actDate.getTime()));
 
-                                        if (i == 1) {
-                                            if (firstDayShown == null || targetDate.before(firstDayShown)) {
-                                                firstDayShown = targetDate.getTime();
-                                                // DAY_OF_WEEK start 1 = Su
-                                                firstDayOfWeek = (targetDate.get(Calendar.DAY_OF_WEEK)+ 4) % 7;
+                                        thisMiss = smile < -1f;
+                                        /*if (preReport) { // let all missed days before first report go
+                                            if (thisMiss) {
+                                                i++;
+                                                continue;
                                             }
-                                            actDate.setTime(targetDate.getTime());
+                                            else preReport = false;
+                                        }*/
+
+                                        if (i == 1 && (firstDayShown == null || actDate.before(firstDayShown))) {
+                                            firstDayShown = actDate.getTime();
+                                            // DAY_OF_WEEK start 1 = Su
+                                            firstDayOfWeek = (actDate.get(Calendar.DAY_OF_WEEK)+ 4) % 7;
                                         }
-                                        Log.d("DATE_TEST", "actDate: " + dateFormatter.format(actDate.getTime()) +
-                                                ", targetDate: " + dateFormatter.format(targetDate.getTime()));
-                                        Entry lastMissEntry = null;
-                                        while (!actDate.equals(targetDate)) {
-                                            if (lastMissEntry == null) {
-                                                yValuesMiss.add(lastEntry);
-                                            }
 
+                                        if (thisMiss) { // just add new value to miss dataset
+                                            if (!lastMiss)
+                                                yValuesMiss.add(lastEntry);
                                             y = translateEntry(y, -1);
                                             yValuesMiss.add(new Entry(i, y));
                                             lastMissEntry = new Entry(i, y);
-                                            i++;
-                                            actDate.add(Calendar.DATE, 1);
-                                            split = true;
+                                        }
+                                        else { // !thisMiss && !lastMiss => just add new value to dataset
+                                            if (lastMiss) {
+                                                LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
+                                                setUpDataset(lineDataSet, false);
+                                                setDatasetColor(lineDataSet, iUser, false);
+                                                dataSets.add(0, lineDataSet);
+
+                                                LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
+                                                setUpDataset(lineDataSetMiss, true);
+                                                setDatasetColor(lineDataSetMiss, iUser, true);
+                                                dataSets.add(0, lineDataSetMiss);
+
+                                                yValues = new ArrayList<>();
+                                                // entry to connect last miss and first base entry in base color
+                                                yValues.add(lastMissEntry);
+                                                yValuesMiss = new ArrayList<>();
+                                            }
+                                            y = translateEntry(y, (int)smile);
+                                            yValues.add(new Entry(i, y));
+                                            lastEntry = new Entry(i, y);
                                         }
 
-                                        if (split) { // missing values between last and this date
-                                            LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
-                                            setUpDataset(lineDataSet, false);
-                                            setDatasetColor(lineDataSet, iUser, false);
-                                            dataSets.add(0, lineDataSet);
-
-                                            LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
-                                            setUpDataset(lineDataSetMiss, true);
-                                            setDatasetColor(lineDataSetMiss, iUser, true);
-                                            dataSets.add(0, lineDataSetMiss);
-
-                                            yValues = new ArrayList<>();
-                                            // entry to connect last miss and first base entry in base color
-                                            yValues.add(lastMissEntry);
-
-                                            yValuesMiss = new ArrayList<>();
-
-                                            split = false;
-                                        }
-                                        //Log.d("DATE_TEST", "value for " + dateFormatter.format(date) + " added");
-                                        y = translateEntry(y, (int)smile);
-                                        yValues.add(new Entry(i, y)); // data entry creation
-                                        lastEntry = new Entry(i, y);
+                                        lastMiss = thisMiss;
                                         i++;
-                                        actDate.add(Calendar.DATE, 1);
                                     }
 
-                                    if (i-1 > numDays) numDays = i-1;
+                                    if (i-1 > numDays)
+                                    {
+                                        numDays = i-1;
+                                    }
+
 
                                     if (yValues.size() > 0) {
                                         LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
@@ -201,6 +536,15 @@ public class GraphActivity extends AppCompatActivity {
                                     iUser++;
                                 }
 
+                                ArrayList<Entry> filler = fillEmptyDays();
+                                if (filler.size() > 0) {
+                                    LineDataSet lineDataSetFill = new LineDataSet(filler, "fill");
+                                    setUpDataset(lineDataSetFill, true);
+                                    lineDataSetFill.setColor(Color.TRANSPARENT);
+                                    lineDataSetFill.setCircleColor(Color.TRANSPARENT);
+                                    dataSets.add(0, lineDataSetFill);
+                                }
+
                                 data = new LineData(dataSets);
                                 lineChart.setData(data);
 
@@ -208,7 +552,9 @@ public class GraphActivity extends AppCompatActivity {
 
                                 lineChart.notifyDataSetChanged(); // let the chart know it's data changed
                                 lineChart.setVisibleXRangeMaximum(numShownDays-1);
+                                //lineChart.setVisibleXRangeMaximum(numDays);
                                 lineChart.setVisibleXRangeMinimum(numShownDays-1);
+                                lineChart.setExtraOffsets(0, 0, 0, 5);
 
                                 leftDay = numDays-numShownDays+1 >= 0 ? numDays-numShownDays+1 : 0;
                                 lineChart.moveViewToX(leftDay);
@@ -357,116 +703,153 @@ public class GraphActivity extends AppCompatActivity {
         lineDataSet.setHighlightEnabled(true);
         lineDataSet.setDrawHighlightIndicators(false);
         lineDataSet.setDrawValues(false);
-        lineDataSet.setLineWidth(4f);
+        lineDataSet.setLineWidth(3f);
+        lineDataSet.setDrawCircles(false);
+        lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        lineDataSet.setCubicIntensity(0.1f);
         if (miss) {
-            lineDataSet.setDrawCircles(false);
-            lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-            lineDataSet.setCubicIntensity(0.2f);
-            /*float lineLength = 20f;
+            float lineLength = 20f;
             float spaceLength = 6f;
             float phase = 0.5f;
-            lineDataSet.enableDashedLine(lineLength, spaceLength, phase);*/
+            lineDataSet.enableDashedLine(lineLength, spaceLength, phase);
         } else {
             lineDataSet.setDrawCircles(true);
-            lineDataSet.setCircleRadius(4f);
-            lineDataSet.setCircleHoleRadius(1.5f);
+            lineDataSet.setCircleRadius(3f);
+            lineDataSet.setCircleHoleRadius(1f);
         }
-
-        //lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        //lineDataSet.setCubicIntensity(0.2f);
     }
 
     public void setDatasetColor(LineDataSet lineDataSet, int user, boolean miss) {
-        if (miss) {
+        /*if (miss) {
             lineDataSet.setColor(Color.DKGRAY);
             lineDataSet.setCircleColor(Color.DKGRAY);
             return;
-        }
+        }*/
 
         switch (user)
         {
             case 0: // Base_Red: #e57373, Miss_Red: #ffcdd2
-                //if (!miss) {
                     lineDataSet.setColor(Color.argb(255, 229, 115, 115));
                     lineDataSet.setCircleColor(Color.argb(255, 229, 115, 115));
-                //} else {
-                //    lineDataSet.setColor(Color.argb(255, 255, 205, 210));
-                //    lineDataSet.setCircleColor(Color.argb(255, 255, 205, 210));
-                //}
                 break;
             case 1: // Base_Light-Blue: #4fc3f7, Miss_Light-Blue: #b3e5fc
-                //if (!miss) {
                     lineDataSet.setColor(Color.argb(255, 79, 195, 247));
                     lineDataSet.setCircleColor(Color.argb(255, 79, 195, 247));
-                //} else {
-                //    lineDataSet.setColor(Color.argb(255, 179, 229, 252));
-                //    lineDataSet.setCircleColor(Color.argb(255, 179, 229, 252));
-                //}
                 break;
             case 2: // Base_Green: #81c784, Miss_Green: #c8e6c9
-                //if (!miss) {
                     lineDataSet.setColor(Color.argb(255, 129, 199, 132));
                     lineDataSet.setCircleColor(Color.argb(255, 129, 199, 132));
-                //} else {
-                //    lineDataSet.setColor(Color.argb(255, 200, 230, 201));
-                //    lineDataSet.setCircleColor(Color.argb(255, 200, 230, 201));
-                //}
                 break;
             case 3: // Base_Purple: #ba68c8, Miss_Purple: #e1bee7
-                //if (!miss) {
                     lineDataSet.setColor(Color.argb(255, 186, 104, 200));
                     lineDataSet.setCircleColor(Color.argb(255, 186, 104, 200));
-                //} else {
-                //    lineDataSet.setColor(Color.argb(255, 225, 190, 231));
-                //    lineDataSet.setCircleColor(Color.argb(255, 225, 190, 231));
-                //}
                 break;
             default:
-                //if (!miss) {
                     lineDataSet.setColor(Color.BLUE);
                     lineDataSet.setCircleColor(Color.BLUE);
-                //} else {
-                //lineDataSet.setColor(Color.GRAY);
-                //    lineDataSet.setCircleColor(Color.GRAY);
-                //}
                 break;
         }
     }
 
-    public void setUpChart(LineChart lineChart) {
+    public void setUpChart(final LineChart lineChart) {
         final YAxis yAxis = lineChart.getAxisLeft();
         final XAxis xAxis = lineChart.getXAxis();
 
         yAxis.setDrawGridLines(false);
         yAxis.setDrawAxisLine(false);
-        yAxis.setAxisMinimum(-1f);
-        yAxis.setAxisMaximum(1f);
         xAxis.setGranularityEnabled(true);
         xAxis.setGranularity(1); // minimum axis-step (interval) is 1
         xAxis.setDrawAxisLine(false);
         xAxis.setDrawGridLines(false);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setTextSize(10);
+        xAxis.setTextSize(11);
         xAxis.setTypeface(Typeface.DEFAULT_BOLD);
         xAxis.setGridColor(Color.BLACK);
 
-        if (numDays <= 14) xAxis.setLabelCount(numDays+1, true);
-        else xAxis.setLabelCount(numShownDays, true);
+        if (numDays < numShownDays)
+            lineChart.getXAxis().setLabelCount(numDays, true);
+        else
+            lineChart.getXAxis().setLabelCount(numShownDays, true);
+
 
         IAxisValueFormatter labelFormatter = new IAxisValueFormatter() {
+            final String[] dayLabels = new String[] { "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su" };
 
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
+
+                String label = "";
                 int day = Math.round(value);
-                if (day < 0) return "";
-                else if (day == numDays) return "Today";
-                else if (day > numDays - 7) return xLabels[(day+firstDayOfWeek) % 7];
-                else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)
-                    return (numDays+1) / 7 - day / 7 + "w ago";
-                else return "";
+
+                int actDaysShown = (int)Math.ceil(lineChart.getVisibleXRange());
+                float actXShown = lineChart.getVisibleXRange();
+                int actLabelsShown = lineChart.getXAxis().getLabelCount();
+                float labelInterval = actXShown/actLabelsShown;
+
+                if (day == numDays) {
+                    label = "Today";
+                }
+                else if (actDaysShown > numShownDays) {
+                    if (value % 7 > (value+labelInterval) % 7 && value < numDays - 8) {
+                        label = (int)((numDays+1) / 7 - value / 7) + "w ago";
+                    }
+                } else {
+                    if (day > numDays - 7)
+                        label = dayLabels[(day + firstDayOfWeek) % 7];
+                    else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)
+                        label = (numDays + 1) / 7 - day / 7 + "w ago";
+                }
+
+                return label;
             }
         };
         xAxis.setValueFormatter(labelFormatter);
+
+        OnChartGestureListener gestureListener = new OnChartGestureListener() {
+            @Override
+            public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+                lineChart.setVisibleXRangeMaximum(numDays);
+            }
+
+            @Override
+            public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+
+            }
+
+            @Override
+            public void onChartLongPressed(MotionEvent me) {
+
+            }
+
+            @Override
+            public void onChartDoubleTapped(MotionEvent me) {
+
+            }
+
+            @Override
+            public void onChartSingleTapped(MotionEvent me) {
+
+            }
+
+            @Override
+            public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
+
+            }
+
+            @Override
+            public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
+//                lineChart.zoomIn();
+                lineChart.getXAxis().setLabelCount((int)Math.ceil(lineChart.getVisibleXRange()), true);
+            }
+
+            @Override
+            public void onChartTranslate(MotionEvent me, float dX, float dY) {
+
+            }
+        };
+
+        lineChart.setTouchEnabled(true);
+        lineChart.setOnChartGestureListener(gestureListener);
 
         Description description = new Description();
         description.setText("");
@@ -475,6 +858,8 @@ public class GraphActivity extends AppCompatActivity {
         lineChart.setDescription(description);
         lineChart.setBackgroundColor(Color.TRANSPARENT);
         lineChart.setDrawGridBackground(false);// this is a must
+        lineChart.setScaleYEnabled(false);
+
         lineChart.animateY(1000);
         lineChart.setDrawBorders(false);
         Legend legend = lineChart.getLegend();
@@ -489,5 +874,29 @@ public class GraphActivity extends AppCompatActivity {
             }
         };
         lineChart.setMarker(marker);*/
+    }
+
+    public ArrayList<Entry> fillEmptyDays() {
+        Calendar firstDay = Calendar.getInstance();
+        firstDay.setTime(firstDayShown);
+        //Log.d("TODAY", "first day: " + firstDayShown);
+        firstDay.set(Calendar.HOUR_OF_DAY, 0);
+        firstDay.set(Calendar.MINUTE, 0);
+        firstDay.set(Calendar.SECOND, 0);
+        firstDay.set(Calendar.MILLISECOND, 0);
+        Calendar now = Calendar.getInstance();
+        long daysBetween = TimeUnit.MILLISECONDS.toDays(
+                Math.abs(now.getTimeInMillis() - firstDay.getTimeInMillis()))+1;
+        //Log.d("TODAY", "days between: " + daysBetween + ", numdays: " + numDays);
+
+        ArrayList<Entry> filler = new ArrayList<>();
+
+        for (int i = numDays+1; i <= daysBetween; i++) {
+            //Log.d("TODAY", "adding transparent day at: " + i);
+            filler.add(new Entry(i, 0));
+            numDays++;
+        }
+
+        return filler;
     }
 }

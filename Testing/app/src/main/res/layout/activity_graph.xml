@@ -1,129 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:openDrawer="start">
+    tools:context="com.example.petr.testing.GraphActivity">
 
-    <include
-        layout="@layout/app_bar_menu"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <!-- Chart -->
+    <com.github.mikephil.charting.charts.LineChart
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        android:id="@+id/lineChart"
+        android:background="@drawable/chart_border"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginTop="119dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+></com.github.mikephil.charting.charts.LineChart>
 
-    <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <!-- Chart -->
-        <com.github.mikephil.charting.charts.LineChart
-            android:layout_width="0dp"
-            android:layout_height="300dp"
-            android:id="@+id/lineChart"
-            android:background="@drawable/chart_border"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:layout_marginTop="119dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            ></com.github.mikephil.charting.charts.LineChart>
-
-        <!-- Projects Button -->
-        <!--<Button-->
-            <!--android:id="@+id/projects"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginBottom="8dp"-->
-            <!--android:layout_marginTop="8dp"-->
-            <!--android:onClick="goToProjects"-->
-            <!--android:text="Projects"-->
-            <!--app:layout_constraintBottom_toTopOf="@+id/lineChart"-->
-            <!--app:layout_constraintTop_toTopOf="parent"-->
-            <!--app:layout_constraintVertical_bias="1.0"-->
-            <!--android:layout_marginStart="16dp"-->
-            <!--android:layout_marginLeft="16dp"-->
-            <!--app:layout_constraintLeft_toLeftOf="parent" />-->
-
-        <!-- Actual Project Name label -->
-
-        <!-- Button to report page -->
-        <ImageButton
-            android:id="@+id/goToReportButton"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="Let's report your feeling about a day"
-            android:src="@drawable/smart"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="@+id/nudgeMyTeam"
-            app:layout_constraintTop_toBottomOf="@+id/lineChart"
-            app:layout_constraintVertical_bias="0.272"
-            app:layout_constraintHorizontal_chainStyle="packed" />
-
-        <!-- Button to Nudge all -->
-        <ImageButton
-            android:id="@+id/nudgeMyTeam"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:background="@null"
-            android:contentDescription="Nudge people from project"
-            android:src="@drawable/fist"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="@+id/goToReportButton"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/lineChart"
-            app:layout_constraintVertical_bias="0.27999997"
-            tools:layout_editor_absoluteX="217dp"
-            tools:layout_editor_absoluteY="423dp" />
-
-        <!--<Spinner-->
-            <!--android:id="@+id/projectNameSpinner"-->
-            <!--android:layout_width="106dp"-->
-            <!--android:layout_height="42dp"-->
-            <!--android:layout_marginRight="35dp"-->
-            <!--android:layout_marginTop="8dp"-->
-            <!--android:spinnerMode="dropdown"-->
-            <!--android:visibility="visible"-->
-            <!--app:layout_constraintRight_toRightOf="parent"-->
-            <!--app:layout_constraintTop_toTopOf="parent"-->
-            <!--android:layout_marginEnd="35dp"-->
-            <!--app:layout_constraintLeft_toRightOf="@+id/projects"-->
-            <!--android:layout_marginLeft="8dp"-->
-            <!--app:layout_constraintHorizontal_bias="1.0" />-->
-
-        <LinearLayout
-            android:id="@+id/projectUsersLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="45dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toTopOf="@+id/lineChart"
-            app:layout_constraintHorizontal_bias="0.454"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/projectNameSpinner"
-            app:layout_constraintVertical_bias="1.0"></LinearLayout>
-
-    </android.support.constraint.ConstraintLayout>
-
-    <android.support.design.widget.NavigationView
-        android:id="@+id/nav_view"
+    <!-- Projects Button -->
+    <Button
+        android:id="@+id/projects"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_menu"
-        app:menu="@menu/activity_menu_drawer" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:onClick="goToProjects"
+        android:text="Projects"
+        app:layout_constraintBottom_toTopOf="@+id/lineChart"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        android:layout_marginStart="16dp"
+    />
+
+    <!-- Actual Project Name label -->
+
+    <!-- Button to report page -->
+    <ImageButton
+        android:id="@+id/goToReportButton"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Let's report your feeling about a day"
+        android:src="@drawable/smart"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="@+id/nudgeMyTeam"
+        app:layout_constraintTop_toBottomOf="@+id/lineChart"
+        app:layout_constraintVertical_bias="0.272"
+        app:layout_constraintHorizontal_chainStyle="packed" />
+
+    <!-- Button to Nudge all -->
+    <ImageButton
+        android:id="@+id/nudgeMyTeam"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:background="@null"
+        android:contentDescription="Nudge people from project"
+        android:src="@drawable/fist"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="@+id/goToReportButton"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lineChart"
+        app:layout_constraintVertical_bias="0.27999997"
+        tools:layout_editor_absoluteX="217dp"
+        tools:layout_editor_absoluteY="423dp" />
+
+    <Spinner
+        android:id="@+id/projectNameSpinner"
+        android:layout_width="106dp"
+        android:layout_height="42dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginTop="8dp"
+        android:spinnerMode="dropdown"
+        android:visibility="visible"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginEnd="35dp"
+        app:layout_constraintLeft_toRightOf="@+id/projects"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintHorizontal_bias="1.0" />
+
+    <LinearLayout
+        android:id="@+id/projectUsersLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/lineChart"
+        app:layout_constraintHorizontal_bias="0.454"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/projectNameSpinner"
+        app:layout_constraintVertical_bias="1.0"></LinearLayout>
 
 
-</android.support.v4.widget.DrawerLayout>
+</android.support.constraint.ConstraintLayout>

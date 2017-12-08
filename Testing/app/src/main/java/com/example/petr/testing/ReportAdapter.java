@@ -48,7 +48,7 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
     public ReportAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                        int viewType) {
         // create a new view
-//        TextView v = new TextView(parent.getContext());
+        TextView v = new TextView(parent.getContext());
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.report_item, parent, false);
         // set the view's size, margins, paddings and layout parameters
@@ -77,8 +77,6 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
                 break;
             case "-2":
                 holder.mReportedSmile.setImageResource(R.drawable.mad);
-                holder.mReportedTextView.setText("User didn't send report!");
-//                holder.mReportedTextView.setTextColor(Color.RED);
                 break;
 
         }

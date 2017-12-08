@@ -24,7 +24,8 @@
             <!-- android:name="android.support.PARENT_ACTIVITY" -->
             <!-- android:value=".FirstActivity" /> -->
         </activity>
-        <activity android:name=".GraphActivity" />
+        <activity android:name=".GraphActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".ProjectsActivity" />
 
         <service android:name=".ReceiveMessage">
@@ -47,7 +48,11 @@
 
         <activity android:name=".ProjectInfoActivity" />
         <activity android:name=".UserReportsActivity" />
-        <activity android:name=".AddProjectActivity"></activity>
+        <activity android:name=".AddProjectActivity" />
+        <activity
+            android:name=".MenuActivity"
+            android:label="@string/title_activity_menu"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

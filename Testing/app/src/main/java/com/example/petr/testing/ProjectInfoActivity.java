@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-import static com.example.petr.testing.AddProjectActivity.getRegisteredUsers;
 
 public class ProjectInfoActivity extends AppCompatActivity {
 
@@ -58,7 +57,6 @@ public class ProjectInfoActivity extends AppCompatActivity {
         });
         usersToDelete = new ArrayList<>();
         projectName = (TextView) findViewById(R.id.projectName);
-        final ArrayList<String> listOfRegisteredUsers = getRegisteredUsers();
         final LinearLayout createProjectLayout = (LinearLayout) findViewById(R.id.usersLayout);
         final Button applyChanges = (Button) findViewById(R.id.okButton);
         applyChanges.setOnClickListener(new View.OnClickListener() {
@@ -107,7 +105,7 @@ public class ProjectInfoActivity extends AppCompatActivity {
                             }
                             mData.child("Uzivatel").child(user.getKey()).child("email").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
-                                public void onDataChange(DataSnapshot userEmail)
+                                public void onDataChange(final DataSnapshot userEmail)
                                 {
                                     final AutoCompleteTextView manualUserEditText = new AutoCompleteTextView(ProjectInfoActivity.this);
                                     final ImageButton deleteUserButton = new ImageButton(ProjectInfoActivity.this);
@@ -124,34 +122,52 @@ public class ProjectInfoActivity extends AppCompatActivity {
 
                                         }
                                     });
-                                    final LinearLayout item = new LinearLayout(ProjectInfoActivity.this);
-                                    item.setOrientation(LinearLayout.HORIZONTAL);
-                                    ArrayAdapter<String> adapter = new ArrayAdapter<>(ProjectInfoActivity.this,
-                                            android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
 
-                                    manualUserEditText.setAdapter(adapter);
-                                    manualUserEditText.setThreshold(1);
-                                    manualUserEditText.setText(userEmail.getValue().toString());
-                                    manualUserEditText.addTextChangedListener(new TextWatcher() {
+                                    mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
-                                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                                        public void onDataChange(DataSnapshot userProjects) {
+                                            ArrayList<String> listOfRegisteredUsers = new ArrayList<String>();
+                                            for (DataSnapshot user : userProjects.getChildren())
+                                            {
+                                                listOfRegisteredUsers.add(user.child("email").getValue().toString());
+                                            }
+                                            final LinearLayout item = new LinearLayout(ProjectInfoActivity.this);
+                                            item.setOrientation(LinearLayout.HORIZONTAL);
+                                            ArrayAdapter<String> adapter = new ArrayAdapter<>(ProjectInfoActivity.this,
+                                                    android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
+
+                                            manualUserEditText.setAdapter(adapter);
+                                            manualUserEditText.setThreshold(1);
+                                            manualUserEditText.setText(userEmail.getValue().toString());
+                                            manualUserEditText.addTextChangedListener(new TextWatcher() {
+                                                @Override
+                                                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                                                }
+
+                                                @Override
+                                                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                                }
+
+                                                @Override
+                                                public void afterTextChanged(Editable s) {
+
+                                                }
+                                            });
+                                            item.addView(manualUserEditText);
+                                            item.addView(deleteUserButton);
+                                            item.setId(userEmail.hashCode());
+
+                                            createProjectLayout.addView(item);
 
                                         }
 
                                         @Override
-                                        public void onTextChanged(CharSequence s, int start, int before, int count) {
-                                        }
-
-                                        @Override
-                                        public void afterTextChanged(Editable s) {
+                                        public void onCancelled(DatabaseError databaseError) {
 
                                         }
                                     });
-                                    item.addView(manualUserEditText);
-                                    item.addView(deleteUserButton);
-                                    item.setId(userEmail.hashCode());
 
-                                    createProjectLayout.addView(item);
                                 }
 
                                 @Override
@@ -173,9 +189,8 @@ public class ProjectInfoActivity extends AppCompatActivity {
         Button addUserButton = (Button) findViewById(R.id.addUserButton);
         addUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
 
-                ArrayList<String> listOfRegisteredUsers = getRegisteredUsers();
                 final AutoCompleteTextView manualUserEditText = new AutoCompleteTextView(v.getContext());
                 final ImageButton deleteUserButton = new ImageButton(ProjectInfoActivity.this);
                 deleteUserButton.setImageResource(R.drawable.checked);
@@ -193,46 +208,64 @@ public class ProjectInfoActivity extends AppCompatActivity {
 
                     }
                 });
-                final LinearLayout item = new LinearLayout(ProjectInfoActivity.this);
-                item.setOrientation(LinearLayout.HORIZONTAL);
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(v.getContext(),
-                        android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
-                manualUserEditText.setAdapter(adapter);
-                manualUserEditText.setThreshold(1);
-                manualUserEditText.addTextChangedListener(new TextWatcher() {
+
+                mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    public void onDataChange(DataSnapshot userProjects) {
+                        ArrayList<String> listOfRegisteredUsers = new ArrayList<String>();
+                        for (DataSnapshot user : userProjects.getChildren())
+                        {
+                            listOfRegisteredUsers.add(user.child("email").getValue().toString());
+                        }
+                        final LinearLayout item = new LinearLayout(ProjectInfoActivity.this);
+                        item.setOrientation(LinearLayout.HORIZONTAL);
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(v.getContext(),
+                                android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
+                        manualUserEditText.setAdapter(adapter);
+                        manualUserEditText.setThreshold(1);
+                        manualUserEditText.addTextChangedListener(new TextWatcher() {
+                            @Override
+                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 //                        if(s.length() >= 2) {
 //                            if (!manualUserEditText.isPopupShowing()) {
 //                                manualUserEditText.setError("Not found");
 //                                return;
 //                            }
 //                        }
-                    }
+                            }
 
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                            @Override
+                            public void onTextChanged(CharSequence s, int start, int before, int count) {
 //                        if (s.length() > 1 && (!manualUserEditText.isPopupShowing()) && !manualUserEditText.isPerformingCompletion()) {
 //                            manualUserEditText.setError("Not found");
 //                            return;
 //                        }
-                    }
+                            }
 
-                    @Override
-                    public void afterTextChanged(Editable s) {
+                            @Override
+                            public void afterTextChanged(Editable s) {
 
 //                            if (!manualUserEditText.isPerformingCompletion()) {
 //                                manualUserEditText.setError("Not found");
 //                                return;
 //                            }
 
+                            }
+                        });
+                        item.setId(userId);
+                        item.addView(manualUserEditText);
+                        item.addView(deleteUserButton);
+                        userId++;
+                        createProjectLayout.addView(item);
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
                     }
                 });
-                item.setId(userId);
-                item.addView(manualUserEditText);
-                item.addView(deleteUserButton);
-                userId++;
-                createProjectLayout.addView(item);
+
             }
         });
 

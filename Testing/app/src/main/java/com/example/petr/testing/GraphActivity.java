@@ -21,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -605,7 +604,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                                     }
 
 
-                                    final Button userOnProjectButton = new Button(GraphActivity.this);
+                                    final ImageButton userOnProjectButton = new ImageButton(GraphActivity.this);
 
 
                                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(usersLinearLayout.getHeight(), usersLinearLayout.getHeight());
@@ -615,49 +614,55 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                                     params.gravity = Gravity.CENTER;
                                     userOnProjectButton.setLayoutParams(params);
 
-                                    userOnProjectButton.setBackgroundResource(R.drawable.round_button_blue);
+//                                    userOnProjectButton.setBackgroundResource(R.drawable.round_button_blue);
                                     Drawable drw = userOnProjectButton.getBackground();
                                     switch (iUser)
                                     {
                                         case 0:
+//                                            userOnProjectButton.setImageResource(R.drawable.animal_goat);
+                                            userOnProjectButton.setBackgroundResource(R.drawable.animal_rhinoceros);
+
+
                                             drw.setColorFilter(Color.argb(255, 229, 115, 115), PorterDuff.Mode.LIGHTEN);
                                             break;
 
                                         case 1:
-                                            drw.setColorFilter(Color.argb(255, 79, 195, 247), PorterDuff.Mode.LIGHTEN);
+                                            userOnProjectButton.setBackgroundResource(R.drawable.animal_cat);
+//                                            drw.setColorFilter(Color.argb(255, 79, 195, 247), PorterDuff.Mode.LIGHTEN);
                                             break;
 
                                         case 2:
-                                            drw.setColorFilter(Color.argb(255, 129, 199, 132), PorterDuff.Mode.LIGHTEN);
+                                            userOnProjectButton.setBackgroundResource(R.drawable.animal_koala);
+//                                            drw.setColorFilter(Color.argb(255, 129, 199, 132), PorterDuff.Mode.LIGHTEN);
                                             break;
 
                                         default:
-                                            drw.setColorFilter(Color.argb(255, 79, 195, 247), PorterDuff.Mode.LIGHTEN);
+//                                            drw.setColorFilter(Color.argb(255, 79, 195, 247), PorterDuff.Mode.LIGHTEN);
                                             break;
                                     }
 
 
-                                    userOnProjectButton.setTextColor(Color.BLACK);
-                                    mData.child("Uzivatel").child(user.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                            int indexOfAt = dataSnapshot.child("email").getValue().toString().indexOf("@");
-                                            if (indexOfAt != -1)
-                                            {
-                                                String emailName = dataSnapshot.child("email").getValue().toString().substring(0 , indexOfAt);
-                                                userOnProjectButton.setText(emailName);
-                                            }
-                                            else
-                                            {
-                                                userOnProjectButton.setText("USER");
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
+//                                    userOnProjectButton.setTextColor(Color.BLACK);
+//                                    mData.child("Uzivatel").child(user.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+//                                        @Override
+//                                        public void onDataChange(DataSnapshot dataSnapshot) {
+//                                            int indexOfAt = dataSnapshot.child("email").getValue().toString().indexOf("@");
+//                                            if (indexOfAt != -1)
+//                                            {
+//                                                String emailName = dataSnapshot.child("email").getValue().toString().substring(0 , indexOfAt);
+//                                                userOnProjectButton.setText(emailName);
+//                                            }
+//                                            else
+//                                            {
+//                                                userOnProjectButton.setText("USER");
+//                                            }
+//                                        }
+//
+//                                        @Override
+//                                        public void onCancelled(DatabaseError databaseError) {
+//
+//                                        }
+//                                    });
 
                                     userOnProjectButton.setPadding(20, 20, 20, 20);
                                     userOnProjectButton.setTag(user.getKey());

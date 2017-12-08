@@ -3,10 +3,10 @@ package com.example.petr.testing;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -24,48 +24,45 @@ import java.util.Map;
 public class ProjectsActivity extends AppCompatActivity {
 
     RowAdapter adapter;
-//    ArrayList<String> arrayListJustForTriggerAdapter = new ArrayList<>();
-//    ArrayList<ProjectClass> projectListToShow = new ArrayList<>();
+    ArrayList<String> arrayListJustForTriggerAdapter = new ArrayList<>();
+    ArrayList<ProjectClass> projectListToShow = new ArrayList<>();
     DatabaseReference mData;
-//    ArrayList<String> listOfRegisteredUsers = new ArrayList<>();
+    ArrayList<String> listOfRegisteredUsers = new ArrayList<>();
     FirebaseUser currentUser;
-    ArrayList<ProjectClass> myProjectset;
-
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView mRecyclerView;
-    private RecyclerView.LayoutManager mLayoutManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_projects);
         getSupportActionBar().setTitle("Projects list");
 
-        myProjectset = new ArrayList<>();
-        mRecyclerView = (RecyclerView) findViewById(R.id.projects_list);
-        mAdapter = new RowAdapter(myProjectset);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
 
-        Button addProjectButton = (Button) findViewById(R.id.addProject);
-//        addProjectButton.setImageResource(R.drawable.checked);
-//
-//        addProjectButton.setBackgroundResource(R.drawable.round_button_blue);
-//        Drawable drw = addProjectButton.getBackground();
-//        drw.setColorFilter(Color.argb(255, 79, 195, 247), PorterDuff.Mode.LIGHTEN);
-
+        adapter = new RowAdapter(this, projectListToShow, arrayListJustForTriggerAdapter);
         mData = FirebaseDatabase.getInstance().getReference();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        final ListView projectsListView = (ListView) findViewById(R.id.projects_list);
+        projectsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+                LinearLayout currentProjectLayout = (LinearLayout) view.findViewById(R.id.lin);
+                Intent intent = new Intent(ProjectsActivity.this, ProjectInfoActivity.class);
+                intent.putExtra("projectName",(String) currentProjectLayout.getTag() );
+                startActivity(intent);
+
+            }
+        });
+        projectsListView.setAdapter(adapter);
 
         mData.child("Uzivatel").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(final DataSnapshot userProjects) {
 
-//                        for (DataSnapshot user : userProjects.getChildren())
-//                        {
-//                            listOfRegisteredUsers.add(user.child("email").getValue().toString());
-//                        }
+                        for (DataSnapshot user : userProjects.getChildren())
+                        {
+                            listOfRegisteredUsers.add(user.child("email").getValue().toString());
+                        }
 
                         if (!userProjects.child(currentUser.getUid()).hasChild("Projects"))
                         {
@@ -98,10 +95,10 @@ public class ProjectsActivity extends AppCompatActivity {
 
                                                 }
                                             }
-                                            myProjectset.add(newProject);
-//                                            arrayListJustForTriggerAdapter.add("asd");
-//                                            adapter.notifyDataSetChanged();
-                                            mRecyclerView.setAdapter(mAdapter);
+                                            projectListToShow.add(newProject);
+                                            arrayListJustForTriggerAdapter.add("asd");
+                                            adapter.notifyDataSetChanged();
+
                                         }
 
                                         @Override
@@ -110,7 +107,6 @@ public class ProjectsActivity extends AppCompatActivity {
                                         }
                                     });
                         }
-
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
@@ -148,13 +144,14 @@ public class ProjectsActivity extends AppCompatActivity {
 
                 mData.updateChildren(updatedUserData);
 
-                for (ProjectClass project : myProjectset)
+                for (ProjectClass project : projectListToShow)
                 {
                     if (project.getID().equals(currentUsersData.child("Active").getValue().toString()))
                     {
-                        myProjectset.remove(project);
-                        mAdapter.notifyItemRemoved(myProjectset.indexOf(project));
-                        mAdapter.notifyItemRangeChanged(myProjectset.indexOf(project), myProjectset.size());
+                        projectListToShow.remove(project);
+                        arrayListJustForTriggerAdapter.remove(arrayListJustForTriggerAdapter.size()-1);
+
+                        adapter.notifyDataSetChanged();
                         break;
                     }
                 }

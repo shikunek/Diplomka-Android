@@ -28,8 +28,31 @@ import java.util.Map;
 
 public class AddProjectActivity extends AppCompatActivity {
 
+    DatabaseReference mData;
     RowAdapter adapter;
+    ArrayList<String> arrayListJustForTriggerAdapter = new ArrayList<>();
     ArrayList<ProjectClass> projectListToShow = new ArrayList<>();
+    public static ArrayList<String> getRegisteredUsers()
+    {
+        DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
+        final ArrayList<String> listOfRegisteredUsers = new ArrayList<>();
+        mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot userProjects) {
+                for (DataSnapshot user : userProjects.getChildren())
+                {
+                    listOfRegisteredUsers.add(user.child("email").getValue().toString());
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        return listOfRegisteredUsers;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,70 +64,52 @@ public class AddProjectActivity extends AppCompatActivity {
         manualProjectName.setText("SIN");
 
 
-        adapter = new RowAdapter(projectListToShow);
+        adapter = new RowAdapter(this, projectListToShow, arrayListJustForTriggerAdapter);
         final DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
         Button addButton = (Button) findViewById(R.id.addProjectButton);
         final LinearLayout createProjectLayout = (LinearLayout) findViewById(R.id.usersLinLayout);
         Button addUserButton = (Button) findViewById(R.id.addUsersButton);
         addUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(final View v) {
+            public void onClick(View v) {
 
-                DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
-                final ArrayList<String> listOfRegisteredUsers = new ArrayList<>();
-                mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
+                ArrayList<String> listOfRegisteredUsers = getRegisteredUsers();
+                final AutoCompleteTextView manualUserEditText = new AutoCompleteTextView(v.getContext());
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(v.getContext(),
+                        android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
+                manualUserEditText.setAdapter(adapter);
+                manualUserEditText.setThreshold(1);
+                manualUserEditText.addTextChangedListener(new TextWatcher() {
                     @Override
-                    public void onDataChange(DataSnapshot userProjects) {
-                        for (DataSnapshot user : userProjects.getChildren())
-                        {
-                            listOfRegisteredUsers.add(user.child("email").getValue().toString());
-                        }
-
-                        final AutoCompleteTextView manualUserEditText = new AutoCompleteTextView(v.getContext());
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(v.getContext(),
-                                android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
-                        manualUserEditText.setAdapter(adapter);
-                        manualUserEditText.setThreshold(1);
-                        manualUserEditText.addTextChangedListener(new TextWatcher() {
-                            @Override
-                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 //                        if(s.length() >= 2) {
 //                            if (!manualUserEditText.isPopupShowing()) {
 //                                manualUserEditText.setError("Not found");
 //                                return;
 //                            }
 //                        }
-                            }
+                    }
 
-                            @Override
-                            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
 //                        if (s.length() > 1 && (!manualUserEditText.isPopupShowing()) && !manualUserEditText.isPerformingCompletion()) {
 //                            manualUserEditText.setError("Not found");
 //                            return;
 //                        }
-                            }
+                    }
 
-                            @Override
-                            public void afterTextChanged(Editable s) {
+                    @Override
+                    public void afterTextChanged(Editable s) {
 
 //                            if (!manualUserEditText.isPerformingCompletion()) {
 //                                manualUserEditText.setError("Not found");
 //                                return;
 //                            }
 
-                            }
-                        });
-
-                        createProjectLayout.addView(manualUserEditText);
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
                     }
                 });
 
+                createProjectLayout.addView(manualUserEditText);
             }
         });
         Calendar myCalendar = Calendar.getInstance();
@@ -165,6 +170,7 @@ public class AddProjectActivity extends AppCompatActivity {
                                     mData.updateChildren(updatedUserData);
                                 }
 
+                                arrayListJustForTriggerAdapter.add("asd");
                                 projectListToShow.add(newProject);
                                 adapter.notifyDataSetChanged();
                                 Intent intent = new Intent(AddProjectActivity.this, ProjectsActivity.class);

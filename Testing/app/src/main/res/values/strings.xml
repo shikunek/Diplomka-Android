@@ -1,4 +1,7 @@
 <resources>
+    <string name="userLabel">e-mail:</string>
+    <string name="passLabel">password:</string>
+
     <string name="app_name">NudgeMe</string>
     <string name="edit_message">Enter a message</string>
 
@@ -6,13 +9,37 @@
     <string name="button_sign_in">Sign In</string>
     <string name="button_sign_up">Sign Up</string>
 
-    <string name="description">Express yourself. . .</string>
+    <string name="description">express yourself. . .</string>
     <string name="calendar">dd/mm/yyyy</string>
     <string name="button_description">Float confirm button</string>
     <string name="usr_hint">example@email.com</string>
     <string name="pswd_hint">password</string>
 
+    <string name="dateLabel">date:</string>
+    <string name="descLabel">description:</string>
+    <string name="feelLabel">choose your feeling:</string>
+
     <string name="first_act">Welcome</string>
     <string name="graph_act">Welcome</string>
     <string name="report_act">Welcome</string>
+    <string name="title_activity_menu">MenuActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string-array name="planets_array">
+        <item>Mercury</item>
+        <item>Venus</item>
+        <item>Earth</item>
+        <item>Mars</item>
+        <item>Jupiter</item>
+        <item>Saturn</item>
+        <item>Uranus</item>
+        <item>Neptune</item>
+    </string-array>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="action_websearch">Web search</string>
+    <string name="app_not_available">Sorry, there\'s no web browser available</string>
 </resources>

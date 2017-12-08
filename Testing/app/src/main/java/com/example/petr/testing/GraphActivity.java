@@ -850,9 +850,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         });
     }
 
-
-
-
     public void goToReport(View view)
     {
         Intent intent = new Intent(this, DisplayMessageActivity.class);
@@ -976,49 +973,24 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         switch (user)
         {
             case 0: // Base_Red: #e57373, Miss_Red: #ffcdd2
-                //if (!miss) {
                     lineDataSet.setColor(Color.argb(255, 229, 115, 115));
                     lineDataSet.setCircleColor(Color.argb(255, 229, 115, 115));
-                //} else {
-                //    lineDataSet.setColor(Color.argb(255, 255, 205, 210));
-                //    lineDataSet.setCircleColor(Color.argb(255, 255, 205, 210));
-                //}
                 break;
             case 1: // Base_Light-Blue: #4fc3f7, Miss_Light-Blue: #b3e5fc
-                //if (!miss) {
                     lineDataSet.setColor(Color.argb(255, 79, 195, 247));
                     lineDataSet.setCircleColor(Color.argb(255, 79, 195, 247));
-                //} else {
-                //    lineDataSet.setColor(Color.argb(255, 179, 229, 252));
-                //    lineDataSet.setCircleColor(Color.argb(255, 179, 229, 252));
-                //}
                 break;
             case 2: // Base_Green: #81c784, Miss_Green: #c8e6c9
-                //if (!miss) {
                     lineDataSet.setColor(Color.argb(255, 129, 199, 132));
                     lineDataSet.setCircleColor(Color.argb(255, 129, 199, 132));
-                //} else {
-                //    lineDataSet.setColor(Color.argb(255, 200, 230, 201));
-                //    lineDataSet.setCircleColor(Color.argb(255, 200, 230, 201));
-                //}
                 break;
             case 3: // Base_Purple: #ba68c8, Miss_Purple: #e1bee7
-                //if (!miss) {
                     lineDataSet.setColor(Color.argb(255, 186, 104, 200));
                     lineDataSet.setCircleColor(Color.argb(255, 186, 104, 200));
-                //} else {
-                //    lineDataSet.setColor(Color.argb(255, 225, 190, 231));
-                //    lineDataSet.setCircleColor(Color.argb(255, 225, 190, 231));
-                //}
                 break;
             default:
-                //if (!miss) {
                     lineDataSet.setColor(Color.BLUE);
                     lineDataSet.setCircleColor(Color.BLUE);
-                //} else {
-                //lineDataSet.setColor(Color.GRAY);
-                //    lineDataSet.setCircleColor(Color.GRAY);
-                //}
                 break;
         }
     }
@@ -1029,8 +1001,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
         yAxis.setDrawGridLines(false);
         yAxis.setDrawAxisLine(false);
-        //yAxis.setAxisMinimum(-1f);
-        //yAxis.setAxisMaximum(1f);
         xAxis.setGranularityEnabled(true);
         xAxis.setGranularity(1); // minimum axis-step (interval) is 1
         xAxis.setDrawAxisLine(false);
@@ -1040,39 +1010,41 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         xAxis.setTypeface(Typeface.DEFAULT_BOLD);
         xAxis.setGridColor(Color.BLACK);
 
-        /*if (numDays <= numShownDays)
-        {*/
-            xAxis.setLabelCount(numDays+1, false);
-        /*}
+        if (numDays < numShownDays)
+            lineChart.getXAxis().setLabelCount(numDays, true);
         else
-        {*/
-            //xAxis.setLabelCount(numShownDays, false);
-        //}*/
+            lineChart.getXAxis().setLabelCount(numShownDays, true);
 
 
         IAxisValueFormatter labelFormatter = new IAxisValueFormatter() {
+            final String[] dayLabels = new String[] { "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su" };
 
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
+
+                String label = "";
                 int day = Math.round(value);
-                if (lineChart.getVisibleXRange() > 14) {
-                    lineChart.getXAxis().setLabelCount(numDays+1, false);
-                    if (day == numDays)
-                        return "Today";
-                    else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)
-                        return (numDays+1) / 7 - day / 7 + "w ago";
-                } else {
-                    lineChart.getXAxis().setLabelCount(numDays+1, false);
-                    if (day < 0)
-                        return "";
-                    else if (day == numDays)
-                        return "Today";
-                    else if (day > numDays - 7)
-                        return xLabels[(day + firstDayOfWeek) % 7];
-                    else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)
-                        return (numDays + 1) / 7 - day / 7 + "w ago";
+
+                int actDaysShown = (int)Math.ceil(lineChart.getVisibleXRange());
+                float actXShown = lineChart.getVisibleXRange();
+                int actLabelsShown = lineChart.getXAxis().getLabelCount();
+                float labelInterval = actXShown/actLabelsShown;
+
+                if (day == numDays) {
+                    label = "Today";
                 }
-                return "";
+                else if (actDaysShown > numShownDays) {
+                    if (value % 7 > (value+labelInterval) % 7 && value < numDays - 8) {
+                        label = (int)((numDays+1) / 7 - value / 7) + "w ago";
+                    }
+                } else {
+                    if (day > numDays - 7)
+                        label = dayLabels[(day + firstDayOfWeek) % 7];
+                    else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)
+                        label = (numDays + 1) / 7 - day / 7 + "w ago";
+                }
+
+                return label;
             }
         };
         xAxis.setValueFormatter(labelFormatter);
@@ -1111,6 +1083,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             @Override
             public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
 //                lineChart.zoomIn();
+                lineChart.getXAxis().setLabelCount((int)Math.ceil(lineChart.getVisibleXRange()), true);
             }
 
             @Override
@@ -1170,6 +1143,4 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
         return filler;
     }
-
-
 }

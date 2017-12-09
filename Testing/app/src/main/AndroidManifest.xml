@@ -46,7 +46,9 @@
      See README(https://goo.gl/l4GJaQ) for more.
         -->
 
-        <activity android:name=".ProjectInfoActivity" />
+        <activity android:name=".ProjectInfoActivity"
+            android:windowSoftInputMode="stateHidden">
+        </activity>
         <activity android:name=".UserReportsActivity" />
         <activity android:name=".AddProjectActivity"
             android:windowSoftInputMode="stateHidden">

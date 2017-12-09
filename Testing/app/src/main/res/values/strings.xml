@@ -18,6 +18,9 @@
     <string name="dateLabel">date:</string>
     <string name="descLabel">description:</string>
     <string name="feelLabel">choose your feeling:</string>
+    <string name="projNameLabel">project name:</string>
+    <string name="startLabel">start date:</string>
+    <string name="endLabel">end date:</string>
 
     <string name="first_act">Welcome</string>
     <string name="graph_act">Welcome</string>

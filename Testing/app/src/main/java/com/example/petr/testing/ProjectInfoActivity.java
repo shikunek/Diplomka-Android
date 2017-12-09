@@ -138,6 +138,8 @@ public class ProjectInfoActivity extends AppCompatActivity {
 
                                             manualUserEditText.setAdapter(adapter);
                                             manualUserEditText.setThreshold(1);
+                                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+                                            manualUserEditText.setLayoutParams(params);
                                             manualUserEditText.setText(userEmail.getValue().toString());
                                             manualUserEditText.addTextChangedListener(new TextWatcher() {
                                                 @Override
@@ -223,6 +225,8 @@ public class ProjectInfoActivity extends AppCompatActivity {
                                 android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
                         manualUserEditText.setAdapter(adapter);
                         manualUserEditText.setThreshold(1);
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+                        manualUserEditText.setLayoutParams(params);
                         manualUserEditText.addTextChangedListener(new TextWatcher() {
                             @Override
                             public void beforeTextChanged(CharSequence s, int start, int count, int after) {

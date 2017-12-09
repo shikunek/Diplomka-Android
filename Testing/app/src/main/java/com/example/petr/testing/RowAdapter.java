@@ -77,7 +77,11 @@ public class RowAdapter extends RecyclerView.Adapter<RowAdapter.ViewHolder>
         holder.mProjectNameTextView.setText(projectList.get(position).getProjectName());
         holder.mProjectNameTextView.setPadding(20,0,0,0);
         holder.mProjectNameTextView.setTextSize(26);
+
         holder.mProjectUsersLayout.setTag(projectList.get(position).getID());
+//        GradientDrawable gradientDrawable = new GradientDrawable();
+//        gradientDrawable.setStroke(10, Color.BLUE);
+//        holder.mProjectLayout.setBackgroundDrawable(gradientDrawable);
 //        holder.mProjectUsersLayout.setMinimumHeight(60);
         int sed = holder.mProjectUsersLayout.getHeight();
         for (int i = 0; i < projectList.get(position).getProjectUsers().size(); i++)

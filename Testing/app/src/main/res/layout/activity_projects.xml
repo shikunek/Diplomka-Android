@@ -36,16 +36,16 @@
         app:layout_constraintRight_toRightOf="parent"
     />
 
-    <Button
-        android:id="@+id/deleteProjectButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="deleteProject"
-        android:text="Delete"
-        app:layout_constraintBaseline_toBaselineOf="@+id/addProject"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="15dp"
-        android:layout_marginBottom="15dp" />
+    <!--<Button-->
+        <!--android:id="@+id/deleteProjectButton"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:onClick="deleteProject"-->
+        <!--android:text="Delete"-->
+        <!--app:layout_constraintBaseline_toBaselineOf="@+id/addProject"-->
+        <!--app:layout_constraintLeft_toLeftOf="parent"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--android:layout_marginLeft="15dp"-->
+        <!--android:layout_marginBottom="15dp" />-->
 </android.widget.RelativeLayout>

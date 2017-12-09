@@ -25,7 +25,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Spinner;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -412,7 +411,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                 final ArrayList<String> projectsIDs = new ArrayList<>();
                 for (DataSnapshot project : uzivatel.child("Projects").getChildren())
                 {
-                    subMenu.add(1, project.getKey().hashCode(), CATEGORY_SYSTEM, project.child("projectName").getValue().toString());
+                    subMenu.add(1, project.getKey().hashCode(), CATEGORY_SYSTEM, project.child("projectName").getValue().toString()).setIcon(R.drawable.file);
 //                    projectsList.add(project.child("projectName").getValue().toString());
 //                    projectsIDs.add(project.getKey());
                 }

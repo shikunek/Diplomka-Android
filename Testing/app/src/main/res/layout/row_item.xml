@@ -1,52 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.chauthai.swipereveallayout.SwipeRevealLayout android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+<com.chauthai.swipereveallayout.SwipeRevealLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swipe_layout"
+    android:layout_width="match_parent"
+    android:layout_height="130dp"
     android:orientation="horizontal"
     android:weightSum="1"
-    android:id="@+id/swipe_layout"
-    android:layout_margin="4dp"
     app:dragEdge="right"
-    app:mode="same_level"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    app:mode="same_level">
 
 
     <FrameLayout
         android:id="@+id/delete_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="70dp"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
         android:background="#ffcc0000">
 
-        <TextView
-            android:layout_width="100dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:background="@android:color/holo_red_dark"
-            android:textColor="@android:color/white"
-            android:text="Delete"/>
+            android:gravity="center">
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:gravity="center"
+                android:background="@android:color/holo_red_dark"
+                android:src="@drawable/trash"
+                android:text="Delete"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
     </FrameLayout>
 
     <LinearLayout
         android:id="@+id/recyclerItem"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/holo_orange_light"
+        android:background="@android:color/white"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/projectName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="110dp"
             android:layout_weight="0.07" />
 
         <LinearLayout
             android:id="@+id/lin"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="match_parent"
             android:layout_weight="0.07"
             android:orientation="horizontal">
 
         </LinearLayout>
+
+        <View
+            android:id="@+id/separator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@+id/reportedSmile"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/darker_gray" />
     </LinearLayout>
 
 

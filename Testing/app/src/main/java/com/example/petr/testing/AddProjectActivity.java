@@ -38,7 +38,7 @@ public class AddProjectActivity extends AppCompatActivity {
 
         final ProjectClass newProject = new ProjectClass();
         final TextView manualProjectName = (TextView) findViewById(R.id.newProjectName);
-        manualProjectName.setText("SIN");
+        manualProjectName.setText("");
 
 
         adapter = new RowAdapter(projectListToShow);

@@ -84,7 +84,7 @@ public class RowAdapter extends RecyclerView.Adapter<RowAdapter.ViewHolder>
         {
             ImageView userOnProjectView = new ImageView(holder.mProjectNameTextView.getContext());
 
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(60,60);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(150,150);
             int margin = 10;
             int size = 130;
             params.setMargins(margin, 0, margin, 0);

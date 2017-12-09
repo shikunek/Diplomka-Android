@@ -20,6 +20,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -399,10 +400,10 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
         final Menu menu = navigationView.getMenu();
         menu.clear();
-        menu.add(2, 1, CATEGORY_ALTERNATIVE, "Projects");
+        menu.add(2, 1, CATEGORY_ALTERNATIVE, "Projects").setIcon(R.drawable.ic_menu_gallery);
+
         navigationView.setNavigationItemSelectedListener(this);
-
-
+        final SubMenu subMenu = menu.addSubMenu("My projects");
         mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot uzivatel) {
@@ -410,7 +411,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                 final ArrayList<String> projectsIDs = new ArrayList<>();
                 for (DataSnapshot project : uzivatel.child("Projects").getChildren())
                 {
-                    menu.add(1, project.getKey().hashCode(), CATEGORY_ALTERNATIVE, project.child("projectName").getValue().toString());
+                    subMenu.add(1, project.getKey().hashCode(), CATEGORY_ALTERNATIVE, project.child("projectName").getValue().toString());
 //                    projectsList.add(project.child("projectName").getValue().toString());
 //                    projectsIDs.add(project.getKey());
                 }

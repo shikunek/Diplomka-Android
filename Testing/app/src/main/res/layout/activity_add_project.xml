@@ -6,39 +6,86 @@
     android:layout_height="match_parent"
     android:weightSum="1">
 
-    <!-- Create button -->
-    <Button
-        android:id="@+id/addProjectButton"
+    <!-- Project Name label-->
+    <TextView
+        android:id="@+id/projNameLabel"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:text="project name:"
+        android:background="@drawable/label_bkg"
+        android:ems="10"
+        android:padding="5dp"
+        android:textColor="#ffffff"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <!-- Input for project name-->
+    <EditText
+        android:id="@+id/newProjectName"
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
         android:layout_marginEnd="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginStart="20dp"
-        android:background="#2ac9aa"
-        android:text="Create"
-        android:textColor="#ffffff"
+        android:layout_marginTop="0dp"
+        android:background="@drawable/edittext_border"
+        android:clickable="true"
+        android:ems="10"
+        android:focusable="true"
+        android:inputType="textPersonName"
+        android:hint="Name of the project"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         />
 
-    <EditText
-        android:id="@+id/newProjectName"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name" />
+        android:layout_marginEnd="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp">
 
-    <Button
-        android:id="@+id/addUsersButton"
-        android:layout_width="59dp"
-        android:layout_height="wrap_content"
-        android:text="+" />
+        <!-- Members label-->
+        <TextView
+            android:id="@+id/membersLabel"
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@drawable/label_bkg"
+            android:ems="10"
+            android:padding="5dp"
+            android:text="members:"
+            android:textColor="#ffffff"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/newProjectName" />
+
+        <Button
+            android:id="@+id/addUsersButton"
+            android:layout_width="59dp"
+            android:layout_height="wrap_content"
+            android:text="+"
+            app:layout_constraintRight_toRightOf="parent" />
+
+    </LinearLayout>
 
     <ScrollView
         android:id="@+id/usersScrollView"
+        android:background="@drawable/edittext_border"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="190dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginStart="20dp"
+        android:padding="5dp">
 
         <LinearLayout
             android:id="@+id/usersLinLayout"
@@ -47,4 +94,21 @@
             android:orientation="vertical" />
     </ScrollView>
 
+    <!-- Create button -->
+    <Button
+        android:id="@+id/addProjectButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginStart="20dp"
+        android:background="@color/colorPrimaryDark"
+        android:text="Create project"
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 </LinearLayout>

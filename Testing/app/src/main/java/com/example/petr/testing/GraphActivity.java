@@ -70,6 +70,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static android.view.Menu.CATEGORY_SYSTEM;
+
 
 public class GraphActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 

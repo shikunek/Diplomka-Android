@@ -186,7 +186,7 @@ public class ProjectInfoActivity extends AppCompatActivity {
                 });
 
 
-        Button addUserButton = (Button) findViewById(R.id.addUserButton);
+        ImageButton addUserButton = (ImageButton) findViewById(R.id.addUserButton);
         addUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {

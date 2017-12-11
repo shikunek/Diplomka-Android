@@ -2,6 +2,7 @@ package com.example.petr.testing;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -111,7 +112,8 @@ public class ProjectInfoActivity extends AppCompatActivity {
                                     final ImageButton deleteUserButton = new ImageButton(ProjectInfoActivity.this);
                                     deleteUserButton.setId(userEmail.hashCode());
 
-                                    deleteUserButton.setImageResource(R.drawable.checked);
+                                    deleteUserButton.setBackgroundColor(Color.WHITE);
+                                    deleteUserButton.setImageResource(R.drawable.ic_delete_black_24dp);
                                     deleteUserButton.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
@@ -195,11 +197,9 @@ public class ProjectInfoActivity extends AppCompatActivity {
 
                 final AutoCompleteTextView manualUserEditText = new AutoCompleteTextView(v.getContext());
                 final ImageButton deleteUserButton = new ImageButton(ProjectInfoActivity.this);
-                deleteUserButton.setImageResource(R.drawable.checked);
-
+                deleteUserButton.setImageResource(R.drawable.ic_delete_black_24dp);
+                deleteUserButton.setBackgroundColor(Color.WHITE);
                 deleteUserButton.setId(userId);
-
-                deleteUserButton.setImageResource(R.drawable.checked);
                 deleteUserButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

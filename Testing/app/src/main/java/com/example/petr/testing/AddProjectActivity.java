@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -45,7 +46,7 @@ public class AddProjectActivity extends AppCompatActivity {
         final DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
         Button addButton = (Button) findViewById(R.id.addProjectButton);
         final LinearLayout createProjectLayout = (LinearLayout) findViewById(R.id.usersLinLayout);
-        Button addUserButton = (Button) findViewById(R.id.addUsersButton);
+        ImageButton addUserButton = (ImageButton) findViewById(R.id.addUserButton);
         addUserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {

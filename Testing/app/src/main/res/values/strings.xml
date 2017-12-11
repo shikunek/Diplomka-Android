@@ -18,6 +18,9 @@
     <string name="dateLabel">date:</string>
     <string name="descLabel">description:</string>
     <string name="feelLabel">choose your feeling:</string>
+    <string name="projNameLabel">project name:</string>
+    <string name="startLabel">start date:</string>
+    <string name="endLabel">end date:</string>
 
     <string name="first_act">Welcome</string>
     <string name="graph_act">Welcome</string>
@@ -42,4 +45,11 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="action_websearch">Web search</string>
     <string name="app_not_available">Sorry, there\'s no web browser available</string>
+
+    <string name="proj_name">project name:</string>
+    <string name="proj_hint">Name of the project</string>
+    <string name="memb_label">members:</string>
+    <string name="cont_desc">button to add other members</string>
+    <string name="create_project">Create project</string>
+    <string name="edit_proj">Edit project</string>
 </resources>

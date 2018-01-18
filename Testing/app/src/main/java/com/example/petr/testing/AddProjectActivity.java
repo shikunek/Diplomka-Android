@@ -14,6 +14,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,12 +42,15 @@ public class AddProjectActivity extends AppCompatActivity {
         final ProjectClass newProject = new ProjectClass();
         final TextView manualProjectName = (TextView) findViewById(R.id.newProjectName);
         manualProjectName.setText("");
-
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         adapter = new RowAdapter(projectListToShow);
         final DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
         Button addButton = (Button) findViewById(R.id.addProjectButton);
         final LinearLayout createProjectLayout = (LinearLayout) findViewById(R.id.usersLinLayout);
+        AutoCompleteTextView manualUserEditText = new AutoCompleteTextView(this);
+        manualUserEditText.setText(user.getEmail());
+        createProjectLayout.addView(manualUserEditText);
         ImageButton addUserButton = (ImageButton) findViewById(R.id.addUserButton);
         addUserButton.setOnClickListener(new View.OnClickListener() {
             @Override

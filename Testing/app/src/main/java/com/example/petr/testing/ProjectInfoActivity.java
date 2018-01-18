@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -17,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -66,21 +68,21 @@ public class ProjectInfoActivity extends AppCompatActivity {
                 saveChanges(intent.getExtras().getString("projectName"));
             }
         });
-        mData.child("Projects").child(intent.getExtras().getString("projectName")).addListenerForSingleValueEvent(new ValueEventListener() {
+        mData.child("Projects").child(intent.getExtras().getString("projectName")).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot choosenProject) {
-
 
                         final TextView projectsListView = (TextView) findViewById(R.id.projectName);
                         projectsListView.setText(choosenProject.child("projectName").getValue().toString());
                         Iterator<DataSnapshot> firstUser =  choosenProject.getChildren().iterator();
                         while (firstUser.hasNext())
                         {
-                            if (firstUser.next().getKey().equals("Ending"))
+                            DataSnapshot firstChild = firstUser.next();
+                            if (firstChild.getKey().equals("Ending"))
                             {
                                 continue;
                             }
-                            Iterator<DataSnapshot> firstDate = firstUser.next().getChildren().iterator();
+                            Iterator<DataSnapshot> firstDate = firstChild.getChildren().iterator();
                             while (firstDate.hasNext())
                             {
                                 TextView startDate = (TextView) findViewById(R.id.startEditText);
@@ -311,6 +313,13 @@ public class ProjectInfoActivity extends AppCompatActivity {
             @Override
             public void onDataChange(final DataSnapshot currentProject) {
 
+                if (projectName.getText().toString().equals(""))
+                {
+                    Toast toast = Toast.makeText(getApplicationContext(), "Project name must be filled!", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER| Gravity.CENTER, 0, 0);
+                    toast.show();
+                    return;
+                }
                 final Map<String, Object> updatedUserData = new HashMap<>();
                 updatedUserData.put("Projects/" + projectID + "/" +
                         "Ending", endDateEditText.getText().toString());

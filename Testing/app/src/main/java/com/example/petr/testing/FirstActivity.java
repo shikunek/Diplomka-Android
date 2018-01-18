@@ -69,6 +69,10 @@ public class FirstActivity extends AppCompatActivity {
 
     public void singInUsers(final View view)
     {
+        if(!isEmailAndPasswordCorrect())
+        {
+            return;
+        }
         mAuth.signInWithEmailAndPassword(mEmailField.getText().toString(), mPasswordField.getText().toString())
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -124,6 +128,10 @@ public class FirstActivity extends AppCompatActivity {
 //        Intent intent = new Intent(this, GraphActivity.class);
 //        startActivity(intent);
 
+        if(!isEmailAndPasswordCorrect())
+        {
+            return;
+        }
         mAuth.createUserWithEmailAndPassword(mEmailField.getText().toString(), mPasswordField.getText().toString())
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -150,6 +158,22 @@ public class FirstActivity extends AppCompatActivity {
                     }
                 });
 
+    }
+
+    public Boolean isEmailAndPasswordCorrect()
+    {
+        if (mEmailField.getText().toString().equals("") || mPasswordField.getText().toString().equals(""))
+        {
+            Context context = getApplicationContext();
+            CharSequence text = "You have to fill your email or password!";
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.setGravity(Gravity.CENTER| Gravity.CENTER, 0, 0);
+            toast.show();
+            return false;
+        }
+        return true;
     }
 
     public void sendMessage(View view)

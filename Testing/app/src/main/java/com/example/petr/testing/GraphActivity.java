@@ -386,10 +386,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         });
 
 
-
-
-
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -404,11 +400,12 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
         navigationView.setNavigationItemSelectedListener(this);
         final SubMenu subMenu = menu.addSubMenu("My projects");
-        mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot uzivatel) {
                 final ArrayList<String> projectsList = new ArrayList<>();
                 final ArrayList<String> projectsIDs = new ArrayList<>();
+                subMenu.clear(); // je treba vymazat existujici nabidku projektů
                 for (DataSnapshot project : uzivatel.child("Projects").getChildren())
                 {
                     subMenu.add(1, project.getKey().hashCode(), CATEGORY_SYSTEM, project.child("projectName").getValue().toString()).setIcon(R.drawable.file);
@@ -575,7 +572,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                 if (!uzivatel.hasChild("Active"))
                 {
-                    setContentView(R.layout.activity_graph);
+//                    setContentView(R.layout.activity_graph);
                     return;
                 }
 
@@ -587,7 +584,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                                 if (!dataSnapshot.hasChild(user.getUid()))
                                 {
-                                    setContentView(R.layout.activity_graph);
+//                                    setContentView(R.layout.activity_graph);
                                     return;
                                 }
                                 numDays = leftDay = 0;

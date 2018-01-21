@@ -17,8 +17,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class ProjectsActivity extends AppCompatActivity {
@@ -41,9 +39,9 @@ public class ProjectsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_projects);
         getSupportActionBar().setTitle("Projects list");
 
-        myProjectset = new ArrayList<>();
+
         mRecyclerView = (RecyclerView) findViewById(R.id.projects_list);
-        mAdapter = new RowAdapter(myProjectset);
+
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
@@ -57,11 +55,13 @@ public class ProjectsActivity extends AppCompatActivity {
         mData = FirebaseDatabase.getInstance().getReference();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        mData.child("Uzivatel").addListenerForSingleValueEvent(
+        mData.child("Uzivatel").addValueEventListener(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(final DataSnapshot userProjects) {
 
+                        myProjectset = new ArrayList<>();
+                        mAdapter = new RowAdapter(myProjectset);
 //                        for (DataSnapshot user : userProjects.getChildren())
 //                        {
 //                            listOfRegisteredUsers.add(user.child("email").getValue().toString());
@@ -128,64 +128,5 @@ public class ProjectsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void deleteProject(final View view){
-        mData.child("Uzivatel").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot currentUsersData) {
-
-                if (!currentUsersData.hasChild("Active"))
-                {
-                    return;
-                }
-                Map<String, Object> updatedUserData = new HashMap<>();
-                updatedUserData.put("Uzivatel/" + currentUser.getUid() + "/" +
-                        "Projects/" + currentUsersData.child("Active").getValue().toString() + "/"  , null);
-
-                updatedUserData.put("Projects/" + currentUsersData.child("Active").getValue().toString() + "/" +
-                        currentUser.getUid() + "/" , null);
-                updatedUserData.put("Uzivatel/" + currentUser.getUid() + "/" +
-                        "Active" , null);
-
-                mData.updateChildren(updatedUserData);
-
-                for (ProjectClass project : myProjectset)
-                {
-                    if (project.getID().equals(currentUsersData.child("Active").getValue().toString()))
-                    {
-                        myProjectset.remove(project);
-                        mAdapter.notifyItemRemoved(myProjectset.indexOf(project));
-                        mAdapter.notifyItemRangeChanged(myProjectset.indexOf(project), myProjectset.size());
-                        break;
-                    }
-                }
-
-                mData.child("Uzivatel").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot actualUsersData) {
-                        if (actualUsersData.hasChild("Projects"))
-                        {
-                            for (DataSnapshot firstProject : actualUsersData.child("Projects").getChildren())
-                            {
-                                mData.child("Uzivatel").child(currentUser.getUid()).child("Active").setValue(firstProject.getKey());
-                                break;
-                            }
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
 }
 

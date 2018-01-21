@@ -1,10 +1,10 @@
 package com.example.petr.testing;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -121,6 +122,15 @@ public class AddProjectActivity extends AppCompatActivity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                TextView projectNameTextView = (TextView) findViewById(R.id.newProjectName);
+
+                if (projectNameTextView.getText().toString().equals(""))
+                {
+                    Toast toast = Toast.makeText(getApplicationContext(), "Project name must be filled!", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER| Gravity.CENTER, 0, 0);
+                    toast.show();
+                    return;
+                }
                 mData.child("Uzivatel").addListenerForSingleValueEvent(
                         new ValueEventListener() {
                             @Override
@@ -173,8 +183,9 @@ public class AddProjectActivity extends AppCompatActivity {
 
                                 projectListToShow.add(newProject);
                                 adapter.notifyDataSetChanged();
-                                Intent intent = new Intent(AddProjectActivity.this, ProjectsActivity.class);
-                                startActivity(intent);
+                                finish();
+//                                Intent intent = new Intent(AddProjectActivity.this, ProjectsActivity.class);
+//                                startActivity(intent);
 
                             }
 

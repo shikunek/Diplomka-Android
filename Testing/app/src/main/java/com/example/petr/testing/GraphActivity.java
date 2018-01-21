@@ -2,6 +2,7 @@ package com.example.petr.testing;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -93,29 +94,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
     private DatabaseReference mData;
     private FirebaseUser user;
 
-
-    public String completeCondition(ArrayList<String> usersToNudge)
-    {
-        StringBuilder completeCondition = new StringBuilder();
-        completeCondition.append("(");
-        for (int i = 0; i < usersToNudge.size(); i++)
-        {
-            if (i != 0)
-            {
-                completeCondition.append("&&");
-            }
-
-            completeCondition.append("'");
-            completeCondition.append(usersToNudge.get(i));
-            completeCondition.append("'");
-            completeCondition.append(" in topics");
-
-
-        }
-        completeCondition.append(")");
-        return completeCondition.toString();
-    }
-
     public void sendFCMPush(String userID) {
 
         final String Legacy_SERVER_KEY = "AIzaSyCB88Oy7989Wj319s4Q4PCDy1oGZo7SMAI";
@@ -182,100 +160,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         requestQueue.add(jsObjRequest);
     }
 
-
-
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Pass the event to ActionBarDrawerToggle, if it returns
-//        // true, then it has handled the app icon touch event
-////        Intent ints = new Intent(this, MenuActivity.class);
-////        startActivity(ints);
-//        if(mDrawerLayout.isDrawerOpen(mDrawerList)){
-//            mDrawerLayout.closeDrawer(mDrawerList);
-//        }else {
-//            mDrawerLayout.openDrawer(mDrawerList);
-//        }
-//        if (mDrawerToggle.onOptionsItemSelected(item)) {
-//            return true;
-//        }
-//        // Handle your other action bar items...
-//
-//        return super.onOptionsItemSelected(item);
-//    }
-//
-//    /* The click listner for ListView in the navigation drawer */
-//    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-//        @Override
-//        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//            selectItem(position);
-//        }
-//    }
-//
-//    private void selectItem(int position) {
-//        // update the main content by replacing fragments
-//        Fragment fragment = new PlanetFragment();
-//        Bundle args = new Bundle();
-//        args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
-//        fragment.setArguments(args);
-//
-//        FragmentManager fragmentManager = getFragmentManager();
-//        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-//
-//        // update selected item and title, then close the drawer
-//        mDrawerList.setItemChecked(position, true);
-////        setTitle(mPlanetTitles.get(position));
-//        mDrawerLayout.closeDrawer(mDrawerList);
-//    }
-////
-////    @Override
-////    public void setTitle(CharSequence title) {
-////        mTitle = title;
-////        getActionBar().setTitle(mTitle);
-////    }
-//
-//    /**
-//     * When using the ActionBarDrawerToggle, you must call it during
-//     * onPostCreate() and onConfigurationChanged()...
-//     */
-//
-//    @Override
-//    protected void onPostCreate(Bundle savedInstanceState) {
-//        super.onPostCreate(savedInstanceState);
-//        // Sync the toggle state after onRestoreInstanceState has occurred.
-//        mDrawerToggle.syncState();
-//    }
-//
-//    @Override
-//    public void onConfigurationChanged(Configuration newConfig) {
-//        super.onConfigurationChanged(newConfig);
-//        // Pass any configuration change to the drawer toggls
-//        mDrawerToggle.onConfigurationChanged(newConfig);
-//    }
-//
-//    /**
-//     * Fragment that appears in the "content_frame", shows a planet
-//     */
-//    public static class PlanetFragment extends Fragment {
-//        public static final String ARG_PLANET_NUMBER = "planet_number";
-//
-//        public PlanetFragment() {
-//            // Empty constructor required for fragment subclasses
-//        }
-//
-//        @Override
-//        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-//                                 Bundle savedInstanceState) {
-//            View rootView = inflater.inflate(R.layout.report_item, container, false);
-//            int i = getArguments().getInt(ARG_PLANET_NUMBER);
-//            String planet = "dsadad";
-//
-//            int imageId = getResources().getIdentifier(planet.toLowerCase(Locale.getDefault()),
-//                    "drawable", getActivity().getPackageName());
-//            ((ImageView) rootView.findViewById(R.id.reportedSmile)).setImageResource(R.drawable.happy);
-//            getActivity().setTitle(planet);
-//            return rootView;
-//        }
-//    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -312,6 +196,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
     public boolean onNavigationItemSelected(final MenuItem item) {
         // Handle navigation view item clicks here.
 
+        // You choose to manage projects or choose one of your project to be active
         switch (item.getItemId())
         {
             case 1:
@@ -351,8 +236,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
         }
 
-
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -364,63 +247,9 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graph);
 
+
         user = FirebaseAuth.getInstance().getCurrentUser();
         mData = FirebaseDatabase.getInstance().getReference();
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("Active").exists())
-                {
-                    getSupportActionBar().setTitle(dataSnapshot.child("Projects").child(dataSnapshot.child("Active").getValue().toString()).child("projectName").getValue().toString());
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-
-        final Menu menu = navigationView.getMenu();
-        menu.clear();
-        menu.add(1, 1, Menu.NONE, "Manage projects").setIcon(R.drawable.ic_settings_black_24px);
-
-        navigationView.setNavigationItemSelectedListener(this);
-        final SubMenu subMenu = menu.addSubMenu("My projects");
-        mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(final DataSnapshot uzivatel) {
-                final ArrayList<String> projectsList = new ArrayList<>();
-                final ArrayList<String> projectsIDs = new ArrayList<>();
-                subMenu.clear(); // je treba vymazat existujici nabidku projektů
-                for (DataSnapshot project : uzivatel.child("Projects").getChildren())
-                {
-                    subMenu.add(1, project.getKey().hashCode(), CATEGORY_SYSTEM, project.child("projectName").getValue().toString()).setIcon(R.drawable.file);
-//                    projectsList.add(project.child("projectName").getValue().toString());
-//                    projectsIDs.add(project.getKey());
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
 
         final NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
@@ -430,14 +259,14 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
         Intent resultIntent = new Intent(this, DisplayMessageActivity.class);
 
-    // The stack builder object will contain an artificial back stack for the
-    // started Activity.
-    // This ensures that navigating backward from the Activity leads out of
-    // your app to the Home screen.
+        // The stack builder object will contain an artificial back stack for the
+        // started Activity.
+        // This ensures that navigating backward from the Activity leads out of
+        // your app to the Home screen.
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-    // Adds the back stack for the Intent (but not the Intent itself)
+        // Adds the back stack for the Intent (but not the Intent itself)
         stackBuilder.addParentStack(GraphActivity.class);
-    // Adds the Intent that starts the Activity to the top of the stack
+        // Adds the Intent that starts the Activity to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent =
                 stackBuilder.getPendingIntent(
@@ -447,124 +276,129 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         mBuilder.setContentIntent(resultPendingIntent);
 
         mBuilder.setAutoCancel(true);
-        ImageButton nudgeMeButton = (ImageButton) findViewById(R.id.nudgeMyTeam);
-        nudgeMeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                Calendar myCalendar = Calendar.getInstance();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY);
-                String id = user.getUid();
-                final String formattedDate = dateFormat.format(myCalendar.getTime());
-                mData.child("Uzivatel").child(id).child("Active")
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(final DataSnapshot activeProject) {
+        if (this.getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE)
+        {
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
 
-                            mData.child("Projects").child(activeProject.getValue().toString())
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot currentProject) {
-                                            for (DataSnapshot user1 : currentProject.getChildren())
-                                            {
-                                                if (user1.getKey().equals("projectName") || user1.getKey().equals("Ending"))
-                                                {
-                                                    continue;
-                                                }
-                                                if (!user1.hasChild(formattedDate))
-                                                {
-                                                    sendFCMPush(user1.getKey());
-                                                }
-                                            }
 
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
+            mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.child("Active").exists())
+                    {
+                        if (dataSnapshot.child("Projects").child(dataSnapshot.child("Active").getValue().toString()).child("projectName").exists())
+                        {
+                            getSupportActionBar().setTitle(dataSnapshot.child("Projects").child(dataSnapshot.child("Active").getValue().toString()).child("projectName").getValue().toString());
+                        }
 
                     }
+                }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-                    }
-                });
+                }
+            });
 
-            }
-        });
 
-//        final Spinner activeProjectNameSpinner = (Spinner) findViewById(R.id.projectNameSpinner);
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+            drawer.addDrawerListener(toggle);
+            toggle.syncState();
 
-        ImageButton goToReport = (ImageButton) findViewById(R.id.goToReportButton);
-        goToReport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(GraphActivity.this, DisplayMessageActivity.class);
-                startActivity(intent);
-            }
-        });
+            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 
-//        mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(final DataSnapshot uzivatel) {
-//                final ArrayList<String> projectsList = new ArrayList<>();
-//                final ArrayList<String> projectsIDs = new ArrayList<>();
-//                for (DataSnapshot project : uzivatel.child("Projects").getChildren())
-//                {
+            final Menu menu = navigationView.getMenu();
+            menu.clear();
+            menu.add(1, 1, Menu.NONE, "Manage projects").setIcon(R.drawable.ic_settings_black_24px);
+
+            navigationView.setNavigationItemSelectedListener(this);
+            final SubMenu subMenu = menu.addSubMenu("My projects");
+            mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(final DataSnapshot uzivatel) {
+                    final ArrayList<String> projectsList = new ArrayList<>();
+                    final ArrayList<String> projectsIDs = new ArrayList<>();
+                    subMenu.clear(); // je treba vymazat existujici nabidku projektů
+                    for (DataSnapshot project : uzivatel.child("Projects").getChildren())
+                    {
+                        subMenu.add(1, project.getKey().hashCode(), CATEGORY_SYSTEM, project.child("projectName").getValue().toString()).setIcon(R.drawable.file);
 //                    projectsList.add(project.child("projectName").getValue().toString());
 //                    projectsIDs.add(project.getKey());
-//                }
-//
-//                ArrayAdapter<String> adapter = new ArrayAdapter<>(GraphActivity.this, android.R.layout.simple_spinner_dropdown_item, projectsList);
-//
-//
-//                activeProjectNameSpinner.setAdapter(adapter);
-//                adapter.notifyDataSetChanged();
-//
-//                activeProjectNameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//                    @Override
-//                    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id)
-//                    {
-//                        if (isSpinnerInitilised)
-//                        {
-//                            Map<String, Object> updatedUserData = new HashMap<>();
-//
-//                            updatedUserData.put("Uzivatel/" + uzivatel.getKey() + "/" +
-//                                    "Active" , projectsIDs.get(position));
-//
-//                            mData.updateChildren(updatedUserData);
-//                        }
-//                        else
-//                        {
-//                            isSpinnerInitilised = true;
-//
-//                            if (uzivatel.hasChild("Active"))
-//                            {
-//                                String userActiveProject = uzivatel.child("Active").getValue().toString();
-//                                activeProjectNameSpinner.setSelection(projectsIDs.indexOf(userActiveProject));
-//                            }
-//
-//                        }
-//
-//
-//                    }
-//
-//                    @Override
-//                    public void onNothingSelected(AdapterView<?> parentView) {
-//                        // your code here
-//                    }
-//
-//                });
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+
+            ImageButton nudgeMeButton = (ImageButton) findViewById(R.id.nudgeMyTeam);
+            nudgeMeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Calendar myCalendar = Calendar.getInstance();
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY);
+                    String id = user.getUid();
+                    final String formattedDate = dateFormat.format(myCalendar.getTime());
+                    mData.child("Uzivatel").child(id).child("Active")
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(final DataSnapshot activeProject) {
+
+                                    mData.child("Projects").child(activeProject.getValue().toString())
+                                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot currentProject) {
+                                                    for (DataSnapshot user1 : currentProject.getChildren())
+                                                    {
+                                                        if (user1.getKey().equals("projectName") || user1.getKey().equals("Ending"))
+                                                        {
+                                                            continue;
+                                                        }
+                                                        if (!user1.hasChild(formattedDate))
+                                                        {
+                                                            sendFCMPush(user1.getKey());
+                                                        }
+                                                    }
+
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                }
+            });
+
+
+            ImageButton goToReport = (ImageButton) findViewById(R.id.goToReportButton);
+            goToReport.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(GraphActivity.this, DisplayMessageActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
+
 
         mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
@@ -589,10 +423,14 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                                 }
                                 numDays = leftDay = 0;
                                 lineChart = (LineChart) findViewById(R.id.lineChart);
-                                final ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+                                ArrayList<ILineDataSet> dataSets = new ArrayList<>();
 
-                                usersLinearLayout = (LinearLayout) findViewById(R.id.projectUsersLayout);
-                                usersLinearLayout.removeAllViews();
+                                if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE)
+                                {
+                                    usersLinearLayout = (LinearLayout) findViewById(R.id.projectUsersLayout);
+                                    usersLinearLayout.removeAllViews();
+                                }
+
                                 int iUser = 0;
                                 for (final DataSnapshot user : dataSnapshot.getChildren())
                                 {
@@ -601,178 +439,15 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                                         continue;
                                     }
 
-
-                                    final ImageButton userOnProjectButton = new ImageButton(GraphActivity.this);
-
-
-                                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(usersLinearLayout.getHeight(), usersLinearLayout.getHeight());
-                                    int margin = 10;
-                                    int size = 130;
-                                    params.setMargins(margin, 0, margin, 0);
-                                    params.gravity = Gravity.CENTER;
-                                    userOnProjectButton.setLayoutParams(params);
-
-//                                    userOnProjectButton.setBackgroundResource(R.drawable.round_button_blue);
-                                    Drawable drw = userOnProjectButton.getBackground();
-                                    switch (iUser)
+                                    if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE)
                                     {
-                                        case 0:
-//                                            userOnProjectButton.setImageResource(R.drawable.animal_goat);
-                                            userOnProjectButton.setBackgroundResource(R.drawable.animal_rhinoceros);
-
-
-                                            drw.setColorFilter(Color.argb(255, 229, 115, 115), PorterDuff.Mode.LIGHTEN);
-                                            break;
-
-                                        case 1:
-                                            userOnProjectButton.setBackgroundResource(R.drawable.animal_cat);
-//                                            drw.setColorFilter(Color.argb(255, 79, 195, 247), PorterDuff.Mode.LIGHTEN);
-                                            break;
-
-                                        case 2:
-                                            userOnProjectButton.setBackgroundResource(R.drawable.animal_koala);
-//                                            drw.setColorFilter(Color.argb(255, 129, 199, 132), PorterDuff.Mode.LIGHTEN);
-                                            break;
-
-                                        default:
-//                                            drw.setColorFilter(Color.argb(255, 79, 195, 247), PorterDuff.Mode.LIGHTEN);
-                                            break;
+                                        setAvatars(iUser, uzivatel.child("email").getValue().toString(), user.getKey(), dataSnapshot.getKey());
                                     }
 
-
-//                                    userOnProjectButton.setTextColor(Color.BLACK);
-//                                    mData.child("Uzivatel").child(user.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
-//                                        @Override
-//                                        public void onDataChange(DataSnapshot dataSnapshot) {
-//                                            int indexOfAt = dataSnapshot.child("email").getValue().toString().indexOf("@");
-//                                            if (indexOfAt != -1)
-//                                            {
-//                                                String emailName = dataSnapshot.child("email").getValue().toString().substring(0 , indexOfAt);
-//                                                userOnProjectButton.setText(emailName);
-//                                            }
-//                                            else
-//                                            {
-//                                                userOnProjectButton.setText("USER");
-//                                            }
-//                                        }
-//
-//                                        @Override
-//                                        public void onCancelled(DatabaseError databaseError) {
-//
-//                                        }
-//                                    });
-
-                                    userOnProjectButton.setPadding(20, 20, 20, 20);
-                                    userOnProjectButton.setTag(user.getKey());
-                                    usersLinearLayout.addView(userOnProjectButton);
-                                    userOnProjectButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            Intent intent = new Intent(GraphActivity.this, UserReportsActivity.class);
-                                            intent.putExtra("projectName", dataSnapshot.getKey());
-                                            intent.putExtra("userName", user.getKey());
-                                            intent.putExtra("email", uzivatel.child("email").getValue().toString());
-                                            startActivity(intent);
-                                        }
-                                    });
-
-                                    ArrayList<Entry> yValues = new ArrayList<>();
-                                    ArrayList<Entry> yValuesMiss = new ArrayList<>();
-
-                                    float y = 0f;
-                                    yValues.add(new Entry(0, y)); // first entry is 0
-                                    Entry lastEntry = new Entry(0, y);
-                                    Entry lastMissEntry = null;
-                                    int i = 1;
-                                    //boolean preReport = true; // solution for late addition of user and his missed reports
-                                    boolean lastMiss = false;
-                                    boolean thisMiss;
-                                    Date date;
-                                    SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-                                    Calendar actDate = Calendar.getInstance();
-                                    for (DataSnapshot value : user.getChildren())
+                                    dataSets = someGraphSetting(iUser, user, dataSets);
+                                    if (dataSets.isEmpty())
                                     {
-                                        if (!value.exists()) {
-                                            return;
-                                        }
-                                        // get the smile
-                                        long smile = (long) value.child("sendValue").getValue();
-                                        //Log.d("SMILE_TEST", "smile: " + (int)smile);
-                                        // get the date
-                                        String key = value.getKey();
-                                        try {
-                                            date = dateFormatter.parse(key);
-                                            actDate.setTime(date);
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                        //Log.d("SMILE_TEST", "actDate: " + dateFormatter.format(actDate.getTime()));
-
-                                        thisMiss = smile < -1f;
-                                        /*if (preReport) { // let all missed days before first report go
-                                            if (thisMiss) {
-                                                i++;
-                                                continue;
-                                            }
-                                            else preReport = false;
-                                        }*/
-
-                                        if (i == 1 && (firstDayShown == null || actDate.before(firstDayShown))) {
-                                            firstDayShown = actDate.getTime();
-                                            // DAY_OF_WEEK start 1 = Su
-                                            firstDayOfWeek = (actDate.get(Calendar.DAY_OF_WEEK)+ 4) % 7;
-                                        }
-
-                                        if (thisMiss) { // just add new value to miss dataset
-                                            if (!lastMiss)
-                                                yValuesMiss.add(lastEntry);
-                                            y = translateEntry(y, -1);
-                                            yValuesMiss.add(new Entry(i, y));
-                                            lastMissEntry = new Entry(i, y);
-                                        }
-                                        else { // !thisMiss && !lastMiss => just add new value to dataset
-                                            if (lastMiss) {
-                                                LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
-                                                setUpDataset(lineDataSet, false);
-                                                setDatasetColor(lineDataSet, iUser, false);
-                                                dataSets.add(0, lineDataSet);
-
-                                                LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
-                                                setUpDataset(lineDataSetMiss, true);
-                                                setDatasetColor(lineDataSetMiss, iUser, true);
-                                                dataSets.add(0, lineDataSetMiss);
-
-                                                yValues = new ArrayList<>();
-                                                // entry to connect last miss and first base entry in base color
-                                                yValues.add(lastMissEntry);
-                                                yValuesMiss = new ArrayList<>();
-                                            }
-                                            y = translateEntry(y, (int)smile);
-                                            yValues.add(new Entry(i, y));
-                                            lastEntry = new Entry(i, y);
-                                        }
-
-                                        lastMiss = thisMiss;
-                                        i++;
-                                    }
-
-                                    if (i-1 > numDays)
-                                    {
-                                        numDays = i-1;
-                                    }
-
-
-                                    if (yValues.size() > 0) {
-                                        LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
-                                        setUpDataset(lineDataSet, false);
-                                        setDatasetColor(lineDataSet, iUser, false);
-                                        dataSets.add(0, lineDataSet);
-                                    }
-                                    if (yValuesMiss.size() > 0) {
-                                        LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
-                                        setUpDataset(lineDataSetMiss, true);
-                                        setDatasetColor(lineDataSetMiss, iUser, true);
-                                        dataSets.add(0, lineDataSetMiss);
+                                        return;
                                     }
 
                                     iUser++;
@@ -844,6 +519,155 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
+            }
+        });
+    }
+
+    // NEKTERA NASTAVENI GRAFU, KTERA JESTE NECHAPU
+    public ArrayList<ILineDataSet> someGraphSetting(int iUser, DataSnapshot user, ArrayList<ILineDataSet> dataSets)
+    {
+        ArrayList<Entry> yValues = new ArrayList<>();
+        ArrayList<Entry> yValuesMiss = new ArrayList<>();
+
+        float y = 0f;
+        yValues.add(new Entry(0, y)); // first entry is 0
+        Entry lastEntry = new Entry(0, y);
+        Entry lastMissEntry = null;
+        int i = 1;
+        //boolean preReport = true; // solution for late addition of user and his missed reports
+        boolean lastMiss = false;
+        boolean thisMiss;
+        Date date;
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        Calendar actDate = Calendar.getInstance();
+        for (DataSnapshot value : user.getChildren())
+        {
+            // zeptat se Michala na lepsi moznost podminky
+            if (!value.exists()) {
+                return dataSets;
+            }
+            // get the smile
+            long smile = (long) value.child("sendValue").getValue();
+            //Log.d("SMILE_TEST", "smile: " + (int)smile);
+            // get the date
+            String key = value.getKey();
+            try {
+                date = dateFormatter.parse(key);
+                actDate.setTime(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            //Log.d("SMILE_TEST", "actDate: " + dateFormatter.format(actDate.getTime()));
+
+            thisMiss = smile < -1f;
+                                        /*if (preReport) { // let all missed days before first report go
+                                            if (thisMiss) {
+                                                i++;
+                                                continue;
+                                            }
+                                            else preReport = false;
+                                        }*/
+
+            if (i == 1 && (firstDayShown == null || actDate.before(firstDayShown))) {
+                firstDayShown = actDate.getTime();
+                // DAY_OF_WEEK start 1 = Su
+                firstDayOfWeek = (actDate.get(Calendar.DAY_OF_WEEK)+ 4) % 7;
+            }
+
+            if (thisMiss) { // just add new value to miss dataset
+                if (!lastMiss)
+                    yValuesMiss.add(lastEntry);
+                y = translateEntry(y, -1);
+                yValuesMiss.add(new Entry(i, y));
+                lastMissEntry = new Entry(i, y);
+            }
+            else { // !thisMiss && !lastMiss => just add new value to dataset
+                if (lastMiss) {
+                    LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
+                    setUpDataset(lineDataSet, false);
+                    setDatasetColor(lineDataSet, iUser, false);
+                    dataSets.add(0, lineDataSet);
+
+                    LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
+                    setUpDataset(lineDataSetMiss, true);
+                    setDatasetColor(lineDataSetMiss, iUser, true);
+                    dataSets.add(0, lineDataSetMiss);
+
+                    yValues = new ArrayList<>();
+                    // entry to connect last miss and first base entry in base color
+                    yValues.add(lastMissEntry);
+                    yValuesMiss = new ArrayList<>();
+                }
+                y = translateEntry(y, (int)smile);
+                yValues.add(new Entry(i, y));
+                lastEntry = new Entry(i, y);
+            }
+
+            lastMiss = thisMiss;
+            i++;
+        }
+
+        if (i-1 > numDays)
+        {
+            numDays = i-1;
+        }
+
+
+        if (yValues.size() > 0) {
+            LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
+            setUpDataset(lineDataSet, false);
+            setDatasetColor(lineDataSet, iUser, false);
+            dataSets.add(0, lineDataSet);
+        }
+        if (yValuesMiss.size() > 0) {
+            LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
+            setUpDataset(lineDataSetMiss, true);
+            setDatasetColor(lineDataSetMiss, iUser, true);
+            dataSets.add(0, lineDataSetMiss);
+        }
+        return dataSets;
+    }
+
+    public void setAvatars(int iUser, final String email, final String userKey, final String projectKey)
+    {
+        final ImageButton userOnProjectButton = new ImageButton(GraphActivity.this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(usersLinearLayout.getHeight(), usersLinearLayout.getHeight());
+        int margin = 10;
+        params.setMargins(margin, 0, margin, 0);
+        params.gravity = Gravity.CENTER;
+        userOnProjectButton.setLayoutParams(params);
+
+        Drawable drw = userOnProjectButton.getBackground();
+        switch (iUser)
+        {
+            case 0:
+                userOnProjectButton.setBackgroundResource(R.drawable.animal_rhinoceros);
+                drw.setColorFilter(Color.argb(255, 229, 115, 115), PorterDuff.Mode.LIGHTEN);
+                break;
+
+            case 1:
+                userOnProjectButton.setBackgroundResource(R.drawable.animal_cat);
+                break;
+
+            case 2:
+                userOnProjectButton.setBackgroundResource(R.drawable.animal_koala);
+                break;
+
+            default:
+                break;
+        }
+
+        userOnProjectButton.setPadding(20, 20, 20, 20);
+        userOnProjectButton.setTag(userKey);
+        usersLinearLayout.addView(userOnProjectButton);
+        userOnProjectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GraphActivity.this, UserReportsActivity.class);
+                intent.putExtra("projectName", projectKey);
+                intent.putExtra("userName", userKey);
+                intent.putExtra("email", email);
+                startActivity(intent);
             }
         });
     }
@@ -1141,4 +965,27 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
         return filler;
     }
+
+    public String completeCondition(ArrayList<String> usersToNudge)
+    {
+        StringBuilder completeCondition = new StringBuilder();
+        completeCondition.append("(");
+        for (int i = 0; i < usersToNudge.size(); i++)
+        {
+            if (i != 0)
+            {
+                completeCondition.append("&&");
+            }
+
+            completeCondition.append("'");
+            completeCondition.append(usersToNudge.get(i));
+            completeCondition.append("'");
+            completeCondition.append(" in topics");
+
+
+        }
+        completeCondition.append(")");
+        return completeCondition.toString();
+    }
+
 }

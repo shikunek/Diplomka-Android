@@ -20,6 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -68,7 +70,17 @@ public class ProjectInfoActivity extends AppCompatActivity {
                 saveChanges(intent.getExtras().getString("projectName"));
             }
         });
-        mData.child("Projects").child(intent.getExtras().getString("projectName")).addValueEventListener(new ValueEventListener() {
+        final Button deleteProjectButton = (Button) findViewById(R.id.deleteProjectButton);
+        deleteProjectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteProject(intent.getExtras().getString("projectName"));
+            }
+        });
+
+
+
+        mData.child("Projects").child(intent.getExtras().getString("projectName")).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot choosenProject) {
 
@@ -412,5 +424,79 @@ public class ProjectInfoActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    public void deleteProject(final String projectID){
+
+        final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        mData.child("Uzivatel").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(final DataSnapshot currentUsersData) {
+
+                if (!currentUsersData.hasChild("Active"))
+                {
+                    return;
+                }
+                final Map<String, Object> updatedUserData = new HashMap<>();
+                updatedUserData.put("Uzivatel/" + currentUser.getUid() + "/" +
+                        "Projects/" + projectID + "/"  , null);
+
+                updatedUserData.put("Projects/" + projectID + "/" +
+                        currentUser.getUid() + "/" , null);
+
+                // pokud je na projektu jediny uzivatel tak je smazan cely
+                mData.child("Projects").child(projectID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot remainingUsers) {
+                        Iterator<DataSnapshot> project =  remainingUsers.getChildren().iterator();
+                        int i = 0;
+                        while (project.hasNext())
+                        {
+                            DataSnapshot firstChild = project.next();
+                            if (firstChild.getKey().equals("projectName") || firstChild.getKey().equals("Ending"))
+                            {
+                                project.next();
+                                continue;
+                            }
+                            i++;
+                            project.next();
+                        }
+                        if (i <= 1 && remainingUsers.hasChild(currentUser.getUid()))
+                        {
+                            updatedUserData.put("Projects/" + projectID + "/" + "projectName" , null);
+                        }
+
+                        // Pokud se uzivatel rozhodl smazat aktualne vybrany projekt
+                        if (projectID.equals(currentUsersData.child("Active").getValue().toString()) && currentUsersData.hasChild("Projects"))
+                        {
+                            for (DataSnapshot firstProject : currentUsersData.child("Projects").getChildren())
+                            {
+                                updatedUserData.put("Uzivatel/" + currentUser.getUid() + "/" +
+                                        "Active" , firstProject.getKey());
+                                break;
+                            }
+
+                        }
+
+                        mData.updateChildren(updatedUserData);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
+
+                finish(); // aby uzivatel po stisknuti Back, nesel na jiz neexistujici projekt
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 }

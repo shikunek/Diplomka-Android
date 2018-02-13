@@ -1,4 +1,4 @@
-package com.example.petr.testing;
+package com.NudgeMe.petr.testing;
 
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +23,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Random;
 
 //import com.google.firebase.auth.FirebaseCredentials;
 
@@ -79,7 +83,6 @@ public class FirstActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d("NECO", "signInWithEmail:success");
 
                             mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
@@ -88,9 +91,16 @@ public class FirstActivity extends AppCompatActivity {
                                     {
                                         FirebaseMessaging.getInstance().unsubscribeFromTopic(user.getKey());
                                     }
+
                                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
                                     FirebaseMessaging.getInstance().subscribeToTopic(user.getUid());
+
+
+                                    if (!allUsersToUnsubscribe.child(user.getUid()).hasChild("Icon"))
+                                    {
+                                        setUserAvatar(user.getUid());
+                                    }
                                 }
 
                                 @Override
@@ -103,7 +113,6 @@ public class FirstActivity extends AppCompatActivity {
 
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.d("NECO", "signInWithEmail:failure", task.getException());
                             Context context = getApplicationContext();
                             CharSequence text = "Your email or password is incorrect!";
                             int duration = Toast.LENGTH_SHORT;
@@ -114,7 +123,6 @@ public class FirstActivity extends AppCompatActivity {
                         }
 
                         if (!task.isSuccessful()) {
-                            Log.d("NECO", "signInWithEmail:failure", task.getException());
                         }
 
                     }
@@ -125,8 +133,6 @@ public class FirstActivity extends AppCompatActivity {
 
     public void signUpUsers(final View view)
     {
-//        Intent intent = new Intent(this, GraphActivity.class);
-//        startActivity(intent);
 
         if(!isEmailAndPasswordCorrect())
         {
@@ -138,17 +144,16 @@ public class FirstActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d("myID", "createUserWithEmail:success");
                             final FirebaseUser user = mAuth.getCurrentUser();
                             mData.child("Uzivatel").child(user.getUid()).child("email").
                                     setValue(mEmailField.getText().toString());
 
+                            setUserAvatar(user.getUid());
+
                             FirebaseMessaging.getInstance().subscribeToTopic(user.getUid());
                             goToGraph(view);
-//                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.d("myID", "createUserWithEmail:failure", task.getException());
                             Toast toast = Toast.makeText(FirstActivity.this,
                                     "Your email or password is incorrect", Toast.LENGTH_SHORT);
                             toast.setGravity(Gravity.CENTER| Gravity.CENTER, 0, 0);
@@ -157,6 +162,32 @@ public class FirstActivity extends AppCompatActivity {
 
                     }
                 });
+
+    }
+
+    public void setUserAvatar(String userName)
+    {
+        Field[] drawablesFields = R.drawable.class.getFields();
+        ArrayList<String> animalFields = new ArrayList<>();
+
+        for (Field field : drawablesFields) {
+            try {
+                if (field.getName().contains("animal"))
+                {
+//                    Log.i("LOG_TAG", "com.your.project.R.drawable." + field.getName());
+                    animalFields.add(field.getName());
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        int indexOfImage = new Random().nextInt(50);
+
+        mData.child("Uzivatel").child(userName).child("Icon").
+                setValue(animalFields.get(indexOfImage));
 
     }
 
@@ -176,16 +207,6 @@ public class FirstActivity extends AppCompatActivity {
         return true;
     }
 
-    public void sendMessage(View view)
-    {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        startActivity(intent);
-    }
-    public void goToReport(View view)
-    {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        startActivity(intent);
-    }
 
     public void goToGraph(View view)
     {
@@ -193,9 +214,4 @@ public class FirstActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void goToProjects(View view)
-    {
-        Intent intent = new Intent(this, ProjectsActivity.class);
-        startActivity(intent);
-    }
 }

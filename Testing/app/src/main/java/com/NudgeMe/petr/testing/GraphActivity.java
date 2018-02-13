@@ -1,12 +1,10 @@
-package com.example.petr.testing;
+package com.NudgeMe.petr.testing;
 
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.NotificationCompat;
@@ -26,6 +24,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -80,7 +79,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
     LineData data;
     int numDays = 0;
     int leftDay = 0;
-    Boolean isSpinnerInitilised = false;
     int numShownDays = 10;
     int firstDayOfWeek = 0;
     Date firstDayShown = null;
@@ -117,16 +115,13 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             dataobjData.put("text", msg);
             dataobjData.put("title", title);
 
-
             obj.put("content_available", true);
-//            obj.put("condition", condition2);
             obj.put("to", "/topics/" + userID);
             obj.put("priority", 10);
-//            obj.put("topic","news");
             obj.put("notification", objData);
             obj.put("data", dataobjData);
 
-            Log.e("!_@rj@_@@_PASS:>", obj.toString());
+//            Log.e("!_@rj@_@@_PASS:>", obj.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -134,13 +129,13 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.e("!_@@_SUCESS", response + "");
+//                        Log.e("!_@@_SUCESS", response + "");
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e("!_@@_Errors--", error + "");
+//                        Log.e("!_@@_Errors--", error + "");
                     }
                 }) {
             @Override
@@ -152,7 +147,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             }
         };
         RequestQueue requestQueue = Volley.newRequestQueue(this);
-//        RequestQueue requestQueue = SingletonRequestForNudgeMe.getInstance(this.getApplicationContext()).getRequestQueue();
 
         int socketTimeout = 1000 * 60;// 60 seconds
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
@@ -173,7 +167,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
 
@@ -282,7 +275,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
 
-
             mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -326,8 +318,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                     for (DataSnapshot project : uzivatel.child("Projects").getChildren())
                     {
                         subMenu.add(1, project.getKey().hashCode(), CATEGORY_SYSTEM, project.child("projectName").getValue().toString()).setIcon(R.drawable.file);
-//                    projectsList.add(project.child("projectName").getValue().toString());
-//                    projectsIDs.add(project.getKey());
                     }
 
                 }
@@ -348,12 +338,17 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY);
                     String id = user.getUid();
                     final String formattedDate = dateFormat.format(myCalendar.getTime());
-                    mData.child("Uzivatel").child(id).child("Active")
+                    mData.child("Uzivatel").child(id)
                             .addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
-                                public void onDataChange(final DataSnapshot activeProject) {
+                                public void onDataChange(final DataSnapshot currentUser) {
 
-                                    mData.child("Projects").child(activeProject.getValue().toString())
+                                    if (!currentUser.hasChild("Active"))
+                                    {
+                                        Toast.makeText(getApplicationContext(), "Current user doesn't have any project!", Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+                                    mData.child("Projects").child(currentUser.child("Active").getValue().toString())
                                             .addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(DataSnapshot currentProject) {
@@ -406,7 +401,11 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                 if (!uzivatel.hasChild("Active"))
                 {
-//                    setContentView(R.layout.activity_graph);
+                    lineChart = (LineChart) findViewById(R.id.lineChart);
+                    lineChart.clear();
+                    usersLinearLayout = (LinearLayout) findViewById(R.id.projectUsersLayout);
+                    usersLinearLayout.removeAllViews();
+                    getSupportActionBar().setTitle("");
                     return;
                 }
 
@@ -418,7 +417,11 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                                 if (!dataSnapshot.hasChild(user.getUid()))
                                 {
-//                                    setContentView(R.layout.activity_graph);
+                                    lineChart = (LineChart) findViewById(R.id.lineChart);
+                                    lineChart.clear();
+                                    usersLinearLayout = (LinearLayout) findViewById(R.id.projectUsersLayout);
+                                    usersLinearLayout.removeAllViews();
+                                    getSupportActionBar().setTitle("");
                                     return;
                                 }
                                 numDays = leftDay = 0;
@@ -441,7 +444,25 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                                     if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE)
                                     {
-                                        setAvatars(iUser, uzivatel.child("email").getValue().toString(), user.getKey(), dataSnapshot.getKey());
+                                        mData.child("Uzivatel").child(user.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot userForIconSetting) {
+                                                if (userForIconSetting.hasChild("Icon"))
+                                                {
+                                                    setAvatars(userForIconSetting.child("Icon").getValue().toString(), uzivatel.child("email").getValue().toString(), user.getKey(), dataSnapshot.getKey());
+                                                }
+                                                else
+                                                {
+                                                    setAvatars("", uzivatel.child("email").getValue().toString(), user.getKey(), dataSnapshot.getKey());
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+
                                     }
 
                                     dataSets = someGraphSetting(iUser, user, dataSets);
@@ -557,7 +578,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            //Log.d("SMILE_TEST", "actDate: " + dateFormatter.format(actDate.getTime()));
 
             thisMiss = smile < -1f;
                                         /*if (preReport) { // let all missed days before first report go
@@ -628,7 +648,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         return dataSets;
     }
 
-    public void setAvatars(int iUser, final String email, final String userKey, final String projectKey)
+    public void setAvatars(String iconName, final String email, final String userKey, final String projectKey)
     {
         final ImageButton userOnProjectButton = new ImageButton(GraphActivity.this);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(usersLinearLayout.getHeight(), usersLinearLayout.getHeight());
@@ -637,24 +657,14 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         params.gravity = Gravity.CENTER;
         userOnProjectButton.setLayoutParams(params);
 
-        Drawable drw = userOnProjectButton.getBackground();
-        switch (iUser)
+        if (!iconName.isEmpty())
         {
-            case 0:
-                userOnProjectButton.setBackgroundResource(R.drawable.animal_rhinoceros);
-                drw.setColorFilter(Color.argb(255, 229, 115, 115), PorterDuff.Mode.LIGHTEN);
-                break;
-
-            case 1:
-                userOnProjectButton.setBackgroundResource(R.drawable.animal_cat);
-                break;
-
-            case 2:
-                userOnProjectButton.setBackgroundResource(R.drawable.animal_koala);
-                break;
-
-            default:
-                break;
+            int iconID = userOnProjectButton.getContext().getResources().getIdentifier(iconName, "drawable", userOnProjectButton.getContext().getPackageName());
+            userOnProjectButton.setBackgroundResource(iconID);
+        }
+        else
+        {
+            userOnProjectButton.setBackgroundResource(R.drawable.animal_ant_eater);
         }
 
         userOnProjectButton.setPadding(20, 20, 20, 20);

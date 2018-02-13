@@ -1,4 +1,4 @@
-package com.example.petr.testing;
+package com.NudgeMe.petr.testing;
 
 import java.util.ArrayList;
 

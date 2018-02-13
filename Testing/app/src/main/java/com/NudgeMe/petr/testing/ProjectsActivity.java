@@ -1,4 +1,4 @@
-package com.example.petr.testing;
+package com.NudgeMe.petr.testing;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Button;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -21,11 +20,7 @@ import java.util.ArrayList;
 
 public class ProjectsActivity extends AppCompatActivity {
 
-    RowAdapter adapter;
-//    ArrayList<String> arrayListJustForTriggerAdapter = new ArrayList<>();
-//    ArrayList<ProjectClass> projectListToShow = new ArrayList<>();
     DatabaseReference mData;
-//    ArrayList<String> listOfRegisteredUsers = new ArrayList<>();
     FirebaseUser currentUser;
     ArrayList<ProjectClass> myProjectset;
 
@@ -40,18 +35,6 @@ public class ProjectsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Projects list");
 
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.projects_list);
-
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
-        Button addProjectButton = (Button) findViewById(R.id.addProject);
-//        addProjectButton.setImageResource(R.drawable.checked);
-//
-//        addProjectButton.setBackgroundResource(R.drawable.round_button_blue);
-//        Drawable drw = addProjectButton.getBackground();
-//        drw.setColorFilter(Color.argb(255, 79, 195, 247), PorterDuff.Mode.LIGHTEN);
-
         mData = FirebaseDatabase.getInstance().getReference();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -60,17 +43,20 @@ public class ProjectsActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(final DataSnapshot userProjects) {
 
+                        mRecyclerView = (RecyclerView) findViewById(R.id.projects_list);
+
+                        mLayoutManager = new LinearLayoutManager(ProjectsActivity.this);
+                        mRecyclerView.setLayoutManager(mLayoutManager);
+
                         myProjectset = new ArrayList<>();
                         mAdapter = new RowAdapter(myProjectset);
-//                        for (DataSnapshot user : userProjects.getChildren())
-//                        {
-//                            listOfRegisteredUsers.add(user.child("email").getValue().toString());
-//                        }
 
                         if (!userProjects.child(currentUser.getUid()).hasChild("Projects"))
                         {
+                            mRecyclerView.setAdapter(mAdapter);
                             return;
                         }
+
                         for (final DataSnapshot userProject : userProjects.child(currentUser.getUid()).child("Projects").getChildren())
                         {
                             final ProjectClass newProject = new ProjectClass();
@@ -99,8 +85,6 @@ public class ProjectsActivity extends AppCompatActivity {
                                                 }
                                             }
                                             myProjectset.add(newProject);
-//                                            arrayListJustForTriggerAdapter.add("asd");
-//                                            adapter.notifyDataSetChanged();
                                             mRecyclerView.setAdapter(mAdapter);
                                         }
 

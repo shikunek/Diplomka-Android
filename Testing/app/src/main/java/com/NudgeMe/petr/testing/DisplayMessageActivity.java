@@ -1,13 +1,13 @@
-package com.example.petr.testing;
+package com.NudgeMe.petr.testing;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -29,14 +29,25 @@ import java.util.Locale;
 
 public class DisplayMessageActivity extends AppCompatActivity {
     Calendar myCalendar = Calendar.getInstance();
-    ImageButton floatButton;
     DatabaseReference mData;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_message);
-        getSupportActionBar().setTitle("Report your day");
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        Button sendButton = (Button) findViewById(R.id.toolbarButton);
+        sendButton.setVisibility(View.VISIBLE);
+        sendButton.setText("Send");
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendReport(v);
+            }
+        });
 
         final EditText edittext = (EditText) findViewById(R.id.date);
         String myFormat = "yyyy-MM-dd"; //In which you need put here
@@ -44,18 +55,6 @@ public class DisplayMessageActivity extends AppCompatActivity {
         edittext.setText(sdf.format(myCalendar.getTime()));
         mData = FirebaseDatabase.getInstance().getReference();
 
-        floatButton = (ImageButton) findViewById(R.id.sendReport);
-        floatButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-
-                sendReport(v);
-                /*
-                TODO - udelat lepsi Toast; pokud uz za dany den byl zadan report - ohlasi to
-                uzivateli
-                */
-            }
-        });
 
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
 
@@ -146,7 +145,6 @@ public class DisplayMessageActivity extends AppCompatActivity {
     private void updateLabel(Calendar myCalendar, EditText edittext) {
         String myFormat = "yyyy-MM-dd"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
-        Log.d("NECO","Yesterday's date was "+sdf.format(myCalendar.getTime()));
         edittext.setText(sdf.format(myCalendar.getTime()));
     }
 
@@ -171,7 +169,6 @@ public class DisplayMessageActivity extends AppCompatActivity {
         }
         String myFormat = "yyyy-MM-dd";
         final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
-        Log.d("NECO","Yesterday's date was "+sdf.format(calendar.getTime()));
         final String yesterday = sdf.format(calendar.getTime());
         mData = FirebaseDatabase.getInstance().getReference();
         mData.child("Uzivatel").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -265,13 +262,13 @@ public class DisplayMessageActivity extends AppCompatActivity {
                                 Report report = new Report(previousValue, str, selectedValue);
                                 mData.child("Projects").child(currentUser.child("Active").getValue().toString()).child(userID).child(dateTime).setValue(report);
                                 Toast.makeText(getApplicationContext(), "Report has been sent!", Toast.LENGTH_LONG).show();
-                                Log.d("myTag", Integer.toString(selectedValue));
+
                             }
 
                             @Override
                             public void onCancelled(DatabaseError databaseError)
                             {
-                                Log.w("NECO", "getUser:onCancelled", databaseError.toException());
+
                             }
 
                         });

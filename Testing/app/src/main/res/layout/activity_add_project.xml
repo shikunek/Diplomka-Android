@@ -6,6 +6,17 @@
     android:layout_height="match_parent"
     android:weightSum="1">
 
+
+    <include
+        android:id="@+id/createProjectBar"
+        layout="@layout/app_bar_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="parent" />
+
+
     <!-- Project Name label-->
     <TextView
         android:id="@+id/projNameLabel"
@@ -20,7 +31,7 @@
         android:padding="5dp"
         android:textColor="#ffffff"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/createProjectBar"
         />
 
     <!-- Input for project name-->
@@ -102,21 +113,21 @@
             android:orientation="vertical" />
     </ScrollView>
 
-    <!-- Create button -->
-    <Button
-        android:id="@+id/addProjectButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginStart="20dp"
-        android:background="@color/colorPrimaryDark"
-        android:text="@string/create_project"
-        android:textColor="#ffffff"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+    <!--&lt;!&ndash; Create button &ndash;&gt;-->
+    <!--<Button-->
+        <!--android:id="@+id/addProjectButton"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginTop="20dp"-->
+        <!--android:layout_marginBottom="20dp"-->
+        <!--android:layout_marginEnd="20dp"-->
+        <!--android:layout_marginLeft="20dp"-->
+        <!--android:layout_marginRight="20dp"-->
+        <!--android:layout_marginStart="20dp"-->
+        <!--android:background="@color/colorPrimaryDark"-->
+        <!--android:text="@string/create_project"-->
+        <!--android:textColor="#ffffff"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintLeft_toLeftOf="parent"-->
+        <!--app:layout_constraintRight_toRightOf="parent" />-->
 </LinearLayout>

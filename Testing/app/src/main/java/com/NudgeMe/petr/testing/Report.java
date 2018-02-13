@@ -1,4 +1,4 @@
-package com.example.petr.testing;
+package com.NudgeMe.petr.testing;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 

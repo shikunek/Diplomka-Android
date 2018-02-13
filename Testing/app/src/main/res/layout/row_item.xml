@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.chauthai.swipereveallayout.SwipeRevealLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/swipe_layout"
     android:layout_width="match_parent"
@@ -10,27 +10,27 @@
     app:mode="same_level">
 
 
-    <FrameLayout
-        android:id="@+id/delete_layout"
-        android:layout_width="100dp"
-        android:layout_height="match_parent"
-        android:background="#ffcc0000">
+    <!--<FrameLayout-->
+        <!--android:id="@+id/delete_layout"-->
+        <!--android:layout_width="100dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="#ffcc0000">-->
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center">
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:gravity="center"
-                android:background="@android:color/holo_red_dark"
-                android:src="@drawable/ic_delete_black_24dp"
-                android:text="Delete"
-                android:textColor="@android:color/white" />
-        </LinearLayout>
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:gravity="center">-->
+            <!--&lt;!&ndash;<ImageView&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_width="50dp"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_height="50dp"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:gravity="center"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:background="@android:color/holo_red_dark"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:src="@drawable/ic_delete_black_24dp"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:text="Delete"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:textColor="@android:color/white" />&ndash;&gt;-->
+        <!--</LinearLayout>-->
 
-    </FrameLayout>
+    <!--</FrameLayout>-->
 
     <LinearLayout
         android:id="@+id/recyclerItem"
@@ -42,14 +42,13 @@
         <TextView
             android:id="@+id/projectName"
             android:layout_width="match_parent"
-            android:layout_height="110dp"
+            android:layout_height="80dp"
             android:layout_weight="0.07" />
 
         <LinearLayout
             android:id="@+id/lin"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0.07"
+            android:layout_height="80dp"
             android:orientation="horizontal">
 
         </LinearLayout>
@@ -64,4 +63,4 @@
     </LinearLayout>
 
 
-</com.chauthai.swipereveallayout.SwipeRevealLayout>
+</LinearLayout>

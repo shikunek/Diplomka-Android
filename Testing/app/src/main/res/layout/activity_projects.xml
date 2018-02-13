@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.petr.testing.ProjectsActivity">
+    tools:context="com.NudgeMe.petr.testing.ProjectsActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/projects_list"

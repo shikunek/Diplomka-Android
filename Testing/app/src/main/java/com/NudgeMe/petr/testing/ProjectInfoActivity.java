@@ -1,17 +1,14 @@
-package com.example.petr.testing;
+package com.NudgeMe.petr.testing;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -28,9 +25,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
@@ -51,6 +50,8 @@ public class ProjectInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_info);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         mData = FirebaseDatabase.getInstance().getReference();
         final Intent intent = getIntent();
         endDateEditText = (EditText) findViewById(R.id.endEditText);
@@ -63,18 +64,28 @@ public class ProjectInfoActivity extends AppCompatActivity {
         usersToDelete = new ArrayList<>();
         projectName = (TextView) findViewById(R.id.projectName);
         final LinearLayout createProjectLayout = (LinearLayout) findViewById(R.id.usersLayout);
-        final Button applyChanges = (Button) findViewById(R.id.okButton);
-        applyChanges.setOnClickListener(new View.OnClickListener() {
+        final Button applyChangesButton = (Button) findViewById(R.id.toolbarButton);
+        applyChangesButton.setVisibility(View.VISIBLE);
+        applyChangesButton.setText("Edit");
+        applyChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                saveChanges(intent.getExtras().getString("projectName"));
+                if (intent.hasExtra("projectName"))
+                {
+                    saveChanges(intent.getExtras().getString("projectName"));
+                }
+
             }
         });
         final Button deleteProjectButton = (Button) findViewById(R.id.deleteProjectButton);
         deleteProjectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteProject(intent.getExtras().getString("projectName"));
+                if (intent.hasExtra("projectName"))
+                {
+                    deleteProject(intent.getExtras().getString("projectName"));
+                }
+
             }
         });
 
@@ -98,7 +109,20 @@ public class ProjectInfoActivity extends AppCompatActivity {
                             while (firstDate.hasNext())
                             {
                                 TextView startDate = (TextView) findViewById(R.id.startEditText);
-                                startDate.setText(firstDate.next().getKey());
+                                String myFormat = "dd.MM.yyyy";
+                                String myFormat1 = "yyyy-MM-dd";
+                                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
+                                SimpleDateFormat sdf1 = new SimpleDateFormat(myFormat1, Locale.GERMANY);
+                                try {
+                                    Date date = sdf1.parse(firstDate.next().getKey());
+                                    startDate.setText(sdf.format(date));
+                                }
+                                catch (ParseException e)
+                                {
+                                    startDate.setText("");
+                                    return;
+                                }
+
                                 break;
                             }
 
@@ -112,88 +136,72 @@ public class ProjectInfoActivity extends AppCompatActivity {
                         }
 
 
-                        for (DataSnapshot user : choosenProject.getChildren())
+                        if (intent.hasExtra("InvitedUsers"))
                         {
-                            if (user.getKey().equals("Ending") || user.getKey().equals("projectName") )
+
+                            String[] invitedUsers = intent.getStringArrayExtra("InvitedUsers");
+                            createProjectLayout.removeAllViews();
+                            for (String user : invitedUsers)
                             {
-                                continue;
+                                final LinearLayout item = new LinearLayout(ProjectInfoActivity.this);
+                                item.setOrientation(LinearLayout.HORIZONTAL);
+                                TextView tw = new TextView(ProjectInfoActivity.this);
+                                tw.setText(user);
+                                item.addView(tw);
+                                item.setId(user.hashCode());
+                                createProjectLayout.addView(item);
                             }
-                            mData.child("Uzivatel").child(user.getKey()).child("email").addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(final DataSnapshot userEmail)
-                                {
-                                    final AutoCompleteTextView manualUserEditText = new AutoCompleteTextView(ProjectInfoActivity.this);
-                                    final ImageButton deleteUserButton = new ImageButton(ProjectInfoActivity.this);
-                                    deleteUserButton.setId(userEmail.hashCode());
-
-                                    deleteUserButton.setBackgroundColor(Color.WHITE);
-                                    deleteUserButton.setImageResource(R.drawable.ic_delete_black_24dp);
-                                    deleteUserButton.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            LinearLayout userToDelete = (LinearLayout) createProjectLayout.findViewById(v.getId());
-                                            AutoCompleteTextView text = (AutoCompleteTextView) userToDelete.getChildAt(0);
-                                            usersToDelete.add(text.getText().toString());
-                                            createProjectLayout.removeView(userToDelete);
-
-                                        }
-                                    });
-
-                                    mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot userProjects) {
-                                            ArrayList<String> listOfRegisteredUsers = new ArrayList<String>();
-                                            for (DataSnapshot user : userProjects.getChildren())
-                                            {
-                                                listOfRegisteredUsers.add(user.child("email").getValue().toString());
-                                            }
-                                            final LinearLayout item = new LinearLayout(ProjectInfoActivity.this);
-                                            item.setOrientation(LinearLayout.HORIZONTAL);
-                                            ArrayAdapter<String> adapter = new ArrayAdapter<>(ProjectInfoActivity.this,
-                                                    android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
-
-                                            manualUserEditText.setAdapter(adapter);
-                                            manualUserEditText.setThreshold(1);
-                                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-                                            manualUserEditText.setLayoutParams(params);
-                                            manualUserEditText.setText(userEmail.getValue().toString());
-                                            manualUserEditText.addTextChangedListener(new TextWatcher() {
-                                                @Override
-                                                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                                                }
-
-                                                @Override
-                                                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                                                }
-
-                                                @Override
-                                                public void afterTextChanged(Editable s) {
-
-                                                }
-                                            });
-                                            item.addView(manualUserEditText);
-                                            item.addView(deleteUserButton);
-                                            item.setId(userEmail.hashCode());
-
-                                            createProjectLayout.addView(item);
-
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
-
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
                         }
+
+                        else
+                        {
+                            for (DataSnapshot user : choosenProject.getChildren())
+                            {
+                                if (user.getKey().equals("Ending") || user.getKey().equals("projectName") )
+                                {
+                                    continue;
+                                }
+                                mData.child("Uzivatel").child(user.getKey()).child("email").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(final DataSnapshot userEmail)
+                                    {
+                                        final TextView tw = new TextView(ProjectInfoActivity.this);
+                                        tw.setTextSize(18F);
+                                        tw.setTextColor(Color.BLACK);
+
+                                        mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot userProjects) {
+                                                ArrayList<String> listOfRegisteredUsers = new ArrayList<String>();
+                                                for (DataSnapshot user : userProjects.getChildren())
+                                                {
+                                                    listOfRegisteredUsers.add(user.child("email").getValue().toString());
+                                                }
+                                                final LinearLayout item = new LinearLayout(ProjectInfoActivity.this);
+                                                item.setOrientation(LinearLayout.HORIZONTAL);
+                                                tw.setText(userEmail.getValue().toString());
+                                                item.addView(tw);
+                                                item.setId(userEmail.hashCode());
+                                                createProjectLayout.addView(item);
+
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
+                        }
+
 
                     }
 
@@ -209,80 +217,21 @@ public class ProjectInfoActivity extends AppCompatActivity {
             @Override
             public void onClick(final View v) {
 
-                final AutoCompleteTextView manualUserEditText = new AutoCompleteTextView(v.getContext());
-                final ImageButton deleteUserButton = new ImageButton(ProjectInfoActivity.this);
-                deleteUserButton.setImageResource(R.drawable.ic_delete_black_24dp);
-                deleteUserButton.setBackgroundColor(Color.WHITE);
-                deleteUserButton.setId(userId);
-                deleteUserButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        LinearLayout userToDelete = (LinearLayout) createProjectLayout.findViewById(v.getId());
-                        AutoCompleteTextView text = (AutoCompleteTextView) userToDelete.getChildAt(0);
-                        usersToDelete.add(text.getText().toString());
-                        createProjectLayout.removeView(userToDelete);
-
-                    }
-                });
-
-                mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot userProjects) {
-                        ArrayList<String> listOfRegisteredUsers = new ArrayList<String>();
-                        for (DataSnapshot user : userProjects.getChildren())
-                        {
-                            listOfRegisteredUsers.add(user.child("email").getValue().toString());
-                        }
-                        final LinearLayout item = new LinearLayout(ProjectInfoActivity.this);
-                        item.setOrientation(LinearLayout.HORIZONTAL);
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(v.getContext(),
-                                android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
-                        manualUserEditText.setAdapter(adapter);
-                        manualUserEditText.setThreshold(1);
-                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-                        manualUserEditText.setLayoutParams(params);
-                        manualUserEditText.addTextChangedListener(new TextWatcher() {
-                            @Override
-                            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//                        if(s.length() >= 2) {
-//                            if (!manualUserEditText.isPopupShowing()) {
-//                                manualUserEditText.setError("Not found");
-//                                return;
-//                            }
-//                        }
-                            }
-
-                            @Override
-                            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                        if (s.length() > 1 && (!manualUserEditText.isPopupShowing()) && !manualUserEditText.isPerformingCompletion()) {
-//                            manualUserEditText.setError("Not found");
-//                            return;
-//                        }
-                            }
-
-                            @Override
-                            public void afterTextChanged(Editable s) {
-
-//                            if (!manualUserEditText.isPerformingCompletion()) {
-//                                manualUserEditText.setError("Not found");
-//                                return;
-//                            }
-
-                            }
-                        });
-                        item.setId(userId);
-                        item.addView(manualUserEditText);
-                        item.addView(deleteUserButton);
-                        userId++;
-                        createProjectLayout.addView(item);
-
+                Intent intent = new Intent(ProjectInfoActivity.this, AddUsersActivity.class);
+                intent.putExtra("projectName", getIntent().getStringExtra("projectName"));
+                ArrayList<String> usersOnProject = new ArrayList<>();
+                for (int i = 0; i < createProjectLayout.getChildCount(); i++)
+                {
+                    LinearLayout linearLayout = (LinearLayout) createProjectLayout.getChildAt(i);
+                    for (int j = 0; j < linearLayout.getChildCount(); j++)
+                    {
+                        TextView tw = (TextView) linearLayout.getChildAt(j);
+                        usersOnProject.add(tw.getText().toString());
                     }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                }
+                intent.putExtra("usersOnProject", usersOnProject);
+                startActivity(intent);
 
             }
         });
@@ -363,13 +312,10 @@ public class ProjectInfoActivity extends AppCompatActivity {
                                     LinearLayout item = (LinearLayout) usersToSave.getChildAt(i);
                                     for (int j = 0; j < item.getChildCount() ; j++)
                                     {
-                                        if (item.getChildAt(j) instanceof AutoCompleteTextView)
+                                        if (item.getChildAt(j) instanceof TextView)
                                         {
-                                            AutoCompleteTextView userEmail = (AutoCompleteTextView) item.getChildAt(j);
-                                            String email = user.child("email").getValue().toString();
-                                            String text = userEmail.getText().toString();
-                                            Boolean exists = !currentProject.hasChild(user.getKey());
-                                            if(user.child("email").getValue().toString().equals(userEmail.getText().toString()) &&
+                                            TextView userEmail = (TextView) item.getChildAt(j);
+                                            if (user.child("email").getValue().toString().equals(userEmail.getText().toString()) &&
                                                     !currentProject.hasChild(user.getKey()))
                                             {
                                                 Calendar myCalendar = Calendar.getInstance();
@@ -384,25 +330,43 @@ public class ProjectInfoActivity extends AppCompatActivity {
                                                 updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
                                                         "Active", projectID);
 
-
                                             }
 
                                         }
                                     }
                                 }
 
-                                Iterator<String> it = usersToDelete.iterator();
-                                while(it.hasNext())
+                                if (getIntent().hasExtra("UsersToDelete"))
                                 {
-                                    if (user.child("email").getValue().toString().equals(it.next()))
+                                    Iterator<String> it = getIntent().getStringArrayListExtra("UsersToDelete").iterator();
+                                    while(it.hasNext())
                                     {
-                                        updatedUserData.put("Projects/" + projectID + "/" + user.getKey(), null);
-                                        updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
-                                                "Projects/" + projectID + "/" + "projectName" , null);
-                                        updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
-                                                "Active", null);
+                                        if (user.child("email").getValue().toString().equals(it.next()))
+                                        {
+                                            updatedUserData.put("Projects/" + projectID + "/" + user.getKey(), null);
+                                            updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
+                                                    "Projects/" + projectID + "/" + "projectName" , null);
+                                            updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
+                                                    "Active", null);
+                                            // Pokud se uzivatel rozhodl smazat aktualne vybrany projekt
+                                            if (user.child("Active").getValue().toString().equals(projectID) && user.hasChild("Projects"))
+                                            {
+                                                for (DataSnapshot firstProject : user.child("Projects").getChildren())
+                                                {
+                                                    if (!firstProject.getKey().equals(projectID))
+                                                    {
+                                                        updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
+                                                                "Active" , firstProject.getKey());
+                                                        break;
+                                                    }
+
+                                                }
+
+                                            }
+                                        }
                                     }
                                 }
+
                             }
                             mData.updateChildren(updatedUserData);
 
@@ -444,6 +408,13 @@ public class ProjectInfoActivity extends AppCompatActivity {
                 updatedUserData.put("Projects/" + projectID + "/" +
                         currentUser.getUid() + "/" , null);
 
+
+                if (projectID.equals(currentUsersData.child("Active").getValue().toString()))
+                {
+                    updatedUserData.put("Uzivatel/" + currentUser.getUid() + "/Active" , null);
+                }
+
+
                 // pokud je na projektu jediny uzivatel tak je smazan cely
                 mData.child("Projects").child(projectID).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -453,27 +424,31 @@ public class ProjectInfoActivity extends AppCompatActivity {
                         while (project.hasNext())
                         {
                             DataSnapshot firstChild = project.next();
-                            if (firstChild.getKey().equals("projectName") || firstChild.getKey().equals("Ending"))
+                            if ( firstChild.getKey().equals("projectName") || firstChild.getKey().equals("Ending"))
                             {
-                                project.next();
                                 continue;
                             }
                             i++;
-                            project.next();
                         }
+                        // <= je kvuli tomu, ze pokud existuje jeden uzivatel, tak je i == 1
                         if (i <= 1 && remainingUsers.hasChild(currentUser.getUid()))
                         {
                             updatedUserData.put("Projects/" + projectID + "/" + "projectName" , null);
                         }
+
 
                         // Pokud se uzivatel rozhodl smazat aktualne vybrany projekt
                         if (projectID.equals(currentUsersData.child("Active").getValue().toString()) && currentUsersData.hasChild("Projects"))
                         {
                             for (DataSnapshot firstProject : currentUsersData.child("Projects").getChildren())
                             {
-                                updatedUserData.put("Uzivatel/" + currentUser.getUid() + "/" +
-                                        "Active" , firstProject.getKey());
-                                break;
+                                if (!firstProject.getKey().equals(projectID))
+                                {
+                                    updatedUserData.put("Uzivatel/" + currentUser.getUid() + "/" +
+                                            "Active" , firstProject.getKey());
+                                    break;
+                                }
+
                             }
 
                         }

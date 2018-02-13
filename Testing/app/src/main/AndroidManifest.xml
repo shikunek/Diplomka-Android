@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.petr.testing">
+    package="com.NudgeMe.petr.testing">
 
     <application
         android:allowBackup="true"
@@ -9,7 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".FirstActivity">
+        <activity android:name="com.NudgeMe.petr.testing.FirstActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -17,25 +17,27 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DisplayMessageActivity"
+            android:name="com.NudgeMe.petr.testing.DisplayMessageActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden">
 
             <!-- <meta-data -->
             <!-- android:name="android.support.PARENT_ACTIVITY" -->
             <!-- android:value=".FirstActivity" /> -->
         </activity>
-        <activity android:name=".GraphActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".ProjectsActivity" />
+        <activity
+            android:name="com.NudgeMe.petr.testing.GraphActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name="com.NudgeMe.petr.testing.ProjectsActivity" />
 
-        <service android:name=".ReceiveMessage">
+        <service android:name="com.NudgeMe.petr.testing.ReceiveMessage">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <!-- [END firebase_service] -->
         <!-- [START firebase_iid_service] -->
-        <service android:name=".TokenGetting">
+        <service android:name="com.NudgeMe.petr.testing.TokenGetting">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
@@ -46,18 +48,21 @@
      See README(https://goo.gl/l4GJaQ) for more.
         -->
 
-        <activity android:name=".ProjectInfoActivity"
-            android:windowSoftInputMode="stateHidden">
-        </activity>
-        <activity android:name=".UserReportsActivity" />
-        <activity android:name=".AddProjectActivity"
-            android:windowSoftInputMode="stateHidden">
-        </activity>
         <activity
-            android:name=".MenuActivity"
-            android:label="@string/title_activity_menu"
+            android:name="com.NudgeMe.petr.testing.ProjectInfoActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden">
+            android:noHistory="true"
+            android:windowSoftInputMode="stateHidden"></activity>
+        <activity android:name="com.NudgeMe.petr.testing.UserReportsActivity" />
+        <!--NoHistory slouzi pro to, abychom se pri navraceni nedostali na pridavani uzivatelu-->
+        <activity
+            android:name="com.NudgeMe.petr.testing.AddProjectActivity"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden"></activity>
+        <activity android:name="com.NudgeMe.petr.testing.AddUsersActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+
         </activity>
     </application>
 

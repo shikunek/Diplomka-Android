@@ -1,4 +1,4 @@
-package com.example.petr.testing;
+package com.NudgeMe.petr.testing;
 
 import android.content.Context;
 import android.graphics.Bitmap;

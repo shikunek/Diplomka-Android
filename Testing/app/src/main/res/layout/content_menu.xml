@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.petr.testing.GraphActivity"
+    tools:context="com.NudgeMe.petr.testing.GraphActivity"
     tools:showIn="@layout/app_bar_menu">
 
 </android.support.constraint.ConstraintLayout>

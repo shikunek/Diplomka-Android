@@ -1,4 +1,4 @@
-package com.example.petr.testing;
+package com.NudgeMe.petr.testing;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;

@@ -262,7 +262,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
                                 Report report = new Report(previousValue, str, selectedValue);
                                 mData.child("Projects").child(currentUser.child("Active").getValue().toString()).child(userID).child(dateTime).setValue(report);
                                 Toast.makeText(getApplicationContext(), "Report has been sent!", Toast.LENGTH_LONG).show();
-
+                                finish();
                             }
 
                             @Override

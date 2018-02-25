@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
@@ -49,6 +48,7 @@ public class FirstActivity extends AppCompatActivity {
         mEmailField.setText("gzs@f.cz", TextView.BufferType.EDITABLE);
         mPasswordField.setText("set123", TextView.BufferType.EDITABLE);
         mData = FirebaseDatabase.getInstance().getReference();
+
     }
 
     @Override
@@ -56,22 +56,17 @@ public class FirstActivity extends AppCompatActivity {
     {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
+
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
 
         if (currentUser != null)
         {
-            Log.d("myTag", "ANO");
+            goToGraph(new View(getApplicationContext()));
         }
-        else
-        {
-            Log.d("myTag", "Ne");
-
-        }
-//        updateUI(currentUser);
     }
 
-    public void singInUsers(final View view)
+    public void signInUsers(final View view)
     {
         if(!isEmailAndPasswordCorrect())
         {
@@ -211,6 +206,8 @@ public class FirstActivity extends AppCompatActivity {
     public void goToGraph(View view)
     {
         Intent intent = new Intent(this, GraphActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
 

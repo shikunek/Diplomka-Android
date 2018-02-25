@@ -160,6 +160,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
+
             super.onBackPressed();
         }
     }
@@ -395,6 +396,58 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         }
 
 
+//        lineChart = (LineChart) findViewById(R.id.lineChart);
+//
+//        List<Entry> entries = new ArrayList<>();
+//        List<Entry> entries1 = new ArrayList<>();
+//        for (int i = 0 ; i <= 10 ; i++)
+//        {
+//            entries.add(new Entry(i,i));
+//            entries1.add((new Entry(i,i*i)));
+//        }
+//
+//
+//
+//        LineDataSet dataSet = new LineDataSet(entries, "Label");
+//        dataSet.setHighLightColor(Color.GREEN);
+//        dataSet.setDrawHighlightIndicators(false);
+//        dataSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
+//        LineDataSet dataSet1 = new LineDataSet(entries1, "Label1");
+//        dataSet1.setAxisDependency(YAxis.AxisDependency.RIGHT);
+//        List<ILineDataSet> dataSets = new ArrayList<>();
+//        dataSets.add(dataSet);
+//        dataSets.add(dataSet1);
+//        LineData lineData = new LineData(dataSets);
+//        lineChart.setData(lineData);
+//        lineChart.setScaleEnabled(true);
+//        lineChart.setHighlightPerDragEnabled(false);
+////        lineChart.setHighlightPerTapEnabled(false);
+//
+////        lineChart.invalidate();
+//
+//        // the labels that should be drawn on the XAxis
+//        final String[] quarters = new String[] { "Q1", "Q2", "Q3", "Q4","Q5", "Q6", "Q7", "Q8","Q9", "Q10", "Q11" };
+//
+//        IAxisValueFormatter formatter = new IAxisValueFormatter() {
+//
+//            @Override
+//            public String getFormattedValue(float value, AxisBase axis) {
+//                return quarters[(int) value];
+//            }
+//
+//        };
+//
+//        XAxis xAxis = lineChart.getXAxis();
+//        xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
+//        xAxis.setValueFormatter(formatter);
+//        xAxis.setDrawGridLines(false);
+//
+//        YAxis yAxis = lineChart.getAxisLeft();
+//        yAxis.setAxisMinimum(10);
+//        yAxis.setAxisMinValue(0);
+//        yAxis.setGranularity(50);
+//        yAxis.setTextSize(20);
+
         mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot uzivatel) {
@@ -490,10 +543,10 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                                 lineChart.notifyDataSetChanged(); // let the chart know it's data changed
                                 lineChart.setVisibleXRangeMaximum(numShownDays-1);
-                                //lineChart.setVisibleXRangeMaximum(numDays);
+////                                lineChart.setVisibleXRangeMaximum(numDays);
                                 lineChart.setVisibleXRangeMinimum(numShownDays-1);
                                 lineChart.setExtraOffsets(0, 0, 0, 5);
-
+//
                                 leftDay = numDays-numShownDays+1 >= 0 ? numDays-numShownDays+1 : 0;
                                 lineChart.moveViewToX(leftDay);
 
@@ -555,7 +608,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         Entry lastEntry = new Entry(0, y);
         Entry lastMissEntry = null;
         int i = 1;
-        //boolean preReport = true; // solution for late addition of user and his missed reports
+        boolean preReport = true; // solution for late addition of user and his missed reports
         boolean lastMiss = false;
         boolean thisMiss;
         Date date;
@@ -601,8 +654,10 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                 yValuesMiss.add(new Entry(i, y));
                 lastMissEntry = new Entry(i, y);
             }
-            else { // !thisMiss && !lastMiss => just add new value to dataset
-                if (lastMiss) {
+            else
+            { // !thisMiss && !lastMiss => just add new value to dataset
+                if (lastMiss)
+                {
                     LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
                     setUpDataset(lineDataSet, false);
                     setDatasetColor(lineDataSet, iUser, false);
@@ -619,6 +674,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                     yValuesMiss = new ArrayList<>();
                 }
                 y = translateEntry(y, (int)smile);
+//            yValues.add(new Entry(i, (int)smile));
                 yValues.add(new Entry(i, y));
                 lastEntry = new Entry(i, y);
             }
@@ -633,13 +689,15 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         }
 
 
-        if (yValues.size() > 0) {
+        if (yValues.size() > 0)
+        {
             LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
             setUpDataset(lineDataSet, false);
             setDatasetColor(lineDataSet, iUser, false);
             dataSets.add(0, lineDataSet);
         }
-        if (yValuesMiss.size() > 0) {
+        if (yValuesMiss.size() > 0)
+        {
             LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
             setUpDataset(lineDataSetMiss, true);
             setDatasetColor(lineDataSetMiss, iUser, true);
@@ -682,17 +740,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         });
     }
 
-    public void goToReport(View view)
-    {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        startActivity(intent);
-    }
-
-    public void goToProjects(View view)
-    {
-        Intent intent = new Intent(this, ProjectsActivity.class);
-        startActivity(intent);
-    }
 
     // creates y-value from old y-value and new smile
     private float translateEntry(float old_y, int smile) {

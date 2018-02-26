@@ -16,6 +16,8 @@
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay">
 
+            <!--<include layout="@layout/content_menu" />-->
+
             <!--Button for cancel-->
             <!--Primary is invisible because in Graph activity we don't need it-->
             <Button

@@ -197,6 +197,13 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             {
                 Intent intent = new Intent(this, ProjectsActivity.class);
                 startActivity(intent);
+                break;
+            }
+            case 2:
+            {
+                Intent intent = new Intent(this, UserSettingActivity.class);
+                startActivity(intent);
+                break;
             }
 
             default:
@@ -225,6 +232,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                     }
                 });
+                break;
 
             }
 
@@ -237,6 +245,13 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
 
     @Override
+    protected void onStart()
+    {
+        super.onStart();
+
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graph);
@@ -244,6 +259,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
         user = FirebaseAuth.getInstance().getCurrentUser();
         mData = FirebaseDatabase.getInstance().getReference();
+        mData.keepSynced(true);
 
         final NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
@@ -307,6 +323,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             final Menu menu = navigationView.getMenu();
             menu.clear();
             menu.add(1, 1, Menu.NONE, "Manage projects").setIcon(R.drawable.ic_settings_black_24px);
+            menu.add(1, 2, Menu.NONE, "User").setIcon(R.drawable.ic_person_black_24dp);
 
             navigationView.setNavigationItemSelectedListener(this);
             final SubMenu subMenu = menu.addSubMenu("My projects");

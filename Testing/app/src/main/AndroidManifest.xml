@@ -9,7 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.NudgeMe.petr.testing.FirstActivity">
+        <activity android:name=".FirstActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -17,7 +17,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.NudgeMe.petr.testing.DisplayMessageActivity"
+            android:name=".DisplayMessageActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden">
 
@@ -26,18 +26,18 @@
             <!-- android:value=".FirstActivity" /> -->
         </activity>
         <activity
-            android:name="com.NudgeMe.petr.testing.GraphActivity"
+            android:name=".GraphActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name="com.NudgeMe.petr.testing.ProjectsActivity" />
+        <activity android:name=".ProjectsActivity" />
 
-        <service android:name="com.NudgeMe.petr.testing.ReceiveMessage">
+        <service android:name=".ReceiveMessage">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <!-- [END firebase_service] -->
         <!-- [START firebase_iid_service] -->
-        <service android:name="com.NudgeMe.petr.testing.TokenGetting">
+        <service android:name=".TokenGetting">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
@@ -49,19 +49,22 @@
         -->
 
         <activity
-            android:name="com.NudgeMe.petr.testing.ProjectInfoActivity"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:name=".ProjectInfoActivity"
             android:noHistory="true"
-            android:windowSoftInputMode="stateHidden"></activity>
-        <activity android:name="com.NudgeMe.petr.testing.UserReportsActivity" />
-        <!--NoHistory slouzi pro to, abychom se pri navraceni nedostali na pridavani uzivatelu-->
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".UserReportsActivity" />
+        <!-- NoHistory slouzi pro to, abychom se pri navraceni nedostali na pridavani uzivatelu -->
         <activity
-            android:name="com.NudgeMe.petr.testing.AddProjectActivity"
+            android:name=".AddProjectActivity"
             android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden"></activity>
-        <activity android:name="com.NudgeMe.petr.testing.AddUsersActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".AddUsersActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".UserSettingActivity"
+            android:noHistory="true">
 
         </activity>
     </application>

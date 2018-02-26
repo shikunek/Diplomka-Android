@@ -31,11 +31,14 @@ public class ProjectsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_projects);
         getSupportActionBar().setTitle("Projects list");
 
 
+
         mData = FirebaseDatabase.getInstance().getReference();
+        mData.keepSynced(true);
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         mData.child("Uzivatel").addValueEventListener(

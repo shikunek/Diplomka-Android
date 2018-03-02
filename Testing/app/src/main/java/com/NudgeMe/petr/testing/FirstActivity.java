@@ -4,14 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -20,6 +18,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -33,7 +32,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
-
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -63,7 +61,7 @@ public class FirstActivity extends AppCompatActivity implements
 
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestIdToken(getResources().getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
@@ -71,8 +69,8 @@ public class FirstActivity extends AppCompatActivity implements
         mAuth = FirebaseAuth.getInstance();
         mEmailField = (EditText) findViewById(R.id.loginTB);
         mPasswordField = (EditText) findViewById(R.id.passwordTB);
-        mEmailField.setText("gzs@f.cz", TextView.BufferType.EDITABLE);
-        mPasswordField.setText("set123", TextView.BufferType.EDITABLE);
+//        mEmailField.setText("gzs@f.cz", TextView.BufferType.EDITABLE);
+//        mPasswordField.setText("set123", TextView.BufferType.EDITABLE);
         mData = FirebaseDatabase.getInstance().getReference();
         mData.keepSynced(true);
 
@@ -115,6 +113,34 @@ public class FirstActivity extends AppCompatActivity implements
                 // Google Sign In failed, update UI appropriately
                 Log.w("FAILED", "Google sign in failed", e);
                 // [START_EXCLUDE]
+                String messageToDisplay = "Authentication failed.";
+                switch (e.getStatusCode()) {
+                    case CommonStatusCodes.API_NOT_CONNECTED: //17
+                        messageToDisplay += "The client attempted to call a method from an API that failed to connect.";
+                        break;
+
+                    case CommonStatusCodes.DEVELOPER_ERROR: //10
+                        messageToDisplay += "The application is misconfigured.";
+                        break;
+
+                    case CommonStatusCodes.ERROR: //13
+                        messageToDisplay += "The operation failed with no more detailed information.";
+                        break;
+
+                    case CommonStatusCodes.INTERNAL_ERROR: //8
+                        messageToDisplay += "An internal error occurred.";
+                        break;
+
+                    case CommonStatusCodes.INVALID_ACCOUNT: //8
+                        messageToDisplay += "Invalid account name specified.";
+                        break;
+
+                    case CommonStatusCodes.SIGN_IN_REQUIRED: //8
+                        messageToDisplay += "Please Sign In to continue.";
+                        break;
+                }
+                Log.w("FAILED", messageToDisplay);
+
                 Context context = getApplicationContext();
                 CharSequence text = "Log in failed";
                 int duration = Toast.LENGTH_SHORT;
@@ -127,7 +153,7 @@ public class FirstActivity extends AppCompatActivity implements
         }
     }
 
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+    private void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
         Log.d("SUCCESS", "firebaseAuthWithGoogle:" + acct.getId());
         // [START_EXCLUDE silent]
         // [END_EXCLUDE]
@@ -141,6 +167,44 @@ public class FirstActivity extends AppCompatActivity implements
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("SUCCESS", "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot allUsersToUnsubscribe)
+                                {
+                                    for (DataSnapshot user : allUsersToUnsubscribe.getChildren())
+                                    {
+                                        FirebaseMessaging.getInstance().unsubscribeFromTopic(user.getKey());
+                                    }
+
+                                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                                    FirebaseMessaging.getInstance().subscribeToTopic(user.getUid());
+
+                                    if (!allUsersToUnsubscribe.hasChild(user.getUid()))
+                                    {
+                                        mData.child("Uzivatel").child(user.getUid()).child("email").
+                                                setValue(acct.getEmail());
+                                        setUserAvatar(user.getUid());
+                                    }
+
+                                    else
+                                    {
+
+                                        if (!allUsersToUnsubscribe.child(user.getUid()).hasChild("Icon"))
+                                        {
+                                            setUserAvatar(user.getUid());
+                                        }
+                                    }
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                            goToGraph(new View(getApplicationContext()));
 
                         } else {
                             // If sign in fails, display a message to the user.

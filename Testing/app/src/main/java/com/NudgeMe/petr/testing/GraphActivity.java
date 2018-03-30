@@ -469,11 +469,12 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             @Override
             public void onDataChange(final DataSnapshot uzivatel) {
 
+                usersLinearLayout = (LinearLayout) findViewById(R.id.projectUsersLayout);
+                usersLinearLayout.removeAllViews();
                 if (!uzivatel.hasChild("Active"))
                 {
                     lineChart = (LineChart) findViewById(R.id.lineChart);
                     lineChart.clear();
-                    usersLinearLayout = (LinearLayout) findViewById(R.id.projectUsersLayout);
                     usersLinearLayout.removeAllViews();
                     getSupportActionBar().setTitle("");
                     return;
@@ -489,7 +490,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                                 {
                                     lineChart = (LineChart) findViewById(R.id.lineChart);
                                     lineChart.clear();
-                                    usersLinearLayout = (LinearLayout) findViewById(R.id.projectUsersLayout);
                                     usersLinearLayout.removeAllViews();
                                     getSupportActionBar().setTitle("");
                                     return;
@@ -500,7 +500,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                                 if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE)
                                 {
-                                    usersLinearLayout = (LinearLayout) findViewById(R.id.projectUsersLayout);
                                     usersLinearLayout.removeAllViews();
                                 }
 
@@ -730,6 +729,15 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         int margin = 10;
         params.setMargins(margin, 0, margin, 0);
         params.gravity = Gravity.CENTER;
+//        params.addRule(RelativeLayout.BELOW, user.getId());
+//        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+//        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
+//        params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
+//        params.leftMargin = 107;
+        //        if (usersLinearLayout.getChildCount() % 4 == 0)
+//        {
+//            params.addRule(RelativeLayout.BELOW);
+//        }
         userOnProjectButton.setLayoutParams(params);
 
         if (!iconName.isEmpty())

@@ -15,6 +15,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class AddUsersActivity extends AppCompatActivity {
 
@@ -33,7 +34,8 @@ public class AddUsersActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String usersWithoutWhitespace = multiAutoCompleteText.getText().toString().replaceAll("\\s+","");
-                String[] invitedUsers = usersWithoutWhitespace.split(",");
+                ArrayList<String> invitedUsers = new ArrayList<>();
+                invitedUsers.addAll(Arrays.asList(usersWithoutWhitespace.split(",")));
                 Intent intent;
                 if (getIntent().hasExtra("activity"))
                 {
@@ -68,8 +70,14 @@ public class AddUsersActivity extends AppCompatActivity {
                 }
 
                 intent.putExtra("InvitedUsers",invitedUsers);
+
+                /* odstraneni historie, ze uz jsme byli na ProjectInfo a po prijiti z AddUsers a danim
+                a stiskem tlacitka zpet znovu nesli na ProjectInfo */
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 finish();
 
+                /* musime vytvorit novy intent, pac potrebujeme dostat do ProjectInfo informace o
+                smazanych a pridanych uzivatelich */
                 startActivity(intent);
 
             }

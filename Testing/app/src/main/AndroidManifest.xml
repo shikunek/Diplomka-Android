@@ -28,7 +28,9 @@
         <activity
             android:name=".GraphActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ProjectsActivity" />
+        <activity android:name=".ProjectsActivity"
+
+            />
 
         <service android:name=".ReceiveMessage">
             <intent-filter>
@@ -50,19 +52,19 @@
 
         <activity
             android:name=".ProjectInfoActivity"
-            android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity android:name=".UserReportsActivity" />
         <!-- NoHistory slouzi pro to, abychom se pri navraceni nedostali na pridavani uzivatelu -->
         <activity
             android:name=".AddProjectActivity"
-            android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".AddUsersActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:noHistory="true"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
         <activity android:name=".UserSettingActivity"
             android:noHistory="true">
 

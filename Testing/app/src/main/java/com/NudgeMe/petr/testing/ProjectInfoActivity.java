@@ -2,9 +2,10 @@ package com.NudgeMe.petr.testing;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
@@ -13,7 +14,6 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +43,10 @@ public class ProjectInfoActivity extends AppCompatActivity {
     EditText endDateEditText;
     TextView projectName;
     ArrayList<String> usersToDelete;
+    ArrayList<String> userEmailTextset;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView mRecyclerView;
+    private RecyclerView.LayoutManager mLayoutManager;
     int userId = 0;
 
 
@@ -52,7 +56,16 @@ public class ProjectInfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_project_info);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        userEmailTextset = new ArrayList<>();
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.projectUsersRecyclerView);
+        mAdapter = new UsersOnProjectAdapter(userEmailTextset);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
         mData = FirebaseDatabase.getInstance().getReference();
+
         final Intent intent = getIntent();
         endDateEditText = (EditText) findViewById(R.id.endEditText);
         endDateEditText.setOnClickListener(new View.OnClickListener() {
@@ -61,9 +74,10 @@ public class ProjectInfoActivity extends AppCompatActivity {
                 setEndingDate(endDateEditText);
             }
         });
+
         usersToDelete = new ArrayList<>();
         projectName = (TextView) findViewById(R.id.projectName);
-        final LinearLayout createProjectLayout = (LinearLayout) findViewById(R.id.usersLayout);
+
         final Button applyChangesButton = (Button) findViewById(R.id.toolbarButton);
         applyChangesButton.setVisibility(View.VISIBLE);
         applyChangesButton.setText("Edit");
@@ -138,23 +152,23 @@ public class ProjectInfoActivity extends AppCompatActivity {
 
                         if (intent.hasExtra("InvitedUsers"))
                         {
-
-                            String[] invitedUsers = intent.getStringArrayExtra("InvitedUsers");
-                            createProjectLayout.removeAllViews();
-                            for (String user : invitedUsers)
+                            ArrayList<String> invitedUsers = intent.getStringArrayListExtra("InvitedUsers");
+                            mRecyclerView.removeAllViews();
+                            userEmailTextset.clear();
+                            for (int i = 0; i < invitedUsers.size() ; i++ )
                             {
-                                final LinearLayout item = new LinearLayout(ProjectInfoActivity.this);
-                                item.setOrientation(LinearLayout.HORIZONTAL);
-                                TextView tw = new TextView(ProjectInfoActivity.this);
-                                tw.setText(user);
-                                item.addView(tw);
-                                item.setId(user.hashCode());
-                                createProjectLayout.addView(item);
+                                userEmailTextset.add(invitedUsers.get(i));
+
                             }
+                            mRecyclerView.setAdapter(mAdapter);
+
+
                         }
 
                         else
                         {
+                            mRecyclerView.removeAllViews();
+                            userEmailTextset.clear();
                             for (DataSnapshot user : choosenProject.getChildren())
                             {
                                 if (user.getKey().equals("Ending") || user.getKey().equals("projectName") )
@@ -165,33 +179,8 @@ public class ProjectInfoActivity extends AppCompatActivity {
                                     @Override
                                     public void onDataChange(final DataSnapshot userEmail)
                                     {
-                                        final TextView tw = new TextView(ProjectInfoActivity.this);
-                                        tw.setTextSize(18F);
-                                        tw.setTextColor(Color.BLACK);
-
-                                        mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot userProjects) {
-                                                ArrayList<String> listOfRegisteredUsers = new ArrayList<String>();
-                                                for (DataSnapshot user : userProjects.getChildren())
-                                                {
-                                                    listOfRegisteredUsers.add(user.child("email").getValue().toString());
-                                                }
-                                                final LinearLayout item = new LinearLayout(ProjectInfoActivity.this);
-                                                item.setOrientation(LinearLayout.HORIZONTAL);
-                                                tw.setText(userEmail.getValue().toString());
-                                                item.addView(tw);
-                                                item.setId(userEmail.hashCode());
-                                                createProjectLayout.addView(item);
-
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
-                                            }
-                                        });
-
+                                        userEmailTextset.add(userEmail.getValue().toString());
+                                        mRecyclerView.setAdapter(mAdapter);
                                     }
 
                                     @Override
@@ -219,18 +208,7 @@ public class ProjectInfoActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(ProjectInfoActivity.this, AddUsersActivity.class);
                 intent.putExtra("projectName", getIntent().getStringExtra("projectName"));
-                ArrayList<String> usersOnProject = new ArrayList<>();
-                for (int i = 0; i < createProjectLayout.getChildCount(); i++)
-                {
-                    LinearLayout linearLayout = (LinearLayout) createProjectLayout.getChildAt(i);
-                    for (int j = 0; j < linearLayout.getChildCount(); j++)
-                    {
-                        TextView tw = (TextView) linearLayout.getChildAt(j);
-                        usersOnProject.add(tw.getText().toString());
-                    }
-
-                }
-                intent.putExtra("usersOnProject", usersOnProject);
+                intent.putExtra("usersOnProject", userEmailTextset);
                 startActivity(intent);
 
             }
@@ -300,40 +278,33 @@ public class ProjectInfoActivity extends AppCompatActivity {
 
                 }
 
-                final LinearLayout usersToSave = (LinearLayout) findViewById(R.id.usersLayout);
+//                final LinearLayout usersToSave = (LinearLayout) findViewById(R.id.usersLayout);
 
                     mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot users) {
                             for (DataSnapshot user : users.getChildren())
                             {
-                                for (int i = 0; i < usersToSave.getChildCount(); i++)
+                                for (int i = 0; i < userEmailTextset.size(); i++)
                                 {
-                                    LinearLayout item = (LinearLayout) usersToSave.getChildAt(i);
-                                    for (int j = 0; j < item.getChildCount() ; j++)
+                                    if (user.child("email").getValue().toString().equals(userEmailTextset.get(i)) &&
+                                            !currentProject.hasChild(user.getKey()))
                                     {
-                                        if (item.getChildAt(j) instanceof TextView)
-                                        {
-                                            TextView userEmail = (TextView) item.getChildAt(j);
-                                            if (user.child("email").getValue().toString().equals(userEmail.getText().toString()) &&
-                                                    !currentProject.hasChild(user.getKey()))
-                                            {
-                                                Calendar myCalendar = Calendar.getInstance();
-                                                Report report = new Report(0, "", 0);
-                                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY);
-                                                final String formattedDate = dateFormat.format(myCalendar.getTime());
-                                                updatedUserData.put("Projects/" + projectID + "/" + user.getKey() +
-                                                        "/" + formattedDate, report);
-                                                updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
-                                                        "Projects" + "/" + projectID + "/" + "projectName", projectName
-                                                        .getText().toString());
-                                                updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
-                                                        "Active", projectID);
+                                        Calendar myCalendar = Calendar.getInstance();
+                                        Report report = new Report(0, "", 0);
+                                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY);
+                                        final String formattedDate = dateFormat.format(myCalendar.getTime());
+                                        updatedUserData.put("Projects/" + projectID + "/" + user.getKey() +
+                                                "/" + formattedDate, report);
+                                        updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
+                                                "Projects" + "/" + projectID + "/" + "projectName", projectName
+                                                .getText().toString());
+                                        updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
+                                                "Active", projectID);
 
-                                            }
-
-                                        }
                                     }
+
+
                                 }
 
                                 if (getIntent().hasExtra("UsersToDelete"))
@@ -369,7 +340,10 @@ public class ProjectInfoActivity extends AppCompatActivity {
 
                             }
                             mData.updateChildren(updatedUserData);
-
+                            Intent intent = new Intent(ProjectInfoActivity.this, ProjectsActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            finish();
+                            startActivity(intent);
                         }
 
                         @Override

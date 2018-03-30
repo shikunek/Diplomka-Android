@@ -162,9 +162,16 @@ public class DisplayMessageActivity extends AppCompatActivity {
         calendar = myCalendar;
         calendar.add(Calendar.DATE, -1);
         EditText message = (EditText) findViewById(R.id.reportText);
+        final RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
         if (message.getText().toString().equals(""))
         {
             Toast.makeText(getApplicationContext(), "You have to fill the message!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (radioGroup.getCheckedRadioButtonId() == -1)
+        {
+            Toast.makeText(getApplicationContext(), "You have to select your evaluation!", Toast.LENGTH_LONG).show();
             return;
         }
         String myFormat = "yyyy-MM-dd";
@@ -188,7 +195,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
 
                                 EditText message = (EditText) findViewById(R.id.reportText);
                                 String str = message.getText().toString();
-                                RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+
                                 String dateTime = ((EditText) findViewById(R.id.date)).getText().toString();
                                 int selectedId = radioGroup.getCheckedRadioButtonId();
                                 int selectedValue = 0;

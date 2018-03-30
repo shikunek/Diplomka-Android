@@ -13,103 +13,67 @@
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
-    <!-- Project name label-->
-    <TextView
-        android:id="@+id/projNameLabel"
-        android:layout_width="100dp"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editProjectBar"
+        >
+
+        <EditText
+            android:id="@+id/projectName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="Project name" />
+    </android.support.design.widget.TextInputLayout>
+
+
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/startLayout"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginLeft="20dp"
         android:layout_marginStart="20dp"
-        android:text="@string/projNameLabel"
-        android:background="@drawable/label_bkg"
-        android:ems="10"
-        android:padding="5dp"
-        android:textColor="#ffffff"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editProjectBar"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/input_layout_name"
+        >
 
-    <!-- Project Name input-->
-    <EditText
-        android:id="@+id/projectName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@drawable/edittext_border"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/projNameLabel"
-        app:layout_constraintHorizontal_bias="0.0" />
+        <EditText
+            android:id="@+id/startEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="Start date" />
+    </android.support.design.widget.TextInputLayout>
 
-    <!-- START date label-->
-    <TextView
-        android:id="@+id/startLabel"
-        android:layout_width="75dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
-        android:text="@string/startLabel"
-        android:background="@drawable/label_bkg"
-        android:ems="10"
-        android:padding="5dp"
-        android:textColor="#ffffff"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/projectName"
-        />
-
-    <!-- START date INPUT-->
-    <EditText
-        android:id="@+id/startEditText"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/endLayout"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:gravity="center"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
-        android:background="@drawable/edittext_border"
-        android:inputType="textPersonName"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/startLabel"
-        />
-
-    <!-- END date label-->
-    <TextView
-        android:id="@+id/endLabel"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="16dp"
         android:layout_marginRight="20dp"
         android:layout_marginEnd="20dp"
-        android:text="@string/endLabel"
-        android:background="@drawable/label_bkg"
-        android:ems="10"
-        android:padding="5dp"
-        android:textColor="#ffffff"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/projectName"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/input_layout_name"
+        >
 
-    <!-- END date INPUT-->
-    <EditText
-        android:id="@+id/endEditText"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:gravity="center"
-        android:layout_marginRight="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@drawable/edittext_border"
-        android:inputType="textPersonName"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/endLabel"
-        />
+        <EditText
+            android:id="@+id/endEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="End date" />
+    </android.support.design.widget.TextInputLayout>
+
 
     <RelativeLayout
         android:id="@+id/memberAddLayout"
@@ -120,25 +84,25 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginTop="27dp"
-        app:layout_constraintTop_toBottomOf="@+id/endEditText"
+        app:layout_constraintTop_toBottomOf="@+id/endLayout"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
         <!-- Members label-->
-        <TextView
-            android:id="@+id/membersLabel"
-            android:layout_width="75dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:background="@drawable/label_bkg"
-            android:ems="10"
-            android:padding="5dp"
-            android:text="@string/memb_label"
-            android:textColor="#ffffff"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            />
+        <!--<TextView-->
+            <!--android:id="@+id/membersLabel"-->
+            <!--android:layout_width="75dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="bottom"-->
+            <!--android:background="@drawable/label_bkg"-->
+            <!--android:ems="10"-->
+            <!--android:padding="5dp"-->
+            <!--android:text="@string/memb_label"-->
+            <!--android:textColor="#ffffff"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:layout_alignParentStart="true"-->
+            <!--/>-->
 
         <ImageButton
             android:contentDescription="@string/cont_desc"
@@ -153,44 +117,50 @@
             android:layout_alignParentBottom="true"/>
     </RelativeLayout>
 
-    <ScrollView
-        android:id="@+id/projectUsersScrollView"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/projectUsersRecyclerView"
         android:layout_width="0dp"
         android:layout_height="180dp"
-        android:layout_marginTop="0dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:background="@drawable/edittext_border"
         android:padding="5dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/memberAddLayout">
+        app:layout_constraintTop_toBottomOf="@+id/memberAddLayout"/>
 
-        <LinearLayout
-            android:id="@+id/usersLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
+    <!--<ScrollView-->
+        <!--android:id="@+id/projectUsersScrollView"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="180dp"-->
+        <!--android:layout_marginLeft="20dp"-->
+        <!--android:layout_marginRight="20dp"-->
+
+        <!--android:padding="5dp"-->
+        <!--app:layout_constraintLeft_toLeftOf="parent"-->
+        <!--app:layout_constraintRight_toRightOf="parent"-->
+        <!--app:layout_constraintTop_toBottomOf="@+id/memberAddLayout">-->
+
+        <!--<LinearLayout-->
+            <!--android:id="@+id/usersLayout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="vertical" />-->
+    <!--</ScrollView>-->
 
     <Button
         android:id="@+id/deleteProjectButton"
-        android:layout_marginBottom="16dp"
-        android:text="Delete project"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:background="@android:color/holo_red_light"
+        android:text="Delete project"
         android:textColor="#ffffff"
+        app:layout_constraintTop_toBottomOf="@+id/projectUsersRecyclerView"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintRight_toRightOf="parent" />
 
 
 

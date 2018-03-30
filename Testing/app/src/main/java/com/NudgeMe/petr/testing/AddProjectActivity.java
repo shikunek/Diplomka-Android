@@ -1,15 +1,15 @@
 package com.NudgeMe.petr.testing;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,10 +28,12 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class AddProjectActivity extends AppCompatActivity {
-
-    RowAdapter adapter;
-    ArrayList<ProjectClass> projectListToShow = new ArrayList<>();
+public class AddProjectActivity extends AppCompatActivity
+{
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView mRecyclerView;
+    private RecyclerView.LayoutManager mLayoutManager;
+    ArrayList<String> userEmailTextset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,39 +43,35 @@ public class AddProjectActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        userEmailTextset = new ArrayList<>();
+        mRecyclerView = (RecyclerView) findViewById(R.id.newProjectUsersRecyclerView);
+        mAdapter = new UsersOnProjectAdapter(userEmailTextset);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
         Button createProjectButton = (Button) findViewById(R.id.toolbarButton);
         createProjectButton.setVisibility(View.VISIBLE);
         createProjectButton.setText("Create");
-        final ProjectClass newProject = new ProjectClass();
+
         final TextView manualProjectName = (TextView) findViewById(R.id.newProjectName);
         manualProjectName.setText("");
         final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        adapter = new RowAdapter(projectListToShow);
         final DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
-        final LinearLayout createProjectLayout = (LinearLayout) findViewById(R.id.usersLinLayout);
+        mRecyclerView.removeAllViews();
+        userEmailTextset.clear();
         if (getIntent().hasExtra("InvitedUsers"))
         {
-
-            String[] invitedUsers = getIntent().getStringArrayExtra("InvitedUsers");
-            createProjectLayout.removeAllViews();
-            for (String user : invitedUsers)
+            ArrayList<String> invitedUsers = getIntent().getStringArrayListExtra("InvitedUsers");
+            for (int i = 0; i < invitedUsers.size() ; i++ )
             {
-
-                TextView tw = new TextView(AddProjectActivity.this);
-                tw.setTextSize(18F);
-                tw.setTextColor(Color.BLACK);
-                tw.setText(user);
-                createProjectLayout.addView(tw);
+                userEmailTextset.add(invitedUsers.get(i));
+                mRecyclerView.setAdapter(mAdapter);
             }
         }
         else
         {
-            TextView actualUserTextView = new TextView(this);
-            actualUserTextView.setTextSize(18F);
-            actualUserTextView.setTextColor(Color.BLACK);
-            actualUserTextView.setText(currentUser.getEmail());
-            createProjectLayout.addView(actualUserTextView);
+            userEmailTextset.add(currentUser.getEmail());
+            mRecyclerView.setAdapter(mAdapter);
         }
 
         ImageButton addUserButton = (ImageButton) findViewById(R.id.addUserButton);
@@ -82,18 +80,9 @@ public class AddProjectActivity extends AppCompatActivity {
             public void onClick(final View v) {
 
                 Intent intent = new Intent(AddProjectActivity.this, AddUsersActivity.class);
-                ArrayList<String> usersOnProject = new ArrayList<>();
-                for (int i = 0; i < createProjectLayout.getChildCount(); i++)
-                {
-                    TextView tw = (TextView) createProjectLayout.getChildAt(i);
-                    usersOnProject.add(tw.getText().toString());
-
-                }
                 intent.putExtra("activity","NewProject");
-                intent.putExtra("usersOnProject", usersOnProject);
+                intent.putExtra("usersOnProject", userEmailTextset);
                 startActivity(intent);
-
-
             }
         });
         Calendar myCalendar = Calendar.getInstance();
@@ -116,16 +105,17 @@ public class AddProjectActivity extends AppCompatActivity {
                 mData.child("Uzivatel").addListenerForSingleValueEvent(
                         new ValueEventListener() {
                             @Override
-                            public void onDataChange(DataSnapshot usersData) {
-                                final int editTextsCount = createProjectLayout.getChildCount();
-                                for (int i = 0; i < editTextsCount; i++) {
-                                    for (DataSnapshot user : usersData.getChildren()) {
-                                        TextView editText = (TextView) createProjectLayout.getChildAt(i);
-                                        if (user.child("email").getValue().toString().equals(editText.getText().toString())) {
+                            public void onDataChange(DataSnapshot usersData)
+                            {
+                                for (int i = 0; i < userEmailTextset.size(); i++)
+                                {
+                                    for (DataSnapshot user : usersData.getChildren())
+                                    {
+                                        if (user.child("email").getValue().toString().equals(userEmailTextset.get(i)))
+                                        {
                                             usersUID.add(user.getKey());
                                         }
                                     }
-
                                 }
                                 TextView projectNameTextView = (TextView) findViewById(R.id.newProjectName);
                                 String projectName = projectNameTextView.getText().toString();
@@ -133,16 +123,8 @@ public class AddProjectActivity extends AppCompatActivity {
                                 mData.child("Projects").child(projectID).child("projectName").
                                         setValue(projectName);
 
-                                newProject.setProjectName(projectName);
-                                newProject.setId(projectID);
-
-
-
                                 for (int i = 0; i < usersUID.size(); i++) {
                                     Report report = new Report(0, "", 0);
-
-                                    TextView inputUserEditText = (TextView) createProjectLayout.getChildAt(i);
-                                    newProject.addProjectUsers(inputUserEditText.getText().toString());
 
                                     Map<String, Object> updatedUserData = new HashMap<>();
                                     updatedUserData.put("Projects/" + projectID + "/" +
@@ -158,12 +140,7 @@ public class AddProjectActivity extends AppCompatActivity {
                                     mData.updateChildren(updatedUserData);
                                 }
 
-                                projectListToShow.add(newProject);
-                                adapter.notifyDataSetChanged();
                                 finish();
-//                                Intent intent = new Intent(AddProjectActivity.this, ProjectsActivity.class);
-//                                startActivity(intent);
-
                             }
 
                             @Override

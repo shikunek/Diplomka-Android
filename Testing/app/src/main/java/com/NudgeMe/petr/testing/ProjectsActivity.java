@@ -40,27 +40,28 @@ public class ProjectsActivity extends AppCompatActivity {
         mData = FirebaseDatabase.getInstance().getReference();
         mData.keepSynced(true);
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        mRecyclerView = (RecyclerView) findViewById(R.id.projects_list);
 
-        mData.child("Uzivatel").addValueEventListener(
+        mLayoutManager = new LinearLayoutManager(ProjectsActivity.this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        myProjectset = new ArrayList<>();
+        mAdapter = new RowAdapter(myProjectset);
+
+        mData.child("Uzivatel").child(currentUser.getUid()).addValueEventListener(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(final DataSnapshot userProjects) {
 
-                        mRecyclerView = (RecyclerView) findViewById(R.id.projects_list);
-
-                        mLayoutManager = new LinearLayoutManager(ProjectsActivity.this);
-                        mRecyclerView.setLayoutManager(mLayoutManager);
-
-                        myProjectset = new ArrayList<>();
-                        mAdapter = new RowAdapter(myProjectset);
-
-                        if (!userProjects.child(currentUser.getUid()).hasChild("Projects"))
+                        myProjectset.clear();
+                        mRecyclerView.removeAllViews();
+                        if (!userProjects.hasChild("Projects"))
                         {
                             mRecyclerView.setAdapter(mAdapter);
                             return;
                         }
 
-                        for (final DataSnapshot userProject : userProjects.child(currentUser.getUid()).child("Projects").getChildren())
+                        for (final DataSnapshot userProject : userProjects.child("Projects").getChildren())
                         {
                             final ProjectClass newProject = new ProjectClass();
                             mData.child("Projects").child(userProject.getKey()).addListenerForSingleValueEvent(
@@ -71,22 +72,6 @@ public class ProjectsActivity extends AppCompatActivity {
                                             newProject.setProjectName(userProject.child("projectName").getValue().toString());
                                             newProject.setId(userProject.getKey());
 
-                                            for (final DataSnapshot userOnCurrentProject : usersOnProject.getChildren())
-                                            {
-                                                if (userOnCurrentProject.getKey().equals("projectName"))
-                                                {
-                                                    continue;
-                                                }
-
-                                                for (DataSnapshot actualUserProject : userProjects.getChildren())
-                                                {
-                                                    if (actualUserProject.getKey().equals(userOnCurrentProject.getKey()))
-                                                    {
-                                                        newProject.addProjectUsers(actualUserProject.child("email").getValue().toString());
-                                                    }
-
-                                                }
-                                            }
                                             myProjectset.add(newProject);
                                             mRecyclerView.setAdapter(mAdapter);
                                         }

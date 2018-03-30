@@ -17,42 +17,62 @@
         app:layout_constraintTop_toBottomOf="parent" />
 
 
-    <!-- Project Name label-->
-    <TextView
-        android:id="@+id/projNameLabel"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
-        android:text="@string/proj_name"
-        android:background="@drawable/label_bkg"
-        android:ems="10"
-        android:padding="5dp"
-        android:textColor="#ffffff"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/createProjectBar"
-        />
-
-    <!-- Input for project name-->
-    <EditText
-        android:id="@+id/newProjectName"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/newProjectNameLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
+        android:layout_marginTop="16dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="0dp"
-        android:background="@drawable/edittext_border"
-        android:clickable="true"
-        android:ems="10"
-        android:focusable="true"
-        android:inputType="textPersonName"
-        android:hint="@string/proj_hint"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/createProjectBar"
+        >
+
+        <EditText
+            android:id="@+id/newProjectName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="Project name" />
+    </android.support.design.widget.TextInputLayout>
+
+    <!--&lt;!&ndash; Project Name label&ndash;&gt;-->
+    <!--<TextView-->
+        <!--android:id="@+id/projNameLabel"-->
+        <!--android:layout_width="100dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginTop="60dp"-->
+        <!--android:layout_marginLeft="20dp"-->
+        <!--android:layout_marginStart="20dp"-->
+        <!--android:text="@string/proj_name"-->
+        <!--android:background="@drawable/label_bkg"-->
+        <!--android:ems="10"-->
+        <!--android:padding="5dp"-->
+        <!--android:textColor="#ffffff"-->
+        <!--app:layout_constraintLeft_toLeftOf="parent"-->
+        <!--app:layout_constraintTop_toBottomOf="@id/createProjectBar"-->
+        <!--/>-->
+
+    <!--&lt;!&ndash; Input for project name&ndash;&gt;-->
+    <!--<EditText-->
+        <!--android:id="@+id/newProjectName"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginEnd="20dp"-->
+        <!--android:layout_marginLeft="20dp"-->
+        <!--android:layout_marginRight="20dp"-->
+        <!--android:layout_marginStart="20dp"-->
+        <!--android:layout_marginTop="0dp"-->
+        <!--android:background="@drawable/edittext_border"-->
+        <!--android:clickable="true"-->
+        <!--android:ems="10"-->
+        <!--android:focusable="true"-->
+        <!--android:inputType="textPersonName"-->
+        <!--android:hint="@string/proj_hint"-->
+        <!--app:layout_constraintLeft_toLeftOf="parent"-->
+        <!--app:layout_constraintRight_toRightOf="parent"-->
+        <!--/>-->
 
     <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -66,20 +86,20 @@
         android:layout_marginTop="20dp">
 
         <!-- Members label-->
-        <TextView
-            android:id="@+id/membersLabel"
-            android:layout_width="75dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:background="@drawable/label_bkg"
-            android:ems="10"
-            android:padding="5dp"
-            android:text="@string/memb_label"
-            android:textColor="#ffffff"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
-            />
+        <!--<TextView-->
+            <!--android:id="@+id/membersLabel"-->
+            <!--android:layout_width="75dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="bottom"-->
+            <!--android:background="@drawable/label_bkg"-->
+            <!--android:ems="10"-->
+            <!--android:padding="5dp"-->
+            <!--android:text="@string/memb_label"-->
+            <!--android:textColor="#ffffff"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:layout_alignParentStart="true"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--/>-->
 
         <ImageButton
             android:contentDescription="@string/cont_desc"
@@ -95,23 +115,35 @@
 
     </RelativeLayout>
 
-    <ScrollView
-        android:id="@+id/usersScrollView"
-        android:background="@drawable/edittext_border"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/newProjectUsersRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="190dp"
-        android:layout_marginEnd="20dp"
+        android:layout_height="180dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginStart="20dp"
-        android:padding="5dp">
+        android:padding="5dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/memberAddLayout"
+        />
 
-        <LinearLayout
-            android:id="@+id/usersLinLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
+    <!--<ScrollView-->
+        <!--android:id="@+id/usersScrollView"-->
+        <!--android:background="@drawable/edittext_border"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="190dp"-->
+        <!--android:layout_marginEnd="20dp"-->
+        <!--android:layout_marginLeft="20dp"-->
+        <!--android:layout_marginRight="20dp"-->
+        <!--android:layout_marginStart="20dp"-->
+        <!--android:padding="5dp">-->
+
+        <!--<LinearLayout-->
+            <!--android:id="@+id/usersLinLayout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="vertical" />-->
+    <!--</ScrollView>-->
 
     <!--&lt;!&ndash; Create button &ndash;&gt;-->
     <!--<Button-->

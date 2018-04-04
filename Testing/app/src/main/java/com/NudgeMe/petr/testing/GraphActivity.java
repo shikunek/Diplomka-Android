@@ -3,8 +3,11 @@ package com.NudgeMe.petr.testing;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.NotificationCompat;
@@ -35,6 +38,11 @@ import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
@@ -56,6 +64,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,6 +80,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 import static android.view.Menu.CATEGORY_SYSTEM;
 
 
@@ -82,7 +94,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
     int numShownDays = 10;
     int firstDayOfWeek = 0;
     Date firstDayShown = null;
-    LinearLayout usersLinearLayout;
+    LinearLayout usersScrollView;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private ArrayList<String> mPlanetTitles;
@@ -91,6 +103,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
     private DatabaseReference mData;
     private FirebaseUser user;
+    private StorageReference storageReference;
 
     public void sendFCMPush(String userID) {
 
@@ -152,6 +165,14 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
         jsObjRequest.setRetryPolicy(policy);
         requestQueue.add(jsObjRequest);
+    }
+
+    public void goToLogin()
+    {
+        Intent intent = new Intent(GraphActivity.this, FirstActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     @Override
@@ -247,19 +268,50 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
     @Override
     protected void onStart()
     {
+        if (mData == null) {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            database.setPersistenceEnabled(true);
+            // ...
+        }
         super.onStart();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null)
+        {
+            Intent intent = new Intent(getApplicationContext(), FirstActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            finish();
+            startActivity(intent);
+            return;
+        }
 
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graph);
 
 
+
         user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null)
+        {
+            Intent intent = new Intent(getApplicationContext(), FirstActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            finish();
+            startActivity(intent);
+            return;
+        }
+
+
+
         mData = FirebaseDatabase.getInstance().getReference();
         mData.keepSynced(true);
+        storageReference = FirebaseStorage.getInstance().getReference().child("images");
 
         final NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
@@ -469,13 +521,16 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             @Override
             public void onDataChange(final DataSnapshot uzivatel) {
 
-                usersLinearLayout = (LinearLayout) findViewById(R.id.projectUsersLayout);
-                usersLinearLayout.removeAllViews();
+                usersScrollView = (LinearLayout) findViewById(R.id.linearLayout1);
+
                 if (!uzivatel.hasChild("Active"))
                 {
                     lineChart = (LineChart) findViewById(R.id.lineChart);
                     lineChart.clear();
-                    usersLinearLayout.removeAllViews();
+                    if (usersScrollView != null)
+                    {
+                        usersScrollView.removeAllViews();
+                    }
                     getSupportActionBar().setTitle("");
                     return;
                 }
@@ -490,7 +545,10 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                                 {
                                     lineChart = (LineChart) findViewById(R.id.lineChart);
                                     lineChart.clear();
-                                    usersLinearLayout.removeAllViews();
+                                    if (usersScrollView != null)
+                                    {
+                                        usersScrollView.removeAllViews();
+                                    }
                                     getSupportActionBar().setTitle("");
                                     return;
                                 }
@@ -500,7 +558,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                                 if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE)
                                 {
-                                    usersLinearLayout.removeAllViews();
+                                    usersScrollView.removeAllViews();
                                 }
 
                                 int iUser = 0;
@@ -513,24 +571,25 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                                     if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE)
                                     {
-                                        mData.child("Uzivatel").child(user.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot userForIconSetting) {
-                                                if (userForIconSetting.hasChild("Icon"))
-                                                {
-                                                    setAvatars(userForIconSetting.child("Icon").getValue().toString(), uzivatel.child("email").getValue().toString(), user.getKey(), dataSnapshot.getKey());
-                                                }
-                                                else
-                                                {
-                                                    setAvatars("", uzivatel.child("email").getValue().toString(), user.getKey(), dataSnapshot.getKey());
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
-                                            }
-                                        });
+                                        setAvatars(uzivatel.child("email").getValue().toString(), user.getKey(), dataSnapshot.getKey());
+//                                        mData.child("Uzivatel").child(user.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+//                                            @Override
+//                                            public void onDataChange(DataSnapshot userForIconSetting) {
+//                                                if (userForIconSetting.hasChild("Icon"))
+//                                                {
+//                                                    setAvatars(userForIconSetting.child("Icon").getValue().toString(), uzivatel.child("email").getValue().toString(), user.getKey(), dataSnapshot.getKey());
+//                                                }
+//                                                else
+//                                                {
+//                                                    setAvatars("", uzivatel.child("email").getValue().toString(), user.getKey(), dataSnapshot.getKey());
+//                                                }
+//                                            }
+//
+//                                            @Override
+//                                            public void onCancelled(DatabaseError databaseError) {
+//
+//                                            }
+//                                        });
 
                                     }
 
@@ -722,12 +781,13 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         return dataSets;
     }
 
-    public void setAvatars(String iconName, final String email, final String userKey, final String projectKey)
+    public void setAvatars(final String email, final String userKey, final String projectKey)
     {
-        final ImageButton userOnProjectButton = new ImageButton(GraphActivity.this);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(usersLinearLayout.getHeight(), usersLinearLayout.getHeight());
+//        final ImageButton userOnProjectButton = new ImageButton(GraphActivity.this);
+        final CircleImageView userOnProjectButton = new CircleImageView(GraphActivity.this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(usersScrollView.getHeight(), usersScrollView.getHeight());
         int margin = 10;
-        params.setMargins(margin, 0, margin, 0);
+//        params.setMargins(margin, 0, margin, 0);
         params.gravity = Gravity.CENTER;
 //        params.addRule(RelativeLayout.BELOW, user.getId());
 //        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -739,20 +799,46 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 //            params.addRule(RelativeLayout.BELOW);
 //        }
         userOnProjectButton.setLayoutParams(params);
+//        userOnProjectButton.setBackgroundResource(R.drawable.round_button_blue);
+//        Drawable drw = userOnProjectButton.getBackground();
 
-        if (!iconName.isEmpty())
-        {
-            int iconID = userOnProjectButton.getContext().getResources().getIdentifier(iconName, "drawable", userOnProjectButton.getContext().getPackageName());
-            userOnProjectButton.setBackgroundResource(iconID);
-        }
-        else
-        {
-            userOnProjectButton.setBackgroundResource(R.drawable.animal_ant_eater);
-        }
+
+
+        Glide.with(getApplicationContext())
+                .using(new FirebaseImageLoader())
+                .load(storageReference.child(userKey))
+                .asBitmap()
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .into(new SimpleTarget< Bitmap >() {
+                    @Override
+                    public void onResourceReady(Bitmap resource, GlideAnimation< ? super Bitmap > glideAnimation) {
+                        Drawable drawable = new BitmapDrawable(getResources(),resource);
+//                        userOnProjectButton.setImageDrawable(drawable);
+                        userOnProjectButton.setImageBitmap(resource);
+
+                    }
+
+                    @Override
+                    public void onLoadFailed(Exception e, Drawable errorDrawable) {
+                        // you are given the error drawable
+                        userOnProjectButton.setImageResource(R.drawable.animal_ant_eater);
+                    }
+
+                });
+//        if (!iconName.isEmpty())
+//        {
+//            int iconID = userOnProjectButton.getContext().getResources().getIdentifier(iconName, "drawable", userOnProjectButton.getContext().getPackageName());
+//            userOnProjectButton.setBackgroundResource(iconID);
+//        }
+//        else
+//        {
+//            userOnProjectButton.setBackgroundResource(R.drawable.animal_ant_eater);
+//        }
 
         userOnProjectButton.setPadding(20, 20, 20, 20);
         userOnProjectButton.setTag(userKey);
-        usersLinearLayout.addView(userOnProjectButton);
+        usersScrollView.addView(userOnProjectButton);
         userOnProjectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

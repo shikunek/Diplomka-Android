@@ -64,23 +64,11 @@ public class ProjectsActivity extends AppCompatActivity {
                         for (final DataSnapshot userProject : userProjects.child("Projects").getChildren())
                         {
                             final ProjectClass newProject = new ProjectClass();
-                            mData.child("Projects").child(userProject.getKey()).addListenerForSingleValueEvent(
-                                    new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot usersOnProject) {
+                            newProject.setProjectName(userProject.child("projectName").getValue().toString());
+                            newProject.setId(userProject.getKey());
 
-                                            newProject.setProjectName(userProject.child("projectName").getValue().toString());
-                                            newProject.setId(userProject.getKey());
-
-                                            myProjectset.add(newProject);
-                                            mRecyclerView.setAdapter(mAdapter);
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
+                            myProjectset.add(newProject);
+                            mRecyclerView.setAdapter(mAdapter);
                         }
 
                     }

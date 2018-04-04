@@ -2,6 +2,8 @@ package com.NudgeMe.petr.testing;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -32,7 +34,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Random;
@@ -42,19 +48,21 @@ public class FirstActivity extends AppCompatActivity implements
         View.OnClickListener{
 
     private FirebaseAuth mAuth;
+    FirebaseUser currentUser;
     private static DatabaseReference mData;
     private EditText mEmailField;
     private EditText mPasswordField;
     private GoogleSignInClient mGoogleSignInClient;
     private static final int RC_SIGN_IN = 9001;
+    StorageReference storageReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (mData == null) {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            database.setPersistenceEnabled(true);
-            // ...
-        }
+//        if (mData == null) {
+//            FirebaseDatabase database = FirebaseDatabase.getInstance();
+//            database.setPersistenceEnabled(true);
+//            // ...
+//        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first);
         getSupportActionBar().setTitle("Welcome");
@@ -67,10 +75,10 @@ public class FirstActivity extends AppCompatActivity implements
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         mAuth = FirebaseAuth.getInstance();
+
+        storageReference = FirebaseStorage.getInstance().getReference().child("images");
         mEmailField = (EditText) findViewById(R.id.loginTB);
         mPasswordField = (EditText) findViewById(R.id.passwordTB);
-//        mEmailField.setText("gzs@f.cz", TextView.BufferType.EDITABLE);
-//        mPasswordField.setText("set123", TextView.BufferType.EDITABLE);
         mData = FirebaseDatabase.getInstance().getReference();
         mData.keepSynced(true);
 
@@ -89,13 +97,13 @@ public class FirstActivity extends AppCompatActivity implements
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
 //        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-
-        if (currentUser != null)
-        {
-            goToGraph(new View(getApplicationContext()));
-        }
+//        currentUser = mAuth.getCurrentUser();
+//
+//
+//        if (currentUser != null)
+//        {
+//            goToLogin(new View(getApplicationContext()));
+//        }
     }
 
     @Override
@@ -166,33 +174,42 @@ public class FirstActivity extends AppCompatActivity implements
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("SUCCESS", "signInWithCredential:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
                             mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot allUsersToUnsubscribe)
                                 {
+                                    currentUser = mAuth.getCurrentUser();
                                     for (DataSnapshot user : allUsersToUnsubscribe.getChildren())
                                     {
                                         FirebaseMessaging.getInstance().unsubscribeFromTopic(user.getKey());
                                     }
 
-                                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                    FirebaseMessaging.getInstance().subscribeToTopic(currentUser.getUid());
 
-                                    FirebaseMessaging.getInstance().subscribeToTopic(user.getUid());
-
-                                    if (!allUsersToUnsubscribe.hasChild(user.getUid()))
+                                    // kdyz uzivatel neexistuje
+                                    if (!allUsersToUnsubscribe.hasChild(currentUser.getUid()))
                                     {
-                                        mData.child("Uzivatel").child(user.getUid()).child("email").
+                                        mData.child("Uzivatel").child(currentUser.getUid()).child("email").
                                                 setValue(acct.getEmail());
-                                        setUserAvatar(user.getUid());
+                                        setUserAvatar(currentUser.getUid());
                                     }
 
                                     else
                                     {
-
-                                        if (!allUsersToUnsubscribe.child(user.getUid()).hasChild("Icon"))
+                                        // uzivatel existuje, ale nema pridelenu ikonu
+                                        if (!allUsersToUnsubscribe.child(currentUser.getUid()).hasChild("Icon"))
                                         {
-                                            setUserAvatar(user.getUid());
+                                            setUserAvatar(currentUser.getUid());
+                                        }
+                                        else
+                                        {
+                                            int iconID = getResources().getIdentifier(allUsersToUnsubscribe.child(currentUser.getUid()).child("Icon").getValue().toString(),
+                                                    "drawable", getPackageName());
+                                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), iconID);
+                                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+                                            byte[] data = baos.toByteArray();
+                                            storageReference.child(currentUser.getUid()).putBytes(data);
                                         }
                                     }
 
@@ -234,7 +251,7 @@ public class FirstActivity extends AppCompatActivity implements
                         if (task.isSuccessful())
                         {
                             // Sign in success, update UI with the signed-in user's information
-
+                            currentUser = mAuth.getCurrentUser();
                             mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot allUsersToUnsubscribe)
@@ -244,14 +261,22 @@ public class FirstActivity extends AppCompatActivity implements
                                         FirebaseMessaging.getInstance().unsubscribeFromTopic(user.getKey());
                                     }
 
-                                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-                                    FirebaseMessaging.getInstance().subscribeToTopic(user.getUid());
+                                    FirebaseMessaging.getInstance().subscribeToTopic(currentUser.getUid());
 
 
-                                    if (!allUsersToUnsubscribe.child(user.getUid()).hasChild("Icon"))
+                                    if (!allUsersToUnsubscribe.child(currentUser.getUid()).hasChild("Icon"))
                                     {
-                                        setUserAvatar(user.getUid());
+                                        setUserAvatar(currentUser.getUid());
+                                    }
+                                    else
+                                    {
+                                        int iconID = getResources().getIdentifier(allUsersToUnsubscribe.child(currentUser.getUid()).child("Icon").getValue().toString(),
+                                                "drawable", getPackageName());
+                                        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), iconID);
+                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+                                        byte[] data = baos.toByteArray();
+                                        storageReference.child(currentUser.getUid()).putBytes(data);
                                     }
                                 }
 
@@ -295,14 +320,14 @@ public class FirstActivity extends AppCompatActivity implements
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            currentUser = mAuth.getCurrentUser();
                             // Sign in success, update UI with the signed-in user's information
-                            final FirebaseUser user = mAuth.getCurrentUser();
-                            mData.child("Uzivatel").child(user.getUid()).child("email").
+                            mData.child("Uzivatel").child(currentUser.getUid()).child("email").
                                     setValue(mEmailField.getText().toString());
 
-                            setUserAvatar(user.getUid());
+                            setUserAvatar(currentUser.getUid());
 
-                            FirebaseMessaging.getInstance().subscribeToTopic(user.getUid());
+                            FirebaseMessaging.getInstance().subscribeToTopic(currentUser.getUid());
                             goToGraph(view);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -326,7 +351,6 @@ public class FirstActivity extends AppCompatActivity implements
             try {
                 if (field.getName().contains("animal"))
                 {
-//                    Log.i("LOG_TAG", "com.your.project.R.drawable." + field.getName());
                     animalFields.add(field.getName());
                 }
 
@@ -337,6 +361,14 @@ public class FirstActivity extends AppCompatActivity implements
 
 
         int indexOfImage = new Random().nextInt(50);
+
+        int iconID = getResources().getIdentifier(animalFields.get(indexOfImage),
+                "drawable", getPackageName());
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), iconID);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+        byte[] data = baos.toByteArray();
+        storageReference.child(currentUser.getUid()).putBytes(data);
 
         mData.child("Uzivatel").child(userName).child("Icon").
                 setValue(animalFields.get(indexOfImage));

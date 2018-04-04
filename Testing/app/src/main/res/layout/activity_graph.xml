@@ -8,75 +8,105 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
-    <include
-        layout="@layout/app_bar_menu"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <include
+            android:id="@+id/appBar"
+            layout="@layout/app_bar_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <HorizontalScrollView
+            android:id="@+id/projectUsersScrollView"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:orientation="horizontal"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/appBar"
+            android:scrollbarStyle="outsideOverlay"
+            android:fillViewport="true"
+            >
+
+            <LinearLayout
+                android:id="@+id/linearLayout1"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+            </LinearLayout>
+
+
+        </HorizontalScrollView>
+
         <!-- Chart -->
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/lineChart"
             android:layout_width="0dp"
-            android:layout_height="300dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="8dp"
             android:layout_marginLeft="12dp"
             android:layout_marginRight="12dp"
-            android:layout_marginTop="136dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/chart_border"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
+
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"></com.github.mikephil.charting.charts.LineChart>
-        
-        <!-- Button to report page -->
-        <ImageButton
-            android:id="@+id/goToReportButton"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginLeft="118dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="Let's report your feeling about a day"
-            android:src="@drawable/smart"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/nudgeMyTeam"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/lineChart"
-            app:layout_constraintVertical_bias="0.848" />
+            app:layout_constraintTop_toBottomOf="@+id/projectUsersScrollView">
 
-        <!-- Button to Nudge all -->
-        <ImageButton
-            android:id="@+id/nudgeMyTeam"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="118dp"
-            android:layout_marginStart="56dp"
-            android:layout_marginLeft="56dp"
-            android:background="@null"
-            android:contentDescription="Nudge people from project"
-            android:src="@drawable/fist"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/goToReportButton"
-            app:layout_constraintTop_toBottomOf="@+id/lineChart"
-            app:layout_constraintVertical_bias="0.848" />
+        </com.github.mikephil.charting.charts.LineChart>
 
-        <LinearLayout
-            android:id="@+id/projectUsersLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="45dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toTopOf="@+id/lineChart"
-            app:layout_constraintHorizontal_bias="0.454"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"></LinearLayout>
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/constraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <!-- Button to report page -->
+            <ImageButton
+                android:id="@+id/goToReportButton"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="118dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Let's report your feeling about a day"
+                android:src="@drawable/smart"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/nudgeMyTeam"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Button to Nudge all -->
+            <ImageButton
+                android:id="@+id/nudgeMyTeam"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_marginLeft="56dp"
+                android:layout_marginRight="118dp"
+                android:layout_marginStart="56dp"
+                android:background="@null"
+                android:contentDescription="Nudge people from project"
+                android:src="@drawable/fist"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/goToReportButton"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
+
 
     </android.support.constraint.ConstraintLayout>
 

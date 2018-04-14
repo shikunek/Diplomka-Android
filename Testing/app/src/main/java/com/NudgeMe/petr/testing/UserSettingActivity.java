@@ -3,26 +3,18 @@ package com.NudgeMe.petr.testing;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.signature.StringSignature;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -38,13 +30,12 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.StreamDownloadTask;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -62,92 +53,52 @@ public class UserSettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_setting);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         mData = FirebaseDatabase.getInstance().getReference();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         storageReference = FirebaseStorage.getInstance().getReference().child("images").child(currentUser.getUid());
 
         profilePic = (CircleImageView) findViewById(R.id.profilePicView);
 
-        Glide.with(UserSettingActivity.this /* context */)
+        final EditText userName = (EditText) findViewById(R.id.userName);
+        final Button applyChangesButton = (Button) findViewById(R.id.toolbarButton);
+        applyChangesButton.setVisibility(View.VISIBLE);
+        applyChangesButton.setText("Edit");
+        applyChangesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Map<String, Object> updatedUserData = new HashMap<>();
+                updatedUserData.put("Uzivatel/" + currentUser.getUid() + "/" +
+                        "Username", userName.getText().toString());
+                mData.updateChildren(updatedUserData);
+
+            }
+        });
+
+        mData.child("Uzivatel").child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot user) {
+
+                if (user.hasChild("Username"))
+                {
+                    userName.setText(user.child("Username").getValue().toString());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        Glide.with(getApplicationContext()/* context */)
                 .using(new FirebaseImageLoader())
                 .load(storageReference)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
+                .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
                 .error(R.drawable.animal_ant_eater)
                 .into(profilePic);
 
-//        Glide.with(UserSettingActivity.this)
-//                .using(new FirebaseImageLoader())
-//                .load(storageReference)
-//                .asBitmap()
-//                .diskCacheStrategy(DiskCacheStrategy.NONE)
-//                .skipMemoryCache(true)
-//                .centerCrop()
-//                .into(new SimpleTarget< Bitmap >() {
-//                    @Override
-//                    public void onResourceReady(Bitmap resource, GlideAnimation < ? super Bitmap > glideAnimation) {
-//                        profilePic.setImageBitmap(resource);
-//                    }
-//                });
-
-//        storageReference.child("images").child(currentUser.getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-//            @Override
-//            public void onSuccess(Uri uri) {
-//                try {
-//                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-//                    profilePic.setImageBitmap(bitmap);
-//                }
-//                catch (IOException e)
-//                {
-//                    e.printStackTrace();
-//                }
-//
-//                // Got the download URL for 'users/me/profile.png'
-//            }
-//        }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception exception) {
-//            }
-//        });
-
-//        storageReference.child("images").child(currentUser.getUid()).getStream(
-//                new StreamDownloadTask.StreamProcessor() {
-//                    @Override
-//                    public void doInBackground(StreamDownloadTask.TaskSnapshot taskSnapshot,
-//                                               InputStream inputStream) throws IOException {
-//                        long totalBytes = taskSnapshot.getTotalByteCount();
-//                        long bytesDownloaded = 0;
-//
-//                        byte[] buffer = new byte[1024];
-//                        int size;
-//
-////                        while ((size = inputStream.read(buffer)) != -1) {
-////                            bytesDownloaded += size;
-////                            showProgressNotification(getString(R.string.progress_downloading),
-////                                    bytesDownloaded, totalBytes);
-////                        }
-//
-//                        // Close the stream at the end of the Task
-//                        inputStream.close();
-//                    }
-//                })
-//                .addOnSuccessListener(new OnSuccessListener<StreamDownloadTask.TaskSnapshot>() {
-//                    @Override
-//                    public void onSuccess(StreamDownloadTask.TaskSnapshot taskSnapshot) {
-////                        Log.d(TAG, "download:SUCCESS");
-//
-//                        Bitmap bitmap = BitmapFactory.decodeStream(taskSnapshot.getStream());;
-//                        profilePic.setImageBitmap(bitmap);
-//
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception exception) {
-////                        Log.w(TAG, "download:FAILURE", exception);
-//
-//                    }
-//                });
         Button changeProfilePic = (Button) findViewById(R.id.changeImageButton);
         changeProfilePic.setOnClickListener(new View.OnClickListener() {
             @Override

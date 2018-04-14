@@ -1,6 +1,7 @@
 package com.NudgeMe.petr.testing;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -31,6 +32,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
     Calendar myCalendar = Calendar.getInstance();
     DatabaseReference mData;
     private Toolbar toolbar;
+    String projectID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,13 @@ public class DisplayMessageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_display_message);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Intent intent = getIntent();
+        if (intent.hasExtra("projectID"))
+        {
+            projectID = intent.getExtras().getString("projectID");
+        }
+
 
         Button sendButton = (Button) findViewById(R.id.toolbarButton);
         sendButton.setVisibility(View.VISIBLE);
@@ -50,11 +59,12 @@ public class DisplayMessageActivity extends AppCompatActivity {
         });
 
         final EditText edittext = (EditText) findViewById(R.id.date);
+        String myFormat1 = "dd.MM.yyyy";
         String myFormat = "yyyy-MM-dd"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
-        edittext.setText(sdf.format(myCalendar.getTime()));
+        SimpleDateFormat sdf1 = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
+        edittext.setText(sdf1.format(myCalendar.getTime()));
         mData = FirebaseDatabase.getInstance().getReference();
-
 
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
 
@@ -91,7 +101,17 @@ public class DisplayMessageActivity extends AppCompatActivity {
                         {
                             return;
                         }
-                        mData.child("Projects").child(currentUser.child("Active").getValue().toString())
+
+                        Intent intent = getIntent();
+                        if (intent.hasExtra("projectID"))
+                        {
+                            projectID = intent.getExtras().getString("projectID");
+                        }
+                        else
+                        {
+                            projectID = currentUser.child("Active").getValue().toString();
+                        }
+                        mData.child("Projects").child(projectID)
                                 .addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot choosenProject) {
@@ -176,6 +196,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
         }
         String myFormat = "yyyy-MM-dd";
         final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
+        final SimpleDateFormat sdf1 = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
         final String yesterday = sdf.format(calendar.getTime());
         mData = FirebaseDatabase.getInstance().getReference();
         mData.child("Uzivatel").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -187,16 +208,35 @@ public class DisplayMessageActivity extends AppCompatActivity {
                     return;
                 }
 
-                mData.child("Projects").child(currentUser.child("Active").getValue().toString()).child(userID).addListenerForSingleValueEvent(
+                Intent intent = getIntent();
+                if (intent.hasExtra("projectID"))
+                {
+                    projectID = intent.getExtras().getString("projectID");
+                }
+                else
+                {
+                    projectID = currentUser.child("Active").getValue().toString();
+                }
+
+                mData.child("Projects").child(projectID).child(userID).addListenerForSingleValueEvent(
                         new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot)
                             {
-
                                 EditText message = (EditText) findViewById(R.id.reportText);
                                 String str = message.getText().toString();
 
-                                String dateTime = ((EditText) findViewById(R.id.date)).getText().toString();
+                                final EditText edittext = (EditText) findViewById(R.id.date);
+                                String dateTime = null;
+                                try
+                                {
+                                    Date showDate = sdf1.parse(edittext.getText().toString());
+                                    dateTime = sdf.format(showDate);
+
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+
                                 int selectedId = radioGroup.getCheckedRadioButtonId();
                                 int selectedValue = 0;
 
@@ -220,7 +260,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
                                 else
                                 {
 
-                                    Query lastQuery = mData.child("Projects").child(currentUser.child("Active").getValue().toString()).child(userID).orderByKey().limitToLast(1);
+                                    Query lastQuery = mData.child("Projects").child(projectID).child(userID).orderByKey().limitToLast(1);
                                     lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -238,7 +278,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
                                             String newDate = edittext.getText().toString();
                                             try {
 
-                                                Date newAdded = sdf.parse(newDate);
+                                                Date newAdded = sdf1.parse(newDate);
                                                 Date lastAdded = sdf.parse(lastDate);
                                                 Calendar calendar = Calendar.getInstance();
                                                 calendar.setTime(lastAdded);
@@ -247,7 +287,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
                                                 {
                                                     String newDay = sdf.format(calendar.getTime());
                                                     Report report = new Report(0, "", -2);
-                                                    mData.child("Projects").child(currentUser.child("Active").getValue().toString()).child(userID).child(newDay).setValue(report);
+                                                    mData.child("Projects").child(projectID).child(userID).child(newDay).setValue(report);
                                                     calendar.add(Calendar.DATE, 1);
                                                 }
 
@@ -266,8 +306,12 @@ public class DisplayMessageActivity extends AppCompatActivity {
                                     });
                                 }
 
+                                if (dateTime == null)
+                                {
+                                    return;
+                                }
                                 Report report = new Report(previousValue, str, selectedValue);
-                                mData.child("Projects").child(currentUser.child("Active").getValue().toString()).child(userID).child(dateTime).setValue(report);
+                                mData.child("Projects").child(projectID).child(userID).child(dateTime).setValue(report);
                                 Toast.makeText(getApplicationContext(), "Report has been sent!", Toast.LENGTH_LONG).show();
                                 finish();
                             }

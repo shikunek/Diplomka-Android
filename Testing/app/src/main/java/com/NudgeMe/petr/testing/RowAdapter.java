@@ -2,27 +2,18 @@ package com.NudgeMe.petr.testing;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.signature.StringSignature;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -51,7 +42,7 @@ public class RowAdapter extends RecyclerView.Adapter<RowAdapter.ViewHolder>
         // each data item is just a string in this case
         public TextView mProjectNameTextView;
         public LinearLayout mProjectUsersLayout;
-        public LinearLayout mProjectLayout;
+        public ConstraintLayout mProjectLayout;
         public LinearLayout mSwipe;
         public DatabaseReference mData;
 
@@ -63,7 +54,7 @@ public class RowAdapter extends RecyclerView.Adapter<RowAdapter.ViewHolder>
             mProjectUsersLayout = (LinearLayout) v.findViewById(R.id.lin);
 
             mSwipe = (LinearLayout) v.findViewById(R.id.swipe_layout);
-            mProjectLayout = (LinearLayout) v.findViewById(R.id.recyclerItem);
+            mProjectLayout = (ConstraintLayout) v.findViewById(R.id.recyclerItem);
 
             // Go to project info
             mProjectLayout.setOnClickListener(new View.OnClickListener() {
@@ -115,41 +106,33 @@ public class RowAdapter extends RecyclerView.Adapter<RowAdapter.ViewHolder>
                     }
                     final CircleImageView userOnProjectView = new CircleImageView(holder.mProjectNameTextView.getContext());
 
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(150, 150);
-                    int margin = 10;
-                    params.setMargins(margin, 0, margin, 0);
+                    int height = holder.mProjectUsersLayout.getHeight();
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(holder.mProjectUsersLayout.getHeight(), holder.mProjectUsersLayout.getHeight());
+                    int margin = holder.mProjectUsersLayout.getHeight()/3;
+                    params.setMargins(margin, 0, 0, 0);
                     params.gravity = Gravity.CENTER;
                     userOnProjectView.setLayoutParams(params);
 
 
                     StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images/" + projectUser.getKey());
+                    Glide.with(holder.mProjectNameTextView.getContext())
+                            .using(new FirebaseImageLoader())
+                            .load(storageReference)
+                            .asBitmap()
+                            .signature(new StringSignature(String.valueOf(System.currentTimeMillis() / (48 * 60 * 60 * 1000))))
+                            .error(R.drawable.animal_ant_eater)
+                            .into(userOnProjectView);
 //                    Glide.with(holder.mProjectNameTextView.getContext())
 //                            .using(new FirebaseImageLoader())
 //                            .load(storageReference)
 //                            .diskCacheStrategy(DiskCacheStrategy.NONE)
 //                            .skipMemoryCache(true)
+//                            .centerCrop()
+//                            .fitCenter()
 //                            .error(R.drawable.animal_ant_eater)
 //                            .into(userOnProjectView);
 
-                    Glide.with(holder.mProjectNameTextView.getContext())
-                            .using(new FirebaseImageLoader())
-                            .load(storageReference)
-                            .asBitmap()
-                            .centerCrop()
-                            .into(new SimpleTarget< Bitmap >() {
-                                @Override
-                                public void onResourceReady(Bitmap resource, GlideAnimation< ? super Bitmap > glideAnimation) {
-                                    userOnProjectView.setImageBitmap(resource);
-                                }
-
-                                @Override
-                                public void onLoadFailed(Exception e, Drawable errorDrawable) {
-                                    // you are given the error drawable
-                                    userOnProjectView.setImageResource(R.drawable.animal_ant_eater);
-                                }
-
-                            });
-                    int padding = 20;
+                    int padding = 0;
                     userOnProjectView.setPadding(padding, padding, padding, padding);
                     holder.mProjectUsersLayout.setPadding(padding, padding, padding, padding);
                     holder.mProjectUsersLayout.addView(userOnProjectView);

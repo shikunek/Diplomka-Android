@@ -36,7 +36,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Field;
@@ -119,7 +118,7 @@ public class FirstActivity extends AppCompatActivity implements
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
-                Log.w("FAILED", "Google sign in failed", e);
+//                Log.w("FAILED", "Google sign in failed", e);
                 // [START_EXCLUDE]
                 String messageToDisplay = "Authentication failed.";
                 switch (e.getStatusCode()) {
@@ -146,25 +145,25 @@ public class FirstActivity extends AppCompatActivity implements
                     case CommonStatusCodes.SIGN_IN_REQUIRED: //8
                         messageToDisplay += "Please Sign In to continue.";
                         break;
+
+                    case 12500:
+                        messageToDisplay += "Your Google Play Services is out of date. Please update it.";
+                        break;
                 }
-                Log.w("FAILED", messageToDisplay);
 
                 Context context = getApplicationContext();
                 CharSequence text = "Log in failed";
                 int duration = Toast.LENGTH_SHORT;
 
-                Toast toast = Toast.makeText(context, text, duration);
+                Toast toast = Toast.makeText(context, messageToDisplay, duration);
                 toast.setGravity(Gravity.CENTER| Gravity.CENTER, 0, 0);
                 toast.show();
-                // [END_EXCLUDE]
             }
         }
     }
 
     private void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
         Log.d("SUCCESS", "firebaseAuthWithGoogle:" + acct.getId());
-        // [START_EXCLUDE silent]
-        // [END_EXCLUDE]
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
@@ -201,16 +200,16 @@ public class FirstActivity extends AppCompatActivity implements
                                         {
                                             setUserAvatar(currentUser.getUid());
                                         }
-                                        else
-                                        {
-                                            int iconID = getResources().getIdentifier(allUsersToUnsubscribe.child(currentUser.getUid()).child("Icon").getValue().toString(),
-                                                    "drawable", getPackageName());
-                                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), iconID);
-                                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-                                            byte[] data = baos.toByteArray();
-                                            storageReference.child(currentUser.getUid()).putBytes(data);
-                                        }
+//                                        else
+//                                        {
+//                                            int iconID = getResources().getIdentifier(allUsersToUnsubscribe.child(currentUser.getUid()).child("Icon").getValue().toString(),
+//                                                    "drawable", getPackageName());
+//                                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), iconID);
+//                                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//                                            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+//                                            byte[] data = baos.toByteArray();
+//                                            storageReference.child(currentUser.getUid()).putBytes(data);
+//                                        }
                                     }
 
                                 }
@@ -268,16 +267,16 @@ public class FirstActivity extends AppCompatActivity implements
                                     {
                                         setUserAvatar(currentUser.getUid());
                                     }
-                                    else
-                                    {
-                                        int iconID = getResources().getIdentifier(allUsersToUnsubscribe.child(currentUser.getUid()).child("Icon").getValue().toString(),
-                                                "drawable", getPackageName());
-                                        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), iconID);
-                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-                                        byte[] data = baos.toByteArray();
-                                        storageReference.child(currentUser.getUid()).putBytes(data);
-                                    }
+//                                    else
+//                                    {
+//                                        int iconID = getResources().getIdentifier(allUsersToUnsubscribe.child(currentUser.getUid()).child("Icon").getValue().toString(),
+//                                                "drawable", getPackageName());
+//                                        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), iconID);
+//                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+//                                        byte[] data = baos.toByteArray();
+//                                        storageReference.child(currentUser.getUid()).putBytes(data);
+//                                    }
                                 }
 
                                 @Override

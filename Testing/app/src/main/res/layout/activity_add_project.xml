@@ -118,14 +118,13 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/newProjectUsersRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="180dp"
+        android:layout_height="match_parent"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:padding="5dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/memberAddLayout"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/memberAddLayout" />
 
     <!--<ScrollView-->
         <!--android:id="@+id/usersScrollView"-->

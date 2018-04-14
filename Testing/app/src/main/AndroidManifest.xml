@@ -15,7 +15,13 @@
         <activity
             android:name=".DisplayMessageActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden"
+>
+
+            <intent-filter>
+                <action android:name="OPEN_REPORT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
 
             <!-- <meta-data -->
             <!-- android:name="android.support.PARENT_ACTIVITY" -->
@@ -68,7 +74,7 @@
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity android:name=".UserSettingActivity"
-
+            android:theme="@style/AppTheme.NoActionBar"
             >
 
         </activity>

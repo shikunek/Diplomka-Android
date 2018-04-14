@@ -1,12 +1,15 @@
 package com.NudgeMe.petr.testing;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.MultiAutoCompleteTextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,10 +24,61 @@ public class AddUsersActivity extends AppCompatActivity {
 
     DatabaseReference mData;
     MultiAutoCompleteTextView multiAutoCompleteText;
+    ArrayList<String> listOfRegisteredUsers;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_users);
+        listOfRegisteredUsers = new ArrayList<String>();
+        mData = FirebaseDatabase.getInstance().getReference();
+
+        mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot userProjects) {
+
+                for (DataSnapshot user : userProjects.getChildren())
+                {
+                    listOfRegisteredUsers.add(user.child("email").getValue().toString());
+                }
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(AddUsersActivity.this,
+                        android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
+
+                multiAutoCompleteText.setAdapter(adapter);
+                multiAutoCompleteText.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+                multiAutoCompleteText.setThreshold(1);
+//                multiAutoCompleteText.addTextChangedListener(new TextWatcher() {
+//                    @Override
+//                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//                        Log.d("BEFORE CHANGE:", s.toString());
+//                    }
+//
+//                    @Override
+//                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                        Log.d("TEXT CHANGE:", s.toString());
+//                    }
+//
+//                    @Override
+//                    public void afterTextChanged(Editable s) {
+//                        Log.d("AFTER CHANGE:", s.toString());
+//                    }
+//                });
+                ArrayList<String> usersOnProject =  getIntent().getStringArrayListExtra("usersOnProject");
+                StringBuilder stringBuilder = new StringBuilder();
+                for (String user : usersOnProject)
+                {
+                    stringBuilder.append(user).append(",").append(" ");
+                }
+
+
+                multiAutoCompleteText.setText(stringBuilder);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         multiAutoCompleteText = (MultiAutoCompleteTextView)findViewById(R.id.multiUsersView);
         Button toolbarButton = (Button) findViewById(R.id.toolbarButton);
@@ -39,12 +93,36 @@ public class AddUsersActivity extends AppCompatActivity {
                 Intent intent;
                 if (getIntent().hasExtra("activity"))
                 {
+                    for (String actualUser : invitedUsers)
+                    {
+                        if (!listOfRegisteredUsers.contains(actualUser))
+                        {
+                            Context context = getApplicationContext();
+                            CharSequence text = "User: " + '"' + actualUser + '"' + " doesn't exist.";
+                            int duration = Toast.LENGTH_LONG;
+
+                            Toast toast = Toast.makeText(context, text, duration);
+                            toast.setGravity(Gravity.CENTER| Gravity.CENTER, 0, 0);
+                            toast.show();
+                            return;
+                        }
+
+                    }
                     intent = new Intent(AddUsersActivity.this, AddProjectActivity.class);
+                    if (getIntent().hasExtra("actualProjectName"))
+                    {
+                        intent.putExtra("actualProjectName", getIntent().getStringExtra("actualProjectName"));
+                    }
+
                 }
                 else
                 {
                     intent = new Intent(AddUsersActivity.this, ProjectInfoActivity.class);
                     intent.putExtra("projectName", getIntent().getStringExtra("projectName"));
+                    if (getIntent().hasExtra("actualProjectName"))
+                    {
+                        intent.putExtra("actualProjectName", getIntent().getStringExtra("actualProjectName"));
+                    }
                     ArrayList<String> previousUsersOnProject =  getIntent().getStringArrayListExtra("usersOnProject");
                     ArrayList<String> usersToDelete = new ArrayList<>();
 
@@ -54,6 +132,18 @@ public class AddUsersActivity extends AppCompatActivity {
 
                         for (String actualUser : invitedUsers)
                         {
+                            if (!listOfRegisteredUsers.contains(actualUser))
+                            {
+                                Context context = getApplicationContext();
+                                CharSequence text = "User: " + '"' + actualUser + '"' + " doesn't exist.";
+                                int duration = Toast.LENGTH_LONG;
+
+                                Toast toast = Toast.makeText(context, text, duration);
+                                toast.setGravity(Gravity.CENTER| Gravity.CENTER, 0, 0);
+                                toast.show();
+                                return;
+                            }
+
                             if (previousUser.equals(actualUser))
                             {
                                 exists = true;
@@ -83,38 +173,5 @@ public class AddUsersActivity extends AppCompatActivity {
             }
         });
 
-        mData = FirebaseDatabase.getInstance().getReference();
-
-        mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot userProjects) {
-                ArrayList<String> listOfRegisteredUsers = new ArrayList<String>();
-                for (DataSnapshot user : userProjects.getChildren())
-                {
-                    listOfRegisteredUsers.add(user.child("email").getValue().toString());
-                }
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(AddUsersActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, listOfRegisteredUsers);
-
-                multiAutoCompleteText.setAdapter(adapter);
-                multiAutoCompleteText.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
-                multiAutoCompleteText.setThreshold(1);
-                ArrayList<String> usersOnProject =  getIntent().getStringArrayListExtra("usersOnProject");
-                StringBuilder stringBuilder = new StringBuilder();
-                for (String user : usersOnProject)
-                {
-                    stringBuilder.append(user).append(",").append(" ");
-                }
-
-
-                multiAutoCompleteText.setText(stringBuilder);
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 }

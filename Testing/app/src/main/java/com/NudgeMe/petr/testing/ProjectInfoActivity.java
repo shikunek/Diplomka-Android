@@ -109,8 +109,15 @@ public class ProjectInfoActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot choosenProject) {
 
-                        final TextView projectsListView = (TextView) findViewById(R.id.projectName);
-                        projectsListView.setText(choosenProject.child("projectName").getValue().toString());
+                        if (intent.hasExtra("actualProjectName"))
+                        {
+                            projectName.setText(intent.getExtras().getString("actualProjectName"));
+                        }
+                        else
+                        {
+                            projectName.setText(choosenProject.child("projectName").getValue().toString());
+                        }
+
                         Iterator<DataSnapshot> firstUser =  choosenProject.getChildren().iterator();
                         while (firstUser.hasNext())
                         {
@@ -208,6 +215,7 @@ public class ProjectInfoActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(ProjectInfoActivity.this, AddUsersActivity.class);
                 intent.putExtra("projectName", getIntent().getStringExtra("projectName"));
+                intent.putExtra("actualProjectName", projectName.getText().toString());
                 intent.putExtra("usersOnProject", userEmailTextset);
                 startActivity(intent);
 
@@ -265,14 +273,14 @@ public class ProjectInfoActivity extends AppCompatActivity {
                 updatedUserData.put("Projects/" + projectID + "/" +
                         "projectName", projectName.getText().toString());
 
-                for (DataSnapshot user : currentProject.getChildren())
+                for (final DataSnapshot currentProjectUser : currentProject.getChildren())
                 {
-                    if (user.getKey().equals("projectName") || user.getKey().equals("Ending"))
+                    if (currentProjectUser.getKey().equals("projectName") || currentProjectUser.getKey().equals("Ending"))
                     {
                         continue;
                     }
 
-                    updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
+                    updatedUserData.put("Uzivatel/" + currentProjectUser.getKey() + "/" +
                             "Projects" + "/" + projectID + "/" + "projectName", projectName
                             .getText().toString());
 
@@ -283,7 +291,7 @@ public class ProjectInfoActivity extends AppCompatActivity {
                     mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot users) {
-                            for (DataSnapshot user : users.getChildren())
+                            for (final DataSnapshot user : users.getChildren())
                             {
                                 for (int i = 0; i < userEmailTextset.size(); i++)
                                 {
@@ -291,11 +299,51 @@ public class ProjectInfoActivity extends AppCompatActivity {
                                             !currentProject.hasChild(user.getKey()))
                                     {
                                         Calendar myCalendar = Calendar.getInstance();
-                                        Report report = new Report(0, "", 0);
-                                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY);
-                                        final String formattedDate = dateFormat.format(myCalendar.getTime());
-                                        updatedUserData.put("Projects/" + projectID + "/" + user.getKey() +
-                                                "/" + formattedDate, report);
+                                        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY);
+                                        final String today = dateFormat.format(myCalendar.getTime());
+                                        Date startDate = myCalendar.getTime();
+                                        Iterator<DataSnapshot> firstUser =  currentProject.getChildren().iterator();
+
+                                        while (firstUser.hasNext())
+                                        {
+                                            DataSnapshot firstChild = firstUser.next();
+                                            if (firstChild.getKey().equals("Ending"))
+                                            {
+                                                continue;
+                                            }
+                                            Iterator<DataSnapshot> firstDate = firstChild.getChildren().iterator();
+                                            while (firstDate.hasNext())
+                                            {
+                                                try
+                                                {
+                                                    startDate = dateFormat.parse(firstDate.next().getKey());
+                                                }
+
+                                                catch (ParseException e)
+                                                {
+                                                }
+
+                                                break;
+                                            }
+
+                                            break;
+                                        }
+
+                                        Calendar calendar = Calendar.getInstance();
+                                        calendar.setTime(startDate);
+                                        while(calendar.getTime().before(myCalendar.getTime()))
+                                        {
+                                            String newDay = dateFormat.format(calendar.getTime());
+                                            Report defaultReport = new Report(0, "", -2);
+                                            updatedUserData.put("Projects/" + projectID + "/" + user.getKey() +
+                                                    "/" + newDay, defaultReport);
+                                            calendar.add(Calendar.DATE, 1);
+                                        }
+
+//                                        Report report = new Report(0, "", 0);
+//
+//                                        updatedUserData.put("Projects/" + projectID + "/" + user.getKey() +
+//                                                "/" + today, report);
                                         updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
                                                 "Projects" + "/" + projectID + "/" + "projectName", projectName
                                                 .getText().toString());

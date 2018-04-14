@@ -7,8 +7,8 @@ android {
         applicationId "com.NudgeMe.petr.testing"
         minSdkVersion 15
         targetSdkVersion 25
-        versionCode 2
-        versionName "1.1"
+        versionCode 3
+        versionName "1.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 //    configurations.all {
@@ -41,10 +41,15 @@ dependencies {
     compile 'com.mcxiaoke.volley:library:1.0.0'
     compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.pkmmte.view:circularimageview:1.1'
-    compile 'com.github.markushi:circlebutton:1.1'
+//    compile 'com.github.markushi:circlebutton:1.1'
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:cardview-v7:25.3.1'
-    compile 'com.firebaseui:firebase-ui-storage:0.6.0'
+//    compile 'com.github.bumptech.glide:glide:4.3.1'
+//    compile 'com.github.bumptech.glide:annotations:4.3.1'
+//    annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
+//    compile 'com.github.bumptech.glide:glide:4.0.0'
+//    implementation 'com.firebaseui:firebase-ui-storage:3.3.0'
+    compile 'com.firebaseui:firebase-ui-storage:1.0.0'
     compile 'de.hdodenhof:circleimageview:2.2.0'
     compile 'com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.0'
     testCompile 'junit:junit:4.12'

@@ -4,16 +4,22 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.StringSignature;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UsersOnProjectAdapter extends RecyclerView.Adapter<UsersOnProjectAdapter.ViewHolder>
 {
@@ -25,14 +31,14 @@ public class UsersOnProjectAdapter extends RecyclerView.Adapter<UsersOnProjectAd
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         public TextView mUserEmailTextView;
-        public ImageView mUserImage;
+        public CircleImageView mUserImage;
         public DatabaseReference mData;
 
         public ViewHolder(View v) {
             super(v);
             mData = FirebaseDatabase.getInstance().getReference();
             mUserEmailTextView = (TextView) v.findViewById(R.id.userEmailView);
-            mUserImage = (ImageView) v.findViewById(R.id.userImageView);
+            mUserImage = (CircleImageView) v.findViewById(R.id.userImageView);
         }
     }
 
@@ -65,17 +71,25 @@ public class UsersOnProjectAdapter extends RecyclerView.Adapter<UsersOnProjectAd
                 {
                     if (user.child("email").getValue().toString().equals(mEmailset.get(position)))
                     {
-                        if (user.hasChild("Icon"))
-                        {
-                            int iconID = holder.mUserEmailTextView.getContext().
-                                    getResources().getIdentifier(user.child("Icon").getValue().toString(),
-                                    "drawable", holder.mUserEmailTextView.getContext().getPackageName());
-                            holder.mUserImage.setBackgroundResource(iconID);
-                        }
-                        else
-                        {
-                            holder.mUserImage.setBackgroundResource(R.drawable.animal_ant_eater);
-                        }
+                        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images/" + user.getKey());
+                        Glide.with(holder.mUserEmailTextView.getContext())
+                                .using(new FirebaseImageLoader())
+                                .load(storageReference)
+                                .asBitmap()
+                                .signature(new StringSignature(String.valueOf(System.currentTimeMillis() / (48 * 60 * 60 * 1000))))
+                                .error(R.drawable.animal_ant_eater)
+                                .into(holder.mUserImage);
+//                        if (user.hasChild("Icon"))
+//                        {
+//                            int iconID = holder.mUserEmailTextView.getContext().
+//                                    getResources().getIdentifier(user.child("Icon").getValue().toString(),
+//                                    "drawable", holder.mUserEmailTextView.getContext().getPackageName());
+//                            holder.mUserImage.setBackgroundResource(iconID);
+//                        }
+//                        else
+//                        {
+//                            holder.mUserImage.setBackgroundResource(R.drawable.animal_ant_eater);
+//                        }
 
                     }
 

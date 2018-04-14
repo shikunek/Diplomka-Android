@@ -54,7 +54,15 @@ public class AddProjectActivity extends AppCompatActivity
         createProjectButton.setText("Create");
 
         final TextView manualProjectName = (TextView) findViewById(R.id.newProjectName);
-        manualProjectName.setText("");
+        if (getIntent().hasExtra("actualProjectName"))
+        {
+            manualProjectName.setText(getIntent().getExtras().getString("actualProjectName"));
+        }
+        else
+        {
+            manualProjectName.setText("");
+        }
+
         final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         final DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
         mRecyclerView.removeAllViews();
@@ -82,6 +90,7 @@ public class AddProjectActivity extends AppCompatActivity
                 Intent intent = new Intent(AddProjectActivity.this, AddUsersActivity.class);
                 intent.putExtra("activity","NewProject");
                 intent.putExtra("usersOnProject", userEmailTextset);
+                intent.putExtra("actualProjectName", manualProjectName.getText().toString());
                 startActivity(intent);
             }
         });

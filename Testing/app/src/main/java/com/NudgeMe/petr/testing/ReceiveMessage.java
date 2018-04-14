@@ -58,7 +58,8 @@ public class ReceiveMessage extends FirebaseMessagingService {
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
-            sendNotification(remoteMessage.getNotification().getBody(),remoteMessage.getNotification().getTitle());
+            Log.d(TAG, "Message projectID: " + remoteMessage.getData().get("projectID"));
+            sendNotification(remoteMessage.getNotification().getBody(),remoteMessage.getNotification().getTitle(), remoteMessage.getData().get("projectID"));
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
@@ -92,9 +93,12 @@ public class ReceiveMessage extends FirebaseMessagingService {
      *
      * @param messageBody FCM message body received.
      */
-    private void sendNotification(String messageBody, String title) {
+    private void sendNotification(String messageBody, String title , String projectID) {
+
         Intent intent = new Intent(this, DisplayMessageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("projectID", projectID);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 

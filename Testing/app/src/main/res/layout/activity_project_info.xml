@@ -151,7 +151,7 @@
         android:id="@+id/deleteProjectButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
@@ -160,6 +160,7 @@
         android:textColor="#ffffff"
         app:layout_constraintTop_toBottomOf="@+id/projectUsersRecyclerView"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
 

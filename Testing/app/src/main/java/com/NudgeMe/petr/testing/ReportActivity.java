@@ -28,7 +28,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 
-public class DisplayMessageActivity extends AppCompatActivity {
+public class ReportActivity extends AppCompatActivity {
     Calendar myCalendar = Calendar.getInstance();
     DatabaseReference mData;
     private Toolbar toolbar;
@@ -86,7 +86,7 @@ public class DisplayMessageActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 // TODO Auto-generated method stub
-                final DatePickerDialog datePickerDialog = new DatePickerDialog(DisplayMessageActivity.this, date, myCalendar
+                final DatePickerDialog datePickerDialog = new DatePickerDialog(ReportActivity.this, date, myCalendar
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH));
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -117,21 +117,29 @@ public class DisplayMessageActivity extends AppCompatActivity {
                                     public void onDataChange(DataSnapshot choosenProject) {
 
                                         Iterator<DataSnapshot> firstUser =  choosenProject.getChildren().iterator();
+                                        String myFormat = "yyyy-MM-dd";
+                                        final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
 
                                         while (firstUser.hasNext())
                                         {
-                                            if (firstUser.next().getKey().equals("Ending"))
-                                            {
-                                                continue;
-                                            }
+//                                            if (firstUser.next().getKey().equals("Ending") || firstUser.next().getKey().equals("projectName"))
+//                                            {
+//                                                continue;
+//                                            }
+
                                             Iterator<DataSnapshot> firstDate = firstUser.next().getChildren().iterator();
+
                                             while (firstDate.hasNext())
                                             {
-                                                String myFormat = "yyyy-MM-dd";
-                                                final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
+                                                String projectValue = firstDate.next().getKey();
+                                                if (projectValue.equals("projectName") || projectValue.equals("Ending"))
+                                                {
+                                                    continue;
+                                                }
+
                                                 Date date;
                                                 try {
-                                                    date = sdf.parse(firstDate.next().getKey());
+                                                    date = sdf.parse(projectValue);
                                                     datePickerDialog.getDatePicker().setMinDate(date.getTime());
                                                 } catch (ParseException e) {
                                                     e.printStackTrace();
@@ -164,8 +172,9 @@ public class DisplayMessageActivity extends AppCompatActivity {
 
     private void updateLabel(Calendar myCalendar, EditText edittext) {
         String myFormat = "yyyy-MM-dd"; //In which you need put here
+        SimpleDateFormat sdf1 = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
-        edittext.setText(sdf.format(myCalendar.getTime()));
+        edittext.setText(sdf1.format(myCalendar.getTime()));
     }
 
 

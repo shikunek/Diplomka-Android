@@ -9,11 +9,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".FirstActivity">
+        <activity android:name=".LoginActivity">
 
         </activity>
         <activity
-            android:name=".DisplayMessageActivity"
+            android:name=".ReportActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"
 >
@@ -25,7 +25,7 @@
 
             <!-- <meta-data -->
             <!-- android:name="android.support.PARENT_ACTIVITY" -->
-            <!-- android:value=".FirstActivity" /> -->
+            <!-- android:value=".LoginActivity" /> -->
         </activity>
         <activity
             android:name=".GraphActivity"

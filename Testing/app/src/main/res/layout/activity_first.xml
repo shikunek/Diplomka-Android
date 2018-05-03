@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.NudgeMe.petr.testing.FirstActivity">
+    tools:context="com.NudgeMe.petr.testing.LoginActivity">
 
     <ImageView
         android:id="@+id/loginImage"
@@ -118,6 +118,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
+        android:text="Log in with Google"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.511"
         app:layout_constraintLeft_toLeftOf="parent"

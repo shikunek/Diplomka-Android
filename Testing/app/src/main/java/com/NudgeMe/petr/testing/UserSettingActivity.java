@@ -17,6 +17,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.StringSignature;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -99,11 +102,21 @@ public class UserSettingActivity extends AppCompatActivity {
                 .error(R.drawable.animal_ant_eater)
                 .into(profilePic);
 
-        Button changeProfilePic = (Button) findViewById(R.id.changeImageButton);
-        changeProfilePic.setOnClickListener(new View.OnClickListener() {
+//        Button changeProfilePic = (Button) findViewById(R.id.changeImageButton);
+//        changeProfilePic.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view)
+//            {
+//                Intent intent = new Intent();
+//                intent.setType("image/*");
+//                intent.setAction(Intent.ACTION_GET_CONTENT);
+//                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+//            }
+//        });
+
+        profilePic.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view)
-            {
+            public void onClick(View v) {
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -118,7 +131,12 @@ public class UserSettingActivity extends AppCompatActivity {
 
                 FirebaseMessaging.getInstance().unsubscribeFromTopic(currentUser.getUid());
                 FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(UserSettingActivity.this, FirstActivity.class);
+                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .build();
+                GoogleSignInClient mGoogleSignInClient;
+                mGoogleSignInClient = GoogleSignIn.getClient(UserSettingActivity.this, gso);
+                mGoogleSignInClient.signOut();
+                Intent intent = new Intent(UserSettingActivity.this, LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);

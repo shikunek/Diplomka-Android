@@ -95,7 +95,7 @@ public class ReceiveMessage extends FirebaseMessagingService {
      */
     private void sendNotification(String messageBody, String title , String projectID) {
 
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
+        Intent intent = new Intent(this, ReportActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("projectID", projectID);
 

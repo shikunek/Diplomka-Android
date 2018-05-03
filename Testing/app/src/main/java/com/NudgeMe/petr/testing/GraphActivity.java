@@ -167,7 +167,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
     public void goToLogin()
     {
-        Intent intent = new Intent(GraphActivity.this, FirstActivity.class);
+        Intent intent = new Intent(GraphActivity.this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
@@ -275,7 +275,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null)
         {
-            Intent intent = new Intent(getApplicationContext(), FirstActivity.class);
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             finish();
@@ -294,7 +294,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null)
         {
-            Intent intent = new Intent(getApplicationContext(), FirstActivity.class);
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             finish();
@@ -312,7 +312,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                         .setContentTitle("My notification")
                         .setContentText("Hello World!");
 
-        Intent resultIntent = new Intent(this, DisplayMessageActivity.class);
+        Intent resultIntent = new Intent(this, ReportActivity.class);
 
         // The stack builder object will contain an artificial back stack for the
         // started Activity.
@@ -401,16 +401,16 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                     Calendar myCalendar = Calendar.getInstance();
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.GERMANY);
-                    String id = user.getUid();
                     final String formattedDate = dateFormat.format(myCalendar.getTime());
-                    mData.child("Uzivatel").child(id)
+
+                    mData.child("Uzivatel").child(user.getUid())
                             .addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(final DataSnapshot currentUser) {
 
                                     if (!currentUser.hasChild("Active"))
                                     {
-                                        Toast.makeText(getApplicationContext(), "Current user doesn't have any project!", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "You don't have any project. Please create some.", Toast.LENGTH_LONG).show();
                                         return;
                                     }
                                     mData.child("Projects").child(currentUser.child("Active").getValue().toString())
@@ -460,8 +460,28 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             goToReport.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(GraphActivity.this, DisplayMessageActivity.class);
-                    startActivity(intent);
+                    mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot currentUser) {
+                            if (!currentUser.hasChild("Active"))
+                            {
+                                Toast.makeText(getApplicationContext(), "You don't have any project. Please create some.", Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                            else
+                            {
+                                Intent intent = new Intent(GraphActivity.this, ReportActivity.class);
+                                startActivity(intent);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
                 }
             });
         }
@@ -533,7 +553,11 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                     {
                         usersScrollView.removeAllViews();
                     }
-                    getSupportActionBar().setTitle("");
+                    if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE)
+                    {
+                        getSupportActionBar().setTitle("");
+                    }
+
                     return;
                 }
 
@@ -550,7 +574,12 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                                     {
                                         usersScrollView.removeAllViews();
                                     }
-                                    getSupportActionBar().setTitle("");
+
+                                    if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE)
+                                    {
+                                        getSupportActionBar().setTitle("");
+                                    }
+
                                     return;
                                 }
                                 numDays = leftDay = 0;
@@ -695,12 +724,14 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                                             }
                                             else preReport = false;
                                         }*/
-
+            int neco = 0;
             if (i == 1 && (firstDayShown == null || actDate.before(firstDayShown)))
             {
                 firstDayShown = actDate.getTime();
                 // DAY_OF_WEEK start 1 = Su
+                neco = actDate.get(Calendar.DAY_OF_WEEK);
                 firstDayOfWeek = (actDate.get(Calendar.DAY_OF_WEEK)+ 4) % 7;
+
             }
 
             if (thisMiss) { // just add new value to miss dataset
@@ -841,23 +872,32 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         else if (old_y > 0) {
             switch(smile) {
                 case  1: // function (1)
-                    x_delta = (float)Math.tan(old_y * (Math.PI / 2f));
-                    x_delta = shiftPar + x_delta;
-                    new_y = (float)(Math.atan(x_delta)/(Math.PI / 2f));
-                    //Log.d("F1", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    break;
+//                    x_delta = (float)Math.tan(old_y * (Math.PI / 2f));
+//                    x_delta = shiftPar + x_delta;
+//                    new_y = (float)(Math.atan(x_delta)/(Math.PI / 2f));
+//                    Log.d("F1", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    Log.d("F1", ", new_y: " + old_y + " noveTR: " + slightChange(1f, old_y) + "\n");
+//                    break;
+                    return slightChange(1f, old_y);
+
                 case  0: // function (4)
-                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f) - (Math.PI / 2f))));
-                    x_delta = shiftPar + x_delta;
-                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f) + 1f);
-                    //Log.d("F4", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    break;
+//                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f) - (Math.PI / 2f))));
+//                    x_delta = shiftPar + x_delta;
+//                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f) + 1f);
+//                    Log.d("F4", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    Log.d("F4", ", old_y: " + old_y + " noveTR: " + slightChangeZero(-1f, old_y) + "\n");
+//                    break;
+                    return slightChangeZero(-1f, old_y);
+
                 case -1: // function (6)
-                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 4f) - (Math.PI / 4f))));
-                    x_delta = shiftPar + x_delta;
-                    new_y = (float)(2f * (Math.atan(-1f * x_delta) / (Math.PI / 2f)) + 1f);
-                    //Log.d("F6", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    break;
+//                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 4f) - (Math.PI / 4f))));
+//                    x_delta = shiftPar + x_delta;
+//                    new_y = (float)(2f * (Math.atan(-1f * x_delta) / (Math.PI / 2f)) + 1f);
+//                    Log.d("F6", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    Log.d("F6", ", new_y: " + new_y + " noveTR: " + rapidChange(-1f, old_y) + "\n");
+//                    break;
+                    return rapidChange(-1f, old_y);
+
                 default:
                     throw new IllegalArgumentException("Smile not within bounds [-1,0,1]");
             }
@@ -865,23 +905,32 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         else if (old_y <0) {
             switch(smile) {
                 case  1: // function (5)
-                    x_delta = (float)Math.tan(old_y * (Math.PI / 4f) + (Math.PI / 4f));
-                    x_delta = shiftPar + x_delta;
-                    new_y = (float)(2f * (Math.atan(x_delta)/(Math.PI / 2f)) - 1f);
-                    //Log.d("F5", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    break;
+//                    x_delta = (float)Math.tan(old_y * (Math.PI / 4f) + (Math.PI / 4f));
+//                    x_delta = shiftPar + x_delta;
+//                    new_y = (float)(2f * (Math.atan(x_delta)/(Math.PI / 2f)) - 1f);
+//                    Log.d("F5", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    Log.d("F5", ", new_y: " + new_y + " noveTR: " + rapidChange(1f, old_y) + "\n");
+//                    break;
+                    return rapidChange(1f, old_y);
+
                 case  0: // function (3)
-                    x_delta = (float)Math.tan(old_y * (Math.PI / 2f) + (Math.PI / 2f));
-                    x_delta = shiftPar + x_delta;
-                    new_y = (float)(Math.atan(x_delta)/(Math.PI / 2f) - 1f);
-                    //Log.d("F3", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    break;
+//                    x_delta = (float)Math.tan(old_y * (Math.PI / 2f) + (Math.PI / 2f));
+//                    x_delta = shiftPar + x_delta;
+//                    new_y = (float)(Math.atan(x_delta)/(Math.PI / 2f) - 1f);
+//                    Log.d("F3", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    Log.d("F3", ", new_y: " + new_y + " noveTR: " + slightChangeZero(1f, old_y) + "\n");
+//                    break;
+                    return slightChangeZero(1f, old_y);
+
                 case -1: // function (2)
-                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f))));
-                    x_delta = shiftPar + x_delta;
-                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f));
-                    //Log.d("F2", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    break;
+//                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f))));
+//                    x_delta = shiftPar + x_delta;
+//                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f));
+////                    Log.d("F2", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    Log.d("F2", " noveTR: " + slightChange(-1f, old_y) + "\n");
+//                    break;
+                    return slightChange(-1f, old_y);
+
                 default:
                     throw new IllegalArgumentException("Smile not within bounds [-1,0,1]");
             }
@@ -889,25 +938,54 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         else { // old_y == 0
             switch(smile) {
                 case  1: // function (1)
-                    x_delta = (float)Math.tan(old_y * (Math.PI / 2f));
-                    x_delta = shiftPar + x_delta;
-                    new_y = (float)(Math.atan(x_delta) / (Math.PI / 2f));
-                    //Log.d("F1", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    break;
+//                    x_delta = (float)Math.tan(old_y * (Math.PI / 2f));
+//                    x_delta = shiftPar + x_delta;
+//                    new_y = (float)(Math.atan(x_delta) / (Math.PI / 2f));
+//                    Log.d("F1", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    Log.d("F1", ", old_y: " + old_y + " noveTR: " + slightChange(1f, old_y) + "\n");
+//                    break;
+                    return slightChange(1f, old_y);
                 case  0:
-                    break;
+                    return 0;
                 case -1: // function (2)
-                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f))));
-                    x_delta = shiftPar + x_delta;
-                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f));
-                    //Log.d("F2", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    break;
+//                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f))));
+//                    x_delta = shiftPar + x_delta;
+//                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f));
+//                    Log.d("F2", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
+                    Log.d("F2", ", new_y: " + new_y + " noveTR: " + slightChange(-1f, old_y) + "\n");
+//                    break;
+                    return slightChange(-1f, old_y);
+
                 default:
                     throw new IllegalArgumentException("Smile not within bounds [-1,0,1]");
             }
         }
 
-        return new_y;
+//        return new_y;
+    }
+
+    public float rapidChange(float direction, float old_y)
+    {
+        float x_delta = (float)(direction*(Math.tan(old_y * (Math.PI / 4f) + direction*(Math.PI / 4f))));
+        x_delta = 0.4f + x_delta;
+        return (float)(2f * (Math.atan(direction * x_delta)/(Math.PI / 2f)) - (1f * direction));
+    }
+
+    public float slightChange(float direction, float old_y)
+    {
+        float x_delta = (float)(direction*(Math.tan(old_y * (Math.PI / 2f))));
+        x_delta = 0.4f + x_delta;
+        return (float)(Math.atan(direction*x_delta) / (Math.PI / 2f));
+    }
+
+    public float slightChangeZero(float direction, float old_y)
+    {
+//        x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f) - (Math.PI / 2f))));
+//                    x_delta = shiftPar + x_delta;
+//                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f) + 1f);
+        float x_delta = (float)(direction * (Math.tan(old_y * (Math.PI / 2f) + (direction * (Math.PI / 2f)))));
+        x_delta = 0.4f + x_delta;
+        return (float)(Math.atan(direction * x_delta)/(Math.PI / 2f) - (1f * direction));
     }
 
     public void setUpDataset(LineDataSet lineDataSet, boolean miss) {
@@ -956,6 +1034,16 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                     lineDataSet.setColor(Color.argb(255, 186, 104, 200));
                     lineDataSet.setCircleColor(Color.argb(255, 186, 104, 200));
                 break;
+
+            case 4:
+                lineDataSet.setColor(Color.argb(255, 249, 249, 6));
+                lineDataSet.setCircleColor(Color.argb(255, 249, 249, 6));
+                break;
+
+            case 5:
+                lineDataSet.setColor(Color.argb(255, 255, 119, 250));
+                lineDataSet.setCircleColor(Color.argb(255, 255, 119, 250));
+                break;
             default:
                     lineDataSet.setColor(Color.BLUE);
                     lineDataSet.setCircleColor(Color.BLUE);
@@ -1001,11 +1089,14 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                 if (day == numDays) {
                     label = "Today";
                 }
-                else if (actDaysShown > numShownDays) {
+                else if (actDaysShown > numShownDays)
+                {
                     if (value % 7 > (value+labelInterval) % 7 && value < numDays - 8) {
                         label = (int)((numDays+1) / 7 - value / 7) + "w ago";
                     }
-                } else {
+                }
+                else
+                {
                     if (day > numDays - 7)
                         label = dayLabels[(day + firstDayOfWeek) % 7];
                     else if ((day % 7 + 6) % 7 == numDays % 7 && day < numDays - 8)

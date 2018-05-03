@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 
-public class FirstActivity extends AppCompatActivity implements
+public class LoginActivity extends AppCompatActivity implements
         View.OnClickListener{
 
     private FirebaseAuth mAuth;
@@ -330,7 +330,7 @@ public class FirstActivity extends AppCompatActivity implements
                             goToGraph(view);
                         } else {
                             // If sign in fails, display a message to the user.
-                            Toast toast = Toast.makeText(FirstActivity.this,
+                            Toast toast = Toast.makeText(LoginActivity.this,
                                     "Your email or password is incorrect", Toast.LENGTH_SHORT);
                             toast.setGravity(Gravity.CENTER| Gravity.CENTER, 0, 0);
                             toast.show();

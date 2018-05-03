@@ -148,7 +148,15 @@ public class AddProjectActivity extends AppCompatActivity
 
                                     mData.updateChildren(updatedUserData);
                                 }
-
+                                if (getIntent().hasExtra("firstProject"))
+                                {
+                                    // Nedavam finish() protoze by tim se spoustala divne nova aktivita
+                                    Intent intent = new Intent(getApplicationContext(), GraphActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
+                                    return;
+                                }
                                 finish();
                             }
 

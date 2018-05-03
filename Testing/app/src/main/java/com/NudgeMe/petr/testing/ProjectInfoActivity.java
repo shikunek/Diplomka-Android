@@ -456,6 +456,7 @@ public class ProjectInfoActivity extends AppCompatActivity {
                         if (i <= 1 && remainingUsers.hasChild(currentUser.getUid()))
                         {
                             updatedUserData.put("Projects/" + projectID + "/" + "projectName" , null);
+                            updatedUserData.put("Projects/" + projectID + "/" + "Ending" , null);
                         }
 
 
@@ -484,6 +485,16 @@ public class ProjectInfoActivity extends AppCompatActivity {
                     }
                 });
 
+                if (currentUsersData.child("Projects").getChildrenCount() == 1 && currentUsersData.child("Projects").hasChild(projectID))
+                {
+                    Intent intent = new Intent(getApplicationContext(), AddProjectActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.putExtra("firstProject", true);
+                    finish();
+                    startActivity(intent);
+                    return;
+                }
 
 
                 finish(); // aby uzivatel po stisknuti Back, nesel na jiz neexistujici projekt

@@ -306,6 +306,27 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         mData.keepSynced(true);
         storageReference = FirebaseStorage.getInstance().getReference().child("images");
 
+        mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot remainingProjects) {
+                if (!remainingProjects.hasChild("Projects"))
+                {
+                    Intent intent = new Intent(getApplicationContext(), AddProjectActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.putExtra("firstProject", true);
+                    finish();
+                    startActivity(intent);
+                    return;
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         final NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.checked)

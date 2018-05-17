@@ -13,6 +13,7 @@ import java.util.ArrayList;
  * Created by Petr on 01.11.2017.
  */
 
+// Set report data in item of reports list
 public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder> {
     private ArrayList<String> mTextset;
     private ArrayList<String> mImageset;
@@ -48,7 +49,6 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
     public ReportAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                        int viewType) {
         // create a new view
-//        TextView v = new TextView(parent.getContext());
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.report_item, parent, false);
         // set the view's size, margins, paddings and layout parameters
@@ -75,10 +75,10 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportAdapter.ViewHolder
             case "-1":
                 holder.mReportedSmile.setImageResource(R.drawable.mad);
                 break;
+
             case "-2":
                 holder.mReportedSmile.setImageResource(R.drawable.mad);
                 holder.mReportedTextView.setText("User didn't send report!");
-//                holder.mReportedTextView.setTextColor(Color.RED);
                 break;
 
         }

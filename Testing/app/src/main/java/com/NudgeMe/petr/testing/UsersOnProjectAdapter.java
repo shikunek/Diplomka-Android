@@ -52,7 +52,6 @@ public class UsersOnProjectAdapter extends RecyclerView.Adapter<UsersOnProjectAd
     public UsersOnProjectAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                        int viewType) {
         // create a new view
-//        TextView v = new TextView(parent.getContext());
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.user_item, parent, false);
         // set the view's size, margins, paddings and layout parameters
@@ -79,18 +78,6 @@ public class UsersOnProjectAdapter extends RecyclerView.Adapter<UsersOnProjectAd
                                 .signature(new StringSignature(String.valueOf(System.currentTimeMillis() / (48 * 60 * 60 * 1000))))
                                 .error(R.drawable.animal_ant_eater)
                                 .into(holder.mUserImage);
-//                        if (user.hasChild("Icon"))
-//                        {
-//                            int iconID = holder.mUserEmailTextView.getContext().
-//                                    getResources().getIdentifier(user.child("Icon").getValue().toString(),
-//                                    "drawable", holder.mUserEmailTextView.getContext().getPackageName());
-//                            holder.mUserImage.setBackgroundResource(iconID);
-//                        }
-//                        else
-//                        {
-//                            holder.mUserImage.setBackgroundResource(R.drawable.animal_ant_eater);
-//                        }
-
                     }
 
                 }

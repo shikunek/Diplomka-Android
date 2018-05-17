@@ -32,6 +32,7 @@ public class AddUsersActivity extends AppCompatActivity {
         listOfRegisteredUsers = new ArrayList<String>();
         mData = FirebaseDatabase.getInstance().getReference();
 
+        // Adding whole users from database to helping dialog
         mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot userProjects) {
@@ -46,29 +47,12 @@ public class AddUsersActivity extends AppCompatActivity {
                 multiAutoCompleteText.setAdapter(adapter);
                 multiAutoCompleteText.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
                 multiAutoCompleteText.setThreshold(1);
-//                multiAutoCompleteText.addTextChangedListener(new TextWatcher() {
-//                    @Override
-//                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//                        Log.d("BEFORE CHANGE:", s.toString());
-//                    }
-//
-//                    @Override
-//                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                        Log.d("TEXT CHANGE:", s.toString());
-//                    }
-//
-//                    @Override
-//                    public void afterTextChanged(Editable s) {
-//                        Log.d("AFTER CHANGE:", s.toString());
-//                    }
-//                });
                 ArrayList<String> usersOnProject =  getIntent().getStringArrayListExtra("usersOnProject");
                 StringBuilder stringBuilder = new StringBuilder();
                 for (String user : usersOnProject)
                 {
                     stringBuilder.append(user).append(",").append(" ");
                 }
-
 
                 multiAutoCompleteText.setText(stringBuilder);
 
@@ -84,6 +68,8 @@ public class AddUsersActivity extends AppCompatActivity {
         Button toolbarButton = (Button) findViewById(R.id.toolbarButton);
         toolbarButton.setVisibility(View.VISIBLE);
         toolbarButton.setText("DONE");
+
+        // Submit added users
         toolbarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,13 +147,11 @@ public class AddUsersActivity extends AppCompatActivity {
 
                 intent.putExtra("InvitedUsers",invitedUsers);
 
-                /* odstraneni historie, ze uz jsme byli na ProjectInfo a po prijiti z AddUsers a danim
-                a stiskem tlacitka zpet znovu nesli na ProjectInfo */
+                /* delete history for not going back to AddUsers */
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 finish();
 
-                /* musime vytvorit novy intent, pac potrebujeme dostat do ProjectInfo informace o
-                smazanych a pridanych uzivatelich */
+                /* new intent for sending information about added, deleted users */
                 startActivity(intent);
 
             }

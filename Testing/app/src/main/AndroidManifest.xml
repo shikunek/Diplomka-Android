@@ -9,17 +9,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LoginActivity">
-
-        </activity>
+        <activity android:name=".LoginActivity"></activity>
         <activity
             android:name=".ReportActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden"
->
-
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="OPEN_REPORT" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
@@ -32,13 +29,11 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-        <activity android:name=".ProjectsActivity"
-
-            />
+        <activity android:name=".ProjectsActivity" />
 
         <service android:name=".ReceiveMessage">
             <intent-filter>
@@ -71,13 +66,10 @@
         <activity
             android:name=".AddUsersActivity"
             android:noHistory="true"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-        <activity android:name=".UserSettingActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            >
-
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".UserSettingActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

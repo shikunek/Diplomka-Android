@@ -30,6 +30,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by Petr on 02.10.2017.
  */
 
+
+// For setting item of projects list
 public class RowAdapter extends RecyclerView.Adapter<RowAdapter.ViewHolder>
 {
     private ArrayList<ProjectClass> projectList;
@@ -105,8 +107,6 @@ public class RowAdapter extends RecyclerView.Adapter<RowAdapter.ViewHolder>
                         continue;
                     }
                     final CircleImageView userOnProjectView = new CircleImageView(holder.mProjectNameTextView.getContext());
-
-                    int height = holder.mProjectUsersLayout.getHeight();
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(holder.mProjectUsersLayout.getHeight(), holder.mProjectUsersLayout.getHeight());
                     int margin = holder.mProjectUsersLayout.getHeight()/3;
                     params.setMargins(margin, 0, 0, 0);
@@ -122,57 +122,11 @@ public class RowAdapter extends RecyclerView.Adapter<RowAdapter.ViewHolder>
                             .signature(new StringSignature(String.valueOf(System.currentTimeMillis() / (48 * 60 * 60 * 1000))))
                             .error(R.drawable.animal_ant_eater)
                             .into(userOnProjectView);
-//                    Glide.with(holder.mProjectNameTextView.getContext())
-//                            .using(new FirebaseImageLoader())
-//                            .load(storageReference)
-//                            .diskCacheStrategy(DiskCacheStrategy.NONE)
-//                            .skipMemoryCache(true)
-//                            .centerCrop()
-//                            .fitCenter()
-//                            .error(R.drawable.animal_ant_eater)
-//                            .into(userOnProjectView);
 
                     int padding = 0;
                     userOnProjectView.setPadding(padding, padding, padding, padding);
                     holder.mProjectUsersLayout.setPadding(padding, padding, padding, padding);
                     holder.mProjectUsersLayout.addView(userOnProjectView);
-
-//                    holder.mData.child("Uzivatel").child(projectUser.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
-//                        @Override
-//                        public void onDataChange(DataSnapshot specificUser) {
-//                            ImageView userOnProjectView = new ImageView(holder.mProjectNameTextView.getContext());
-//
-//                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(150, 150);
-//                            int margin = 10;
-//                            params.setMargins(margin, 0, margin, 0);
-//                            params.gravity = Gravity.CENTER;
-//                            userOnProjectView.setLayoutParams(params);
-//
-//
-////                            if (specificUser.hasChild("Icon"))
-////                            {
-////                                int iconID = holder.mProjectNameTextView.getContext().
-////                                        getResources().getIdentifier(specificUser.child("Icon").getValue().toString(),
-////                                        "drawable", holder.mProjectNameTextView.getContext().getPackageName());
-////                                userOnProjectView.setBackgroundResource(iconID);
-////                            }
-////                            else
-////                            {
-////                                userOnProjectView.setBackgroundResource(R.drawable.animal_ant_eater);
-////                            }
-//
-//
-//                            int padding = 20;
-//                            userOnProjectView.setPadding(padding, padding, padding, padding);
-//                            holder.mProjectUsersLayout.setPadding(padding, padding, padding, padding);
-//                            holder.mProjectUsersLayout.addView(userOnProjectView);
-//                        }
-//
-//                        @Override
-//                        public void onCancelled(DatabaseError databaseError) {
-//
-//                        }
-//                    });
 
                 }
             }

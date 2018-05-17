@@ -23,7 +23,6 @@ import android.view.SubMenu;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,7 +53,6 @@ import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -91,16 +89,13 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
     int firstDayOfWeek = 0;
     Date firstDayShown = null;
     LinearLayout usersScrollView;
-    private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private ArrayList<String> mPlanetTitles;
-    private ListView mDrawerList;
-    final String[] xLabels = new String[] { "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su" };
 
     private DatabaseReference mData;
     private FirebaseUser user;
     private StorageReference storageReference;
 
+
+    // Function for creating JSON structur for sending NudgeMe message
     public void sendFCMPush(String userID, String projectName, String projectID) {
 
         final String Legacy_SERVER_KEY = "AIzaSyCB88Oy7989Wj319s4Q4PCDy1oGZo7SMAI";
@@ -132,7 +127,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             obj.put("notification", objData);
             obj.put("data", dataobjData);
 
-//            Log.e("!_@rj@_@@_PASS:>", obj.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -140,13 +134,13 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-//                        Log.e("!_@@_SUCESS", response + "");
+
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-//                        Log.e("!_@@_Errors--", error + "");
+
                     }
                 }) {
             @Override
@@ -165,14 +159,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         requestQueue.add(jsObjRequest);
     }
 
-    public void goToLogin()
-    {
-        Intent intent = new Intent(GraphActivity.this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-    }
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -186,18 +172,13 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -207,7 +188,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
     @Override
     public boolean onNavigationItemSelected(final MenuItem item) {
-        // Handle navigation view item clicks here.
 
         // You choose to manage projects or choose one of your project to be active
         switch (item.getItemId())
@@ -252,9 +232,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                     }
                 });
                 break;
-
             }
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -269,7 +247,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         if (mData == null) {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             database.setPersistenceEnabled(true);
-            // ...
         }
         super.onStart();
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -292,6 +269,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         setContentView(R.layout.activity_graph);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
+        // If user isn't sign in, go to login activity
         if (user == null)
         {
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
@@ -306,6 +284,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         mData.keepSynced(true);
         storageReference = FirebaseStorage.getInstance().getReference().child("images");
 
+        // When user hasn't any projects go to activity to create one
         mData.child("Uzivatel").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot remainingProjects) {
@@ -358,6 +337,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
 
+            // Put active project name into Action Bar
             mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -367,7 +347,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                         {
                             getSupportActionBar().setTitle(dataSnapshot.child("Projects").child(dataSnapshot.child("Active").getValue().toString()).child("projectName").getValue().toString());
                         }
-
                     }
                 }
 
@@ -376,7 +355,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                 }
             });
-
 
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -399,14 +377,11 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(final DataSnapshot uzivatel) {
-                    final ArrayList<String> projectsList = new ArrayList<>();
-                    final ArrayList<String> projectsIDs = new ArrayList<>();
-                    subMenu.clear(); // je treba vymazat existujici nabidku projektů
+                    subMenu.clear(); // it is necessary to delete previous project list
                     for (DataSnapshot project : uzivatel.child("Projects").getChildren())
                     {
                         subMenu.add(1, project.getKey().hashCode(), CATEGORY_SYSTEM, project.child("projectName").getValue().toString()).setIcon(R.drawable.file);
                     }
-
                 }
 
                 @Override
@@ -416,6 +391,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             });
 
             ImageButton nudgeMeButton = (ImageButton) findViewById(R.id.nudgeMyTeam);
+            // Send Nudge to all users on project that don't fill their report
             nudgeMeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -507,59 +483,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             });
         }
 
-
-//        lineChart = (LineChart) findViewById(R.id.lineChart);
-//
-//        List<Entry> entries = new ArrayList<>();
-//        List<Entry> entries1 = new ArrayList<>();
-//        for (int i = 0 ; i <= 10 ; i++)
-//        {
-//            entries.add(new Entry(i,i));
-//            entries1.add((new Entry(i,i*i)));
-//        }
-//
-//
-//
-//        LineDataSet dataSet = new LineDataSet(entries, "Label");
-//        dataSet.setHighLightColor(Color.GREEN);
-//        dataSet.setDrawHighlightIndicators(false);
-//        dataSet.setAxisDependency(YAxis.AxisDependency.RIGHT);
-//        LineDataSet dataSet1 = new LineDataSet(entries1, "Label1");
-//        dataSet1.setAxisDependency(YAxis.AxisDependency.RIGHT);
-//        List<ILineDataSet> dataSets = new ArrayList<>();
-//        dataSets.add(dataSet);
-//        dataSets.add(dataSet1);
-//        LineData lineData = new LineData(dataSets);
-//        lineChart.setData(lineData);
-//        lineChart.setScaleEnabled(true);
-//        lineChart.setHighlightPerDragEnabled(false);
-////        lineChart.setHighlightPerTapEnabled(false);
-//
-////        lineChart.invalidate();
-//
-//        // the labels that should be drawn on the XAxis
-//        final String[] quarters = new String[] { "Q1", "Q2", "Q3", "Q4","Q5", "Q6", "Q7", "Q8","Q9", "Q10", "Q11" };
-//
-//        IAxisValueFormatter formatter = new IAxisValueFormatter() {
-//
-//            @Override
-//            public String getFormattedValue(float value, AxisBase axis) {
-//                return quarters[(int) value];
-//            }
-//
-//        };
-//
-//        XAxis xAxis = lineChart.getXAxis();
-//        xAxis.setGranularity(1f); // minimum axis-step (interval) is 1
-//        xAxis.setValueFormatter(formatter);
-//        xAxis.setDrawGridLines(false);
-//
-//        YAxis yAxis = lineChart.getAxisLeft();
-//        yAxis.setAxisMinimum(10);
-//        yAxis.setAxisMinValue(0);
-//        yAxis.setGranularity(50);
-//        yAxis.setTextSize(20);
-
         mData.child("Uzivatel").child(user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot uzivatel) {
@@ -626,7 +549,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                                         setAvatars(iUser, uzivatel.child("email").getValue().toString(), user.getKey(), dataSnapshot.getKey());
                                     }
 
-                                    dataSets = someGraphSetting(iUser, user, dataSets);
+                                    dataSets = graphSetting(iUser, user, dataSets);
                                     if (dataSets.isEmpty())
                                     {
                                         return;
@@ -674,37 +597,10 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             }
         });
 
-
-        mData.child("Users").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d("Zmena", "onChildAdded:" + dataSnapshot.getKey());
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Log.d("Zmena", "onChildChanged:" + dataSnapshot.getKey());
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Log.d("Zmena", "onChildRemoved:" + dataSnapshot.getKey());
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-                Log.d("Zmena", "onChildMoved:" + dataSnapshot.getKey());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
-    // NEKTERA NASTAVENI GRAFU, KTERA JESTE NECHAPU
-    public ArrayList<ILineDataSet> someGraphSetting(int iUser, DataSnapshot user, ArrayList<ILineDataSet> dataSets)
+    // iUser - user order number
+    public ArrayList<ILineDataSet> graphSetting(int iUser, DataSnapshot user, ArrayList<ILineDataSet> dataSets)
     {
         ArrayList<Entry> yValues = new ArrayList<>();
         ArrayList<Entry> yValuesMiss = new ArrayList<>();
@@ -714,7 +610,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         Entry lastEntry = new Entry(0, y);
         Entry lastMissEntry = null;
         int i = 1;
-        boolean preReport = true; // solution for late addition of user and his missed reports
         boolean lastMiss = false;
         boolean thisMiss;
         Date date;
@@ -722,13 +617,11 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         Calendar actDate = Calendar.getInstance();
         for (DataSnapshot value : user.getChildren())
         {
-            // zeptat se Michala na lepsi moznost podminky
             if (!value.exists()) {
                 return dataSets;
             }
             // get the smile
             long smile = (long) value.child("sendValue").getValue();
-            //Log.d("SMILE_TEST", "smile: " + (int)smile);
             // get the date
             String key = value.getKey();
             try {
@@ -739,19 +632,10 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             }
 
             thisMiss = smile < -1f;
-                                        /*if (preReport) { // let all missed days before first report go
-                                            if (thisMiss) {
-                                                i++;
-                                                continue;
-                                            }
-                                            else preReport = false;
-                                        }*/
-            int neco = 0;
             if (i == 1 && (firstDayShown == null || actDate.before(firstDayShown)))
             {
                 firstDayShown = actDate.getTime();
                 // DAY_OF_WEEK start 1 = Su
-                neco = actDate.get(Calendar.DAY_OF_WEEK);
                 firstDayOfWeek = (actDate.get(Calendar.DAY_OF_WEEK)+ 4) % 7;
 
             }
@@ -769,12 +653,12 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                 {
                     LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
                     setUpDataset(lineDataSet, false);
-                    setDatasetColor(lineDataSet, iUser, false);
+                    setDatasetColor(lineDataSet, iUser);
                     dataSets.add(0, lineDataSet);
 
                     LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
                     setUpDataset(lineDataSetMiss, true);
-                    setDatasetColor(lineDataSetMiss, iUser, true);
+                    setDatasetColor(lineDataSetMiss, iUser);
                     dataSets.add(0, lineDataSetMiss);
 
                     yValues = new ArrayList<>();
@@ -783,7 +667,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                     yValuesMiss = new ArrayList<>();
                 }
                 y = translateEntry(y, (int)smile);
-//            yValues.add(new Entry(i, (int)smile));
                 yValues.add(new Entry(i, y));
                 lastEntry = new Entry(i, y);
             }
@@ -802,22 +685,22 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         {
             LineDataSet lineDataSet = new LineDataSet(yValues, i + ": data");
             setUpDataset(lineDataSet, false);
-            setDatasetColor(lineDataSet, iUser, false);
+            setDatasetColor(lineDataSet, iUser);
             dataSets.add(0, lineDataSet);
         }
         if (yValuesMiss.size() > 0)
         {
             LineDataSet lineDataSetMiss = new LineDataSet(yValuesMiss, i + "m: data");
             setUpDataset(lineDataSetMiss, true);
-            setDatasetColor(lineDataSetMiss, iUser, true);
+            setDatasetColor(lineDataSetMiss, iUser);
             dataSets.add(0, lineDataSetMiss);
         }
         return dataSets;
     }
 
+    // iUser - user order number
     public void setAvatars(int iUser, final String email, final String userKey, final String projectKey)
     {
-//        final ImageButton userOnProjectButton = new ImageButton(GraphActivity.this);
         LinearLayout.LayoutParams params = null;
         usersScrollView = (LinearLayout) findViewById(R.id.linearLayout1);
 
@@ -834,18 +717,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
              params = new LinearLayout.LayoutParams(usersScrollView.getHeight(), usersScrollView.getHeight());
         }
 
-        int margin = 10;
-//        params.setMargins(margin, 0, margin, 0);
         params.gravity = Gravity.CENTER;
-//        params.addRule(RelativeLayout.BELOW, user.getId());
-//        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-//        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-//        params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
-//        params.leftMargin = 107;
-        //        if (usersLinearLayout.getChildCount() % 4 == 0)
-//        {
-//            params.addRule(RelativeLayout.BELOW);
-//        }
         userOnProjectButton.setLayoutParams(params);
         userOnProjectButton.setBorderWidth(12);
         switch (iUser)
@@ -875,9 +747,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                 break;
         }
 
-//        userOnProjectButton.setBackgroundResource(R.drawable.round_button_blue);
-//        Drawable drw = userOnProjectButton.getBackground();
-
+        // Download only once a day
         Glide.with(getApplicationContext() /* context */)
                 .using(new FirebaseImageLoader())
                 .load(storageReference.child(userKey))
@@ -906,39 +776,19 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
     // creates y-value from old y-value and new smile
     private float translateEntry(float old_y, int smile) {
-        float new_y = 0f;
-        float x_delta;
-        float shiftPar = 0.4f; // the smaller the number, the slower the change
+
         if (old_y >= 1 || old_y <= -1) { // old value is outside of bounds
             throw new IllegalArgumentException("Y-value not within bounds (-1,1)");
         }
         else if (old_y > 0) {
             switch(smile) {
                 case  1: // function (1)
-//                    x_delta = (float)Math.tan(old_y * (Math.PI / 2f));
-//                    x_delta = shiftPar + x_delta;
-//                    new_y = (float)(Math.atan(x_delta)/(Math.PI / 2f));
-//                    Log.d("F1", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    Log.d("F1", ", new_y: " + old_y + " noveTR: " + slightChange(1f, old_y) + "\n");
-//                    break;
                     return slightChange(1f, old_y);
 
                 case  0: // function (4)
-//                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f) - (Math.PI / 2f))));
-//                    x_delta = shiftPar + x_delta;
-//                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f) + 1f);
-//                    Log.d("F4", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    Log.d("F4", ", old_y: " + old_y + " noveTR: " + slightChangeZero(-1f, old_y) + "\n");
-//                    break;
                     return slightChangeZero(-1f, old_y);
 
                 case -1: // function (6)
-//                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 4f) - (Math.PI / 4f))));
-//                    x_delta = shiftPar + x_delta;
-//                    new_y = (float)(2f * (Math.atan(-1f * x_delta) / (Math.PI / 2f)) + 1f);
-//                    Log.d("F6", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    Log.d("F6", ", new_y: " + new_y + " noveTR: " + rapidChange(-1f, old_y) + "\n");
-//                    break;
                     return rapidChange(-1f, old_y);
 
                 default:
@@ -948,30 +798,12 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         else if (old_y <0) {
             switch(smile) {
                 case  1: // function (5)
-//                    x_delta = (float)Math.tan(old_y * (Math.PI / 4f) + (Math.PI / 4f));
-//                    x_delta = shiftPar + x_delta;
-//                    new_y = (float)(2f * (Math.atan(x_delta)/(Math.PI / 2f)) - 1f);
-//                    Log.d("F5", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    Log.d("F5", ", new_y: " + new_y + " noveTR: " + rapidChange(1f, old_y) + "\n");
-//                    break;
                     return rapidChange(1f, old_y);
 
                 case  0: // function (3)
-//                    x_delta = (float)Math.tan(old_y * (Math.PI / 2f) + (Math.PI / 2f));
-//                    x_delta = shiftPar + x_delta;
-//                    new_y = (float)(Math.atan(x_delta)/(Math.PI / 2f) - 1f);
-//                    Log.d("F3", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    Log.d("F3", ", new_y: " + new_y + " noveTR: " + slightChangeZero(1f, old_y) + "\n");
-//                    break;
                     return slightChangeZero(1f, old_y);
 
                 case -1: // function (2)
-//                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f))));
-//                    x_delta = shiftPar + x_delta;
-//                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f));
-////                    Log.d("F2", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    Log.d("F2", " noveTR: " + slightChange(-1f, old_y) + "\n");
-//                    break;
                     return slightChange(-1f, old_y);
 
                 default:
@@ -981,22 +813,10 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         else { // old_y == 0
             switch(smile) {
                 case  1: // function (1)
-//                    x_delta = (float)Math.tan(old_y * (Math.PI / 2f));
-//                    x_delta = shiftPar + x_delta;
-//                    new_y = (float)(Math.atan(x_delta) / (Math.PI / 2f));
-//                    Log.d("F1", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    Log.d("F1", ", old_y: " + old_y + " noveTR: " + slightChange(1f, old_y) + "\n");
-//                    break;
                     return slightChange(1f, old_y);
                 case  0:
                     return 0;
                 case -1: // function (2)
-//                    x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f))));
-//                    x_delta = shiftPar + x_delta;
-//                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f));
-//                    Log.d("F2", "y_old: " + old_y + ", smile: " + smile + ",\nx_d: " + x_delta + ", new_y: " + new_y + "\n");
-                    Log.d("F2", ", new_y: " + new_y + " noveTR: " + slightChange(-1f, old_y) + "\n");
-//                    break;
                     return slightChange(-1f, old_y);
 
                 default:
@@ -1004,7 +824,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             }
         }
 
-//        return new_y;
     }
 
     public float rapidChange(float direction, float old_y)
@@ -1023,9 +842,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
     public float slightChangeZero(float direction, float old_y)
     {
-//        x_delta = (float)(-1f * (Math.tan(old_y * (Math.PI / 2f) - (Math.PI / 2f))));
-//                    x_delta = shiftPar + x_delta;
-//                    new_y = (float)(Math.atan(-1f * x_delta) / (Math.PI / 2f) + 1f);
         float x_delta = (float)(direction * (Math.tan(old_y * (Math.PI / 2f) + (direction * (Math.PI / 2f)))));
         x_delta = 0.4f + x_delta;
         return (float)(Math.atan(direction * x_delta)/(Math.PI / 2f) - (1f * direction));
@@ -1052,12 +868,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         }
     }
 
-    public void setDatasetColor(LineDataSet lineDataSet, int user, boolean miss) {
-        /*if (miss) {
-            lineDataSet.setColor(Color.DKGRAY);
-            lineDataSet.setCircleColor(Color.DKGRAY);
-            return;
-        }*/
+    public void setDatasetColor(LineDataSet lineDataSet, int user) {
 
         switch (user)
         {
@@ -1065,14 +876,17 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                     lineDataSet.setColor(Color.argb(255, 229, 115, 115));
                     lineDataSet.setCircleColor(Color.argb(255, 229, 115, 115));
                 break;
+
             case 1: // Base_Light-Blue: #4fc3f7, Miss_Light-Blue: #b3e5fc
                     lineDataSet.setColor(Color.argb(255, 79, 195, 247));
                     lineDataSet.setCircleColor(Color.argb(255, 79, 195, 247));
                 break;
+
             case 2: // Base_Green: #81c784, Miss_Green: #c8e6c9
                     lineDataSet.setColor(Color.argb(255, 129, 199, 132));
                     lineDataSet.setCircleColor(Color.argb(255, 129, 199, 132));
                 break;
+
             case 3: // Base_Purple: #ba68c8, Miss_Purple: #e1bee7
                     lineDataSet.setColor(Color.argb(255, 186, 104, 200));
                     lineDataSet.setCircleColor(Color.argb(255, 186, 104, 200));
@@ -1087,6 +901,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                 lineDataSet.setColor(Color.argb(255, 255, 119, 250));
                 lineDataSet.setCircleColor(Color.argb(255, 255, 119, 250));
                 break;
+
             default:
                     lineDataSet.setColor(Color.BLUE);
                     lineDataSet.setCircleColor(Color.BLUE);
@@ -1113,7 +928,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
             lineChart.getXAxis().setLabelCount(numDays, true);
         else
             lineChart.getXAxis().setLabelCount(numShownDays, true);
-
 
         IAxisValueFormatter labelFormatter = new IAxisValueFormatter() {
             final String[] dayLabels = new String[] { "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su" };
@@ -1184,7 +998,6 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
             @Override
             public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
-//                lineChart.zoomIn();
                 lineChart.getXAxis().setLabelCount((int)Math.ceil(lineChart.getVisibleXRange()), true);
             }
 
@@ -1211,17 +1024,9 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         Legend legend = lineChart.getLegend();
         legend.setEnabled(false);
 
-        /*IMarker marker = new MarkerView(getApplicationContext(), R.layout.activity_graph) {
-            @Override
-            public void refreshContent(Entry e, Highlight highlight) {
-                tvContent.setText("" + e.getY());
-                // this will perform necessary layouting
-                super.refreshContent(e, highlight);
-            }
-        };
-        lineChart.setMarker(marker);*/
     }
 
+    // Generate not filled days up today
     public ArrayList<Entry> fillEmptyDays() {
         Calendar firstDay = Calendar.getInstance();
         firstDay.setTime(firstDayShown);
@@ -1233,39 +1038,16 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         Calendar now = Calendar.getInstance();
         long daysBetween = TimeUnit.MILLISECONDS.toDays(
                 Math.abs(now.getTimeInMillis() - firstDay.getTimeInMillis()))+1;
-        //Log.d("TODAY", "days between: " + daysBetween + ", numdays: " + numDays);
 
         ArrayList<Entry> filler = new ArrayList<>();
 
-        for (int i = numDays+1; i <= daysBetween; i++) {
-            //Log.d("TODAY", "adding transparent day at: " + i);
+        for (int i = numDays+1; i <= daysBetween; i++)
+        {
             filler.add(new Entry(i, 0));
             numDays++;
         }
 
         return filler;
-    }
-
-    public String completeCondition(ArrayList<String> usersToNudge)
-    {
-        StringBuilder completeCondition = new StringBuilder();
-        completeCondition.append("(");
-        for (int i = 0; i < usersToNudge.size(); i++)
-        {
-            if (i != 0)
-            {
-                completeCondition.append("&&");
-            }
-
-            completeCondition.append("'");
-            completeCondition.append(usersToNudge.get(i));
-            completeCondition.append("'");
-            completeCondition.append(" in topics");
-
-
-        }
-        completeCondition.append(")");
-        return completeCondition.toString();
     }
 
 }

@@ -76,6 +76,7 @@ public class UserReportsActivity extends AppCompatActivity {
 
 
                 }
+                // for showing report from newest to oldest
                 Collections.reverse(myReportedImageset);
                 Collections.reverse(myReportedTextset);
                 Collections.reverse(myReportDateset);

@@ -59,7 +59,6 @@ public class ReportActivity extends AppCompatActivity {
         });
 
         final EditText edittext = (EditText) findViewById(R.id.date);
-        String myFormat1 = "dd.MM.yyyy";
         String myFormat = "yyyy-MM-dd"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
         SimpleDateFormat sdf1 = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
@@ -122,11 +121,6 @@ public class ReportActivity extends AppCompatActivity {
 
                                         while (firstUser.hasNext())
                                         {
-//                                            if (firstUser.next().getKey().equals("Ending") || firstUser.next().getKey().equals("projectName"))
-//                                            {
-//                                                continue;
-//                                            }
-
                                             Iterator<DataSnapshot> firstDate = firstUser.next().getChildren().iterator();
 
                                             while (firstDate.hasNext())
@@ -171,13 +165,9 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     private void updateLabel(Calendar myCalendar, EditText edittext) {
-        String myFormat = "yyyy-MM-dd"; //In which you need put here
         SimpleDateFormat sdf1 = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
         edittext.setText(sdf1.format(myCalendar.getTime()));
     }
-
-
 
     public void sendReport(View view)
     {
@@ -186,6 +176,7 @@ public class ReportActivity extends AppCompatActivity {
         {
             return;
         }
+
         final String userID =  user.getUid();
         Calendar calendar = Calendar.getInstance();
         calendar = myCalendar;
@@ -203,6 +194,9 @@ public class ReportActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "You have to select your evaluation!", Toast.LENGTH_LONG).show();
             return;
         }
+
+        // It is necessary to have 2 data formats, "yyyy-MM-dd" is for saving to database,
+        // "dd.MM.yyyy" is for showing
         String myFormat = "yyyy-MM-dd";
         final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
         final SimpleDateFormat sdf1 = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
@@ -268,7 +262,6 @@ public class ReportActivity extends AppCompatActivity {
                                 }
                                 else
                                 {
-
                                     Query lastQuery = mData.child("Projects").child(projectID).child(userID).orderByKey().limitToLast(1);
                                     lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override

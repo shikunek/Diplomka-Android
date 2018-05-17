@@ -57,11 +57,7 @@ public class LoginActivity extends AppCompatActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-//        if (mData == null) {
-//            FirebaseDatabase database = FirebaseDatabase.getInstance();
-//            database.setPersistenceEnabled(true);
-//            // ...
-//        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first);
         getSupportActionBar().setTitle("Welcome");
@@ -85,24 +81,12 @@ public class LoginActivity extends AppCompatActivity implements
         signInGoogleButton.setOnClickListener(this);
         Button signInButton = (Button) findViewById(R.id.signInButton);
         signInButton.setOnClickListener(this);
-
-
-
     }
 
     @Override
     public void onStart()
     {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-//        currentUser = mAuth.getCurrentUser();
-//
-//
-//        if (currentUser != null)
-//        {
-//            goToLogin(new View(getApplicationContext()));
-//        }
     }
 
     @Override
@@ -117,9 +101,8 @@ public class LoginActivity extends AppCompatActivity implements
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account);
             } catch (ApiException e) {
+
                 // Google Sign In failed, update UI appropriately
-//                Log.w("FAILED", "Google sign in failed", e);
-                // [START_EXCLUDE]
                 String messageToDisplay = "Authentication failed.";
                 switch (e.getStatusCode()) {
                     case CommonStatusCodes.API_NOT_CONNECTED: //17
@@ -152,7 +135,6 @@ public class LoginActivity extends AppCompatActivity implements
                 }
 
                 Context context = getApplicationContext();
-                CharSequence text = "Log in failed";
                 int duration = Toast.LENGTH_SHORT;
 
                 Toast toast = Toast.makeText(context, messageToDisplay, duration);
@@ -172,7 +154,6 @@ public class LoginActivity extends AppCompatActivity implements
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d("SUCCESS", "signInWithCredential:success");
                             mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot allUsersToUnsubscribe)
@@ -185,7 +166,7 @@ public class LoginActivity extends AppCompatActivity implements
 
                                     FirebaseMessaging.getInstance().subscribeToTopic(currentUser.getUid());
 
-                                    // kdyz uzivatel neexistuje
+                                    // if user doesn't exist in database
                                     if (!allUsersToUnsubscribe.hasChild(currentUser.getUid()))
                                     {
                                         mData.child("Uzivatel").child(currentUser.getUid()).child("email").
@@ -195,21 +176,11 @@ public class LoginActivity extends AppCompatActivity implements
 
                                     else
                                     {
-                                        // uzivatel existuje, ale nema pridelenu ikonu
+                                        // user exists but doesn't have icon
                                         if (!allUsersToUnsubscribe.child(currentUser.getUid()).hasChild("Icon"))
                                         {
                                             setUserAvatar(currentUser.getUid());
                                         }
-//                                        else
-//                                        {
-//                                            int iconID = getResources().getIdentifier(allUsersToUnsubscribe.child(currentUser.getUid()).child("Icon").getValue().toString(),
-//                                                    "drawable", getPackageName());
-//                                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), iconID);
-//                                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//                                            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-//                                            byte[] data = baos.toByteArray();
-//                                            storageReference.child(currentUser.getUid()).putBytes(data);
-//                                        }
                                     }
 
                                 }
@@ -234,7 +205,6 @@ public class LoginActivity extends AppCompatActivity implements
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-    // [END signin]
 
     public void signInUsers(final View view)
     {
@@ -267,16 +237,6 @@ public class LoginActivity extends AppCompatActivity implements
                                     {
                                         setUserAvatar(currentUser.getUid());
                                     }
-//                                    else
-//                                    {
-//                                        int iconID = getResources().getIdentifier(allUsersToUnsubscribe.child(currentUser.getUid()).child("Icon").getValue().toString(),
-//                                                "drawable", getPackageName());
-//                                        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), iconID);
-//                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-//                                        byte[] data = baos.toByteArray();
-//                                        storageReference.child(currentUser.getUid()).putBytes(data);
-//                                    }
                                 }
 
                                 @Override
@@ -325,9 +285,9 @@ public class LoginActivity extends AppCompatActivity implements
                                     setValue(mEmailField.getText().toString());
 
                             setUserAvatar(currentUser.getUid());
-
                             FirebaseMessaging.getInstance().subscribeToTopic(currentUser.getUid());
                             goToGraph(view);
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Toast toast = Toast.makeText(LoginActivity.this,
@@ -359,6 +319,7 @@ public class LoginActivity extends AppCompatActivity implements
         }
 
 
+        // Generating random avatar picture
         int indexOfImage = new Random().nextInt(50);
 
         int iconID = getResources().getIdentifier(animalFields.get(indexOfImage),

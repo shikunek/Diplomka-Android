@@ -14,10 +14,6 @@ public class Report
     public String reportedText;
     public int sendValue;
 
-    public Report()
-    {
-
-    }
     public Report(long Y, String reportedText, int sendValue)
     {
         this.Y = Y;

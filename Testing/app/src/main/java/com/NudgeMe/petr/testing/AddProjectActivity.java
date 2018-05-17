@@ -67,6 +67,7 @@ public class AddProjectActivity extends AppCompatActivity
         final DatabaseReference mData = FirebaseDatabase.getInstance().getReference();
         mRecyclerView.removeAllViews();
         userEmailTextset.clear();
+        // If some users were added, then show it
         if (getIntent().hasExtra("InvitedUsers"))
         {
             ArrayList<String> invitedUsers = getIntent().getStringArrayListExtra("InvitedUsers");
@@ -135,6 +136,7 @@ public class AddProjectActivity extends AppCompatActivity
                                 for (int i = 0; i < usersUID.size(); i++) {
                                     Report report = new Report(0, "", 0);
 
+                                    // Adding new project to Projects and User
                                     Map<String, Object> updatedUserData = new HashMap<>();
                                     updatedUserData.put("Projects/" + projectID + "/" +
                                             usersUID.get(i) + "/" + formattedDate , report);
@@ -150,7 +152,6 @@ public class AddProjectActivity extends AppCompatActivity
                                 }
                                 if (getIntent().hasExtra("firstProject"))
                                 {
-                                    // Nedavam finish() protoze by tim se spoustala divne nova aktivita
                                     Intent intent = new Intent(getApplicationContext(), GraphActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

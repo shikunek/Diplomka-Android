@@ -17,7 +17,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-
+// List of projects
 public class ProjectsActivity extends AppCompatActivity {
 
     DatabaseReference mData;
@@ -34,8 +34,6 @@ public class ProjectsActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_projects);
         getSupportActionBar().setTitle("Projects list");
-
-
 
         mData = FirebaseDatabase.getInstance().getReference();
         mData.keepSynced(true);

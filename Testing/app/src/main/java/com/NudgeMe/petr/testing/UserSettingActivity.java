@@ -102,17 +102,6 @@ public class UserSettingActivity extends AppCompatActivity {
                 .error(R.drawable.animal_ant_eater)
                 .into(profilePic);
 
-//        Button changeProfilePic = (Button) findViewById(R.id.changeImageButton);
-//        changeProfilePic.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view)
-//            {
-//                Intent intent = new Intent();
-//                intent.setType("image/*");
-//                intent.setAction(Intent.ACTION_GET_CONTENT);
-//                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
-//            }
-//        });
 
         profilePic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,6 +143,7 @@ public class UserSettingActivity extends AppCompatActivity {
         {
             filePath = data.getData();
             try {
+                // Saving image
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 profilePic.setImageBitmap(bitmap);
                 if(filePath != null)

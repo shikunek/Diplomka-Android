@@ -47,8 +47,6 @@ public class ProjectInfoActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
-    int userId = 0;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,11 +102,12 @@ public class ProjectInfoActivity extends AppCompatActivity {
         });
 
 
-
+        // Show all project information
         mData.child("Projects").child(intent.getExtras().getString("projectName")).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot choosenProject) {
 
+                        // If projectName has changed show the newest
                         if (intent.hasExtra("actualProjectName"))
                         {
                             projectName.setText(intent.getExtras().getString("actualProjectName"));
@@ -224,6 +223,7 @@ public class ProjectInfoActivity extends AppCompatActivity {
 
     }
 
+    // For calendar setting
     private void updateLabel(Calendar myCalendar, EditText edittext) {
         String myFormat = "yyyy-MM-dd"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMANY);
@@ -286,8 +286,6 @@ public class ProjectInfoActivity extends AppCompatActivity {
 
                 }
 
-//                final LinearLayout usersToSave = (LinearLayout) findViewById(R.id.usersLayout);
-
                     mData.child("Uzivatel").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot users) {
@@ -340,10 +338,6 @@ public class ProjectInfoActivity extends AppCompatActivity {
                                             calendar.add(Calendar.DATE, 1);
                                         }
 
-//                                        Report report = new Report(0, "", 0);
-//
-//                                        updatedUserData.put("Projects/" + projectID + "/" + user.getKey() +
-//                                                "/" + today, report);
                                         updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
                                                 "Projects" + "/" + projectID + "/" + "projectName", projectName
                                                 .getText().toString());
@@ -367,7 +361,7 @@ public class ProjectInfoActivity extends AppCompatActivity {
                                                     "Projects/" + projectID + "/" + "projectName" , null);
                                             updatedUserData.put("Uzivatel/" + user.getKey() + "/" +
                                                     "Active", null);
-                                            // Pokud se uzivatel rozhodl smazat aktualne vybrany projekt
+                                            // When user wants to delete active project
                                             if (user.child("Active").getValue().toString().equals(projectID) && user.hasChild("Projects"))
                                             {
                                                 for (DataSnapshot firstProject : user.child("Projects").getChildren())
@@ -399,7 +393,6 @@ public class ProjectInfoActivity extends AppCompatActivity {
 
                         }
                     });
-
 
             }
 
@@ -437,7 +430,7 @@ public class ProjectInfoActivity extends AppCompatActivity {
                 }
 
 
-                // pokud je na projektu jediny uzivatel tak je smazan cely
+                // When on project is only one user, then delete all project
                 mData.child("Projects").child(projectID).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot remainingUsers) {
@@ -452,7 +445,11 @@ public class ProjectInfoActivity extends AppCompatActivity {
                             }
                             i++;
                         }
-                        // <= je kvuli tomu, ze pokud existuje jeden uzivatel, tak je i == 1
+
+                        /* for not reading from database again, I use remainingUsers which contains deleted user
+                            so if in datashot is only one user and it is the one we deleted, then
+                            delete whole project
+                        */
                         if (i <= 1 && remainingUsers.hasChild(currentUser.getUid()))
                         {
                             updatedUserData.put("Projects/" + projectID + "/" + "projectName" , null);
@@ -460,7 +457,7 @@ public class ProjectInfoActivity extends AppCompatActivity {
                         }
 
 
-                        // Pokud se uzivatel rozhodl smazat aktualne vybrany projekt
+                        // When user wants to delete active project
                         if (projectID.equals(currentUsersData.child("Active").getValue().toString()) && currentUsersData.hasChild("Projects"))
                         {
                             for (DataSnapshot firstProject : currentUsersData.child("Projects").getChildren())
@@ -497,8 +494,7 @@ public class ProjectInfoActivity extends AppCompatActivity {
                 }
 
 
-                finish(); // aby uzivatel po stisknuti Back, nesel na jiz neexistujici projekt
-
+                finish();
             }
 
             @Override

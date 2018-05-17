@@ -587,6 +587,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                             @Override
                             public void onDataChange(final DataSnapshot dataSnapshot) {
 
+                                usersScrollView = (LinearLayout) findViewById(R.id.linearLayout1);
                                 if (!dataSnapshot.hasChild(user.getUid()))
                                 {
                                     lineChart = (LineChart) findViewById(R.id.lineChart);
@@ -607,7 +608,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                                 lineChart = (LineChart) findViewById(R.id.lineChart);
                                 ArrayList<ILineDataSet> dataSets = new ArrayList<>();
 
-                                if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE)
+                                if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE && usersScrollView != null)
                                 {
                                     usersScrollView.removeAllViews();
                                 }
@@ -622,7 +623,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 
                                     if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE)
                                     {
-                                        setAvatars(uzivatel.child("email").getValue().toString(), user.getKey(), dataSnapshot.getKey());
+                                        setAvatars(iUser, uzivatel.child("email").getValue().toString(), user.getKey(), dataSnapshot.getKey());
                                     }
 
                                     dataSets = someGraphSetting(iUser, user, dataSets);
@@ -814,11 +815,25 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
         return dataSets;
     }
 
-    public void setAvatars(final String email, final String userKey, final String projectKey)
+    public void setAvatars(int iUser, final String email, final String userKey, final String projectKey)
     {
 //        final ImageButton userOnProjectButton = new ImageButton(GraphActivity.this);
-        final CircleImageView userOnProjectButton = new CircleImageView(GraphActivity.this);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(usersScrollView.getHeight(), usersScrollView.getHeight());
+        LinearLayout.LayoutParams params = null;
+        usersScrollView = (LinearLayout) findViewById(R.id.linearLayout1);
+
+        if (getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE && usersScrollView == null)
+        {
+            setContentView(R.layout.activity_graph);
+            usersScrollView = (LinearLayout) findViewById(R.id.linearLayout1);
+            usersScrollView = (LinearLayout) findViewById(R.id.linearLayout1);
+        }
+
+        final CircleImageView userOnProjectButton = new CircleImageView(getApplicationContext());
+        if (usersScrollView != null)
+        {
+             params = new LinearLayout.LayoutParams(usersScrollView.getHeight(), usersScrollView.getHeight());
+        }
+
         int margin = 10;
 //        params.setMargins(margin, 0, margin, 0);
         params.gravity = Gravity.CENTER;
@@ -832,6 +847,34 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
 //            params.addRule(RelativeLayout.BELOW);
 //        }
         userOnProjectButton.setLayoutParams(params);
+        userOnProjectButton.setBorderWidth(12);
+        switch (iUser)
+        {
+            case 0: // Base_Red: #e57373, Miss_Red: #ffcdd2
+                userOnProjectButton.setBorderColor(Color.argb(255, 229, 115, 115));
+                break;
+            case 1: // Base_Light-Blue: #4fc3f7, Miss_Light-Blue: #b3e5fc
+                userOnProjectButton.setBorderColor(Color.argb(255, 79, 195, 247));
+                break;
+            case 2: // Base_Green: #81c784, Miss_Green: #c8e6c9
+                userOnProjectButton.setBorderColor(Color.argb(255, 129, 199, 132));
+                break;
+            case 3: // Base_Purple: #ba68c8, Miss_Purple: #e1bee7
+                userOnProjectButton.setBorderColor(Color.argb(255, 186, 104, 200));
+                break;
+
+            case 4:
+                userOnProjectButton.setBorderColor(Color.argb(255, 249, 249, 6));
+                break;
+
+            case 5:
+                userOnProjectButton.setBorderColor(Color.argb(255, 255, 119, 250));
+                break;
+            default:
+                userOnProjectButton.setBorderColor(Color.BLUE);
+                break;
+        }
+
 //        userOnProjectButton.setBackgroundResource(R.drawable.round_button_blue);
 //        Drawable drw = userOnProjectButton.getBackground();
 
@@ -843,28 +886,7 @@ public class GraphActivity extends AppCompatActivity implements NavigationView.O
                 .error(R.drawable.animal_ant_eater)
                 .into(userOnProjectButton);
 
-//        Glide.with(getApplicationContext())
-//                .using(new FirebaseImageLoader())
-//                .load(storageReference.child(userKey))
-//                .asBitmap()
-//                .diskCacheStrategy(DiskCacheStrategy.NONE)
-//                .skipMemoryCache(true)
-//                .into(new SimpleTarget< Bitmap >() {
-//                    @Override
-//                    public void onResourceReady(Bitmap resource, GlideAnimation< ? super Bitmap > glideAnimation) {
-//                        Drawable drawable = new BitmapDrawable(getResources(),resource);
-////                        userOnProjectButton.setImageDrawable(drawable);
-//                        userOnProjectButton.setImageBitmap(resource);
-//
-//                    }
-//
-//                    @Override
-//                    public void onLoadFailed(Exception e, Drawable errorDrawable) {
-//                        // you are given the error drawable
-//                        userOnProjectButton.setImageResource(R.drawable.animal_ant_eater);
-//                    }
-//
-//                });
+
 
         userOnProjectButton.setPadding(20, 20, 20, 20);
         userOnProjectButton.setTag(userKey);
